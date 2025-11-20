@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "dev.sfafy.pinchat.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ChatHudAccessor",
+    "ChatScreenAccessor",
+    "ChatScreenMixin",
+    "PinChatKeyBindingAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
