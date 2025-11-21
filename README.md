@@ -1,6 +1,6 @@
 # PinChat
 
-[![Build Status](https://github.com/ivanmikhaylov1/PinChatMod/actions/workflows/build.yml/badge.svg)](https://github.com/yourusername/PinChatMod/actions)
+[![Build Status](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/build.yml/badge.svg)](https://github.com/yourusername/PinChatMod/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Minecraft](https://img.shields.io/badge/minecraft-1.21+-brightgreen.svg)](https://www.minecraft.net/)
 [![Fabric](https://img.shields.io/badge/modloader-Fabric-blue.svg)](https://fabricmc.net/)
@@ -75,8 +75,8 @@ visibility while playing.
 ## Building from Source
 
 ```bash
-git clone https://github.com/ivanmikhaylov1/PinChatMod.git
-cd PinChatMod
+git clone https://github.com/ivanmikhaylov1/pinchat-mod.git
+cd pinchat-mod
 ./gradlew build
 ```
 
