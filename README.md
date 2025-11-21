@@ -1,6 +1,6 @@
 # PinChat
 
-[![Build Status](https://github.com/yourusername/PinChatMod/actions/workflows/build.yml/badge.svg)](https://github.com/yourusername/PinChatMod/actions)
+[![Build Status](https://github.com/ivanmikhaylov1/PinChatMod/actions/workflows/build.yml/badge.svg)](https://github.com/yourusername/PinChatMod/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Minecraft](https://img.shields.io/badge/minecraft-1.21+-brightgreen.svg)](https://www.minecraft.net/)
 [![Fabric](https://img.shields.io/badge/modloader-Fabric-blue.svg)](https://fabricmc.net/)
