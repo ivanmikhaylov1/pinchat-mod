@@ -75,7 +75,7 @@ visibility while playing.
 ## Building from Source
 
 ```bash
-git clone https://github.com/yourusername/PinChatMod.git
+git clone https://github.com/ivanmikhaylov1/PinChatMod.git
 cd PinChatMod
 ./gradlew build
 ```
