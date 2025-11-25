@@ -14,7 +14,6 @@ visibility while playing.
 
 - Right-click on any chat message to pin/unpin it
 - Pinned messages display persistently on your HUD
-- Smart pinning: automatically handles duplicate messages with different counts (e.g., "Hello (2)" and "Hello (3)")
 - Configurable maximum number of pinned messages
 - Configurable maximum line width for pinned messages
 
@@ -23,7 +22,7 @@ visibility while playing.
 - Open a special chat mode where you can move while typing (default: `U`)
 - Look around freely with your mouse while the chat is open
 - Smooth movement transitions - no abrupt stops when opening/closing chat
-- Configurable mouse sensitivity for chat mode (default: 3.0x)
+- Configurable mouse sensitivity for chat mode
 
 ### ⚙️ Configuration
 
