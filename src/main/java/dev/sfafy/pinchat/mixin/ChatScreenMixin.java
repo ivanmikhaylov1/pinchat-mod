@@ -26,6 +26,42 @@ public class ChatScreenMixin {
     double mouseX = click.x();
     double mouseY = click.y();
 
+    int startX = dev.sfafy.pinchat.config.PinChatConfigMalilib.PINNED_X.getIntegerValue();
+    int startY = dev.sfafy.pinchat.config.PinChatConfigMalilib.PINNED_Y.getIntegerValue();
+    double scale = dev.sfafy.pinchat.config.PinChatConfigMalilib.PINNED_SCALE.getDoubleValue();
+    int lineHeight = 12;
+
+    if (!PinnedMessages.pinnedList.isEmpty()) {
+      for (int i = 0; i < PinnedMessages.pinnedList.size(); i++) {
+        int rowY = i * lineHeight;
+        double top = startY + (rowY - 2) * scale;
+        double bottom = startY + (rowY + 8) * scale;
+
+        if (mouseY >= top && mouseY <= bottom) {
+          if (i < PinnedMessages.pinnedList.size()) {
+            Text msg = PinnedMessages.pinnedList.get(i);
+
+            int maxWidth = dev.sfafy.pinchat.config.PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
+            net.minecraft.text.StringVisitable trimmed = MinecraftClient.getInstance().textRenderer.trimToWidth(msg,
+                maxWidth);
+            net.minecraft.text.OrderedText renderedText = net.minecraft.util.Language.getInstance().reorder(trimmed);
+            int msgWidth = MinecraftClient.getInstance().textRenderer.getWidth(renderedText);
+
+            double localX = (mouseX - startX) / scale;
+
+            if (localX >= -2 && localX <= msgWidth + 2) {
+              PinnedMessages.pinnedList.remove(i);
+              dev.sfafy.pinchat.config.PinChatConfigMalilib.saveConfig();
+              MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
+                  .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
+              cir.setReturnValue(true);
+              return;
+            }
+          }
+        }
+      }
+    }
+
     MinecraftClient client = MinecraftClient.getInstance();
     ChatHud chatHud = client.inGameHud.getChatHud();
 

@@ -33,7 +33,8 @@ public class PinChatConfigGui extends GuiConfigsBase {
 
     int editBtnWidth = 100;
     int editBtnX = this.width - editBtnWidth - 10;
-    ButtonGeneric editPosBtn = new ButtonGeneric(editBtnX, y, editBtnWidth, 20, "Edit Position");
+    ButtonGeneric editPosBtn = new ButtonGeneric(editBtnX, y, editBtnWidth, 20,
+        StringUtils.translate("pinchat.gui.button.editPosition"));
     this.addButton(editPosBtn, (b, mouseButton) -> {
       if (this.client != null) {
         this.client.setScreen(new PositionEditScreen(this));
@@ -77,8 +78,8 @@ public class PinChatConfigGui extends GuiConfigsBase {
   }
 
   public enum ConfigTab {
-    GENERIC("Generic"),
-    HOTKEYS("Hotkeys");
+    GENERIC("pinchat.config.tab.generic"),
+    HOTKEYS("pinchat.config.tab.hotkeys");
 
     private final String name;
 
