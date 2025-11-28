@@ -16,11 +16,21 @@ public class PinChatConfigMalilib implements IConfigHandler {
       "Maximum width of pinned messages in pixels");
   public static final ConfigDouble CHAT_SENSITIVITY = new ConfigDouble("chatSensitivity", 3.0, 0.1, 10.0,
       "Mouse sensitivity multiplier in chat mode");
+  public static final ConfigInteger PINNED_X = new ConfigInteger("pinnedX", 10, 0, 10000,
+      "X coordinate of pinned messages");
+  public static final ConfigInteger PINNED_Y = new ConfigInteger("pinnedY", 10, 0, 10000,
+      "Y coordinate of pinned messages");
+  public static final ConfigDouble PINNED_SCALE = new ConfigDouble("pinnedScale", 1.0, 0.5, 3.0,
+      "Scale of pinned messages");
 
   public static final List<IConfigBase> OPTIONS = ImmutableList.of(
       MAX_PINNED_MESSAGES,
       MAX_LINE_WIDTH,
-      CHAT_SENSITIVITY);
+      MAX_LINE_WIDTH,
+      CHAT_SENSITIVITY,
+      PINNED_X,
+      PINNED_Y,
+      PINNED_SCALE);
 
   public static void loadConfig() {
     File configFile = new File(net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().toFile(),
@@ -37,6 +47,15 @@ public class PinChatConfigMalilib implements IConfigHandler {
         if (json.has("chatSensitivity")) {
           CHAT_SENSITIVITY.setDoubleValue(json.get("chatSensitivity").getAsDouble());
         }
+        if (json.has("pinnedX")) {
+          PINNED_X.setIntegerValue(json.get("pinnedX").getAsInt());
+        }
+        if (json.has("pinnedY")) {
+          PINNED_Y.setIntegerValue(json.get("pinnedY").getAsInt());
+        }
+        if (json.has("pinnedScale")) {
+          PINNED_SCALE.setDoubleValue(json.get("pinnedScale").getAsDouble());
+        }
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -51,6 +70,9 @@ public class PinChatConfigMalilib implements IConfigHandler {
       json.addProperty("maxPinnedMessages", MAX_PINNED_MESSAGES.getIntegerValue());
       json.addProperty("maxLineWidth", MAX_LINE_WIDTH.getIntegerValue());
       json.addProperty("chatSensitivity", CHAT_SENSITIVITY.getDoubleValue());
+      json.addProperty("pinnedX", PINNED_X.getIntegerValue());
+      json.addProperty("pinnedY", PINNED_Y.getIntegerValue());
+      json.addProperty("pinnedScale", PINNED_SCALE.getDoubleValue());
 
       com.google.gson.Gson gson = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
       gson.toJson(json, writer);

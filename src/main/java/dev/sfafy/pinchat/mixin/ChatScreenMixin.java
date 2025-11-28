@@ -47,35 +47,35 @@ public class ChatScreenMixin {
     int chatWidth = chatHud.getWidth();
 
     if (chatX >= 0 && chatX <= chatWidth / chatScale && lineIndex >= 0 && lineIndex < visibleMessages.size()) {
-        ChatHudLine.Visible visibleLine = visibleMessages.get(lineIndex);
+      ChatHudLine.Visible visibleLine = visibleMessages.get(lineIndex);
 
-        int creationTick = visibleLine.addedTime();
+      int creationTick = visibleLine.addedTime();
 
-        List<ChatHudLine> messages = ((ChatHudAccessor) chatHud).getMessages();
-        Text messageContent = null;
+      List<ChatHudLine> messages = ((ChatHudAccessor) chatHud).getMessages();
+      Text messageContent = null;
 
-        for (ChatHudLine message : messages) {
-          if (message.creationTick() == creationTick) {
-            messageContent = message.content();
-            break;
-          }
-        }
-
-        if (messageContent != null) {
-          PinnedMessages.toggle(messageContent);
-
-          if (client.player != null) {
-            client.player.playSound(
-                net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK.value(),
-                0.5f,
-                1.0f);
-          }
-
-          cir.setReturnValue(true);
-        } else {
-          PinChatMod.LOGGER.warn("Could not find matching ChatHudLine for visible line with tick {}", creationTick);
+      for (ChatHudLine message : messages) {
+        if (message.creationTick() == creationTick) {
+          messageContent = message.content();
+          break;
         }
       }
+
+      if (messageContent != null) {
+        PinnedMessages.toggle(messageContent);
+
+        if (client.player != null) {
+          client.player.playSound(
+              net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK.value(),
+              0.5f,
+              1.0f);
+        }
+
+        cir.setReturnValue(true);
+      } else {
+        PinChatMod.LOGGER.warn("Could not find matching ChatHudLine for visible line with tick {}", creationTick);
+      }
+    }
 
   }
 }
