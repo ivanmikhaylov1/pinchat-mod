@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "pinchat",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "name": "Pin Chat Messages",
   "description": "Allows pinning chat messages to the HUD with Right Click.",
   "authors": [
@@ -19,7 +19,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.17.3",
-    "minecraft": "~1.21.1",
+    "minecraft": "~1.21.10",
     "java": ">=21",
     "fabric-api": "*",
     "malilib": "*"

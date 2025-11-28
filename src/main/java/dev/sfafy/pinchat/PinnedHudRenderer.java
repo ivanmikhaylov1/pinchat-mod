@@ -22,20 +22,28 @@ public class PinnedHudRenderer implements HudRenderCallback {
 
     int startX = PinChatConfigMalilib.PINNED_X.getIntegerValue();
     int startY = PinChatConfigMalilib.PINNED_Y.getIntegerValue();
+    float scale = (float) PinChatConfigMalilib.PINNED_SCALE.getDoubleValue();
     int lineHeight = 12;
+
+    var matrices = context.getMatrices();
+    matrices.pushMatrix();
+    matrices.translate((float) startX, (float) startY);
+    matrices.scale(scale, scale);
 
     for (int i = 0; i < PinnedMessages.pinnedList.size(); i++) {
       Text msg = PinnedMessages.pinnedList.get(i);
-      int y = startY + (i * lineHeight);
+      int y = i * lineHeight;
 
       int maxWidth = PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
       net.minecraft.text.StringVisitable trimmed = client.textRenderer.trimToWidth(msg, maxWidth);
       net.minecraft.text.OrderedText renderedText = net.minecraft.util.Language.getInstance().reorder(trimmed);
       int width = client.textRenderer.getWidth(renderedText);
 
-      context.fill(startX - 2, y - 2, startX + width + 2, y + 8, 0x80000000);
+      context.fill(-2, y - 2, width + 2, y + 8, 0x80000000);
 
-      context.drawText(client.textRenderer, renderedText, startX, y, 0xFFFFFFFF, true);
+      context.drawText(client.textRenderer, renderedText, 0, y, 0xFFFFFFFF, true);
     }
+
+    matrices.popMatrix();
   }
 }
