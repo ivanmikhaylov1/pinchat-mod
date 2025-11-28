@@ -16,7 +16,6 @@ public class PinChatCommand {
                 gui.setParent(MinecraftClient.getInstance().currentScreen);
                 fi.dy.masa.malilib.gui.GuiBase.openGui(gui);
               });
-
               return 1;
             })
         )

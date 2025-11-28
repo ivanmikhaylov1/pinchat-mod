@@ -20,8 +20,8 @@ public class PinnedHudRenderer implements HudRenderCallback {
     if (client.options.hudHidden || PinnedMessages.pinnedList.isEmpty())
       return;
 
-    int startX = 10;
-    int startY = 10;
+    int startX = PinChatConfigMalilib.PINNED_X.getIntegerValue();
+    int startY = PinChatConfigMalilib.PINNED_Y.getIntegerValue();
     int lineHeight = 12;
 
     for (int i = 0; i < PinnedMessages.pinnedList.size(); i++) {

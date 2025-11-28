@@ -91,8 +91,8 @@ public class MoveableChatScreen extends ChatScreen {
     }
 
     if (isPressed && !wasCloseKeyPressed && timeOpened > 5) {
-        this.close();
-      }
+      this.close();
+    }
 
 
     wasCloseKeyPressed = isPressed;
