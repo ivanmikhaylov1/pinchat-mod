@@ -22,7 +22,7 @@ public class PinnedHudRenderer implements HudRenderCallback {
 
     int startX = PinChatConfigMalilib.PINNED_X.getIntegerValue();
     int startY = PinChatConfigMalilib.PINNED_Y.getIntegerValue();
-    float scale = (float) PinChatConfigMalilib.PINNED_SCALE.getDoubleValue();
+
     int lineHeight = 12;
 
     var matrices = context.getMatrices();

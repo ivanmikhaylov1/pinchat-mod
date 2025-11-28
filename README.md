@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/build.yml/badge.svg)](https://github.com/yourusername/PinChatMod/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Minecraft](https://img.shields.io/badge/minecraft-1.21+-brightgreen.svg)](https://www.minecraft.net/)
+[![Minecraft](https://img.shields.io/badge/minecraft-1.21.10-brightgreen.svg)](https://www.minecraft.net/)
 [![Fabric](https://img.shields.io/badge/modloader-Fabric-blue.svg)](https://fabricmc.net/)
 
 A Minecraft Fabric mod that enhances chat functionality with message pinning and a moveable chat screen for better
@@ -33,7 +33,7 @@ visibility while playing.
 
 ## Requirements
 
-- **Minecraft**: 1.21+
+- **Minecraft**: 1.21.10
 - **Fabric Loader**: Latest
 - **Fabric API**: Latest
 - **MaLiLib**: 0.26.3+

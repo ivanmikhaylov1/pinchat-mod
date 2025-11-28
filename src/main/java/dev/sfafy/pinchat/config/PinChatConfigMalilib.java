@@ -15,13 +15,13 @@ public class PinChatConfigMalilib implements IConfigHandler {
   public static final ConfigInteger MAX_LINE_WIDTH = new ConfigInteger("maxLineWidth", 200, 50, 1000,
       "pinchat.config.maxLineWidth.comment");
   public static final ConfigDouble CHAT_SENSITIVITY = new ConfigDouble("chatSensitivity", 3.0, 0.1, 10.0,
-      "pinchat.config.chatSensitivity.comment");
+      "Mouse sensitivity multiplier in chat mode");
   public static final ConfigInteger PINNED_X = new ConfigInteger("pinnedX", 10, 0, 10000,
-      "pinchat.config.pinnedX.comment");
+      "X coordinate of pinned messages");
   public static final ConfigInteger PINNED_Y = new ConfigInteger("pinnedY", 10, 0, 10000,
-      "pinchat.config.pinnedY.comment");
+      "Y coordinate of pinned messages");
   public static final ConfigDouble PINNED_SCALE = new ConfigDouble("pinnedScale", 1.0, 0.5, 3.0,
-      "pinchat.config.pinnedScale.comment");
+      "Scale of pinned messages");
 
   public static final List<IConfigBase> OPTIONS = ImmutableList.of(
       MAX_PINNED_MESSAGES,

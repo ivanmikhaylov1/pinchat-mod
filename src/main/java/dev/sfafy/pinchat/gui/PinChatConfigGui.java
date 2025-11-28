@@ -33,8 +33,7 @@ public class PinChatConfigGui extends GuiConfigsBase {
 
     int editBtnWidth = 100;
     int editBtnX = this.width - editBtnWidth - 10;
-    ButtonGeneric editPosBtn = new ButtonGeneric(editBtnX, y, editBtnWidth, 20,
-        StringUtils.translate("pinchat.gui.button.editPosition"));
+    ButtonGeneric editPosBtn = new ButtonGeneric(editBtnX, y, editBtnWidth, 20, "Edit Position");
     this.addButton(editPosBtn, (b, mouseButton) -> {
       if (this.client != null) {
         this.client.setScreen(new PositionEditScreen(this));
