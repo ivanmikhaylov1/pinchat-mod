@@ -6,9 +6,10 @@ import fi.dy.masa.malilib.config.options.ConfigHotkey;
 import fi.dy.masa.malilib.hotkeys.*;
 
 public class PinChatInputHandler implements IKeybindProvider, IHotkeyCallback {
-  public static final ConfigHotkey OPEN_CONFIG_GUI = new ConfigHotkey("openConfigGui", "P,C", "Open the Config GUI");
+  public static final ConfigHotkey OPEN_CONFIG_GUI = new ConfigHotkey("openConfigGui", "P,C",
+      "pinchat.hotkey.openConfig");
   public static final ConfigHotkey OPEN_MOVEABLE_CHAT = new ConfigHotkey("openMoveableChat", "U",
-      "Open Moveable Chat");
+      "pinchat.hotkey.openMoveableChat");
   private static final PinChatInputHandler INSTANCE = new PinChatInputHandler();
 
   public static PinChatInputHandler getInstance() {
