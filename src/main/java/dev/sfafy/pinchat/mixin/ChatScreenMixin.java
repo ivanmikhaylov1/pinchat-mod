@@ -26,20 +26,25 @@ public class ChatScreenMixin {
     double mouseX = click.x();
     double mouseY = click.y();
 
-    int startX = dev.sfafy.pinchat.config.PinChatConfigMalilib.PINNED_X.getIntegerValue();
-    int startY = dev.sfafy.pinchat.config.PinChatConfigMalilib.PINNED_Y.getIntegerValue();
-    double scale = dev.sfafy.pinchat.config.PinChatConfigMalilib.PINNED_SCALE.getDoubleValue();
     int lineHeight = 12;
 
-    if (!PinnedMessages.pinnedList.isEmpty()) {
-      for (int i = 0; i < PinnedMessages.pinnedList.size(); i++) {
-        int rowY = i * lineHeight;
-        double top = startY + (rowY - 2) * scale;
-        double bottom = startY + (rowY + 8) * scale;
+    if (!PinnedMessages.groups.isEmpty()) {
+      for (dev.sfafy.pinchat.MessageGroup group : PinnedMessages.groups) {
+        if (group.messages.isEmpty())
+          continue;
 
-        if (mouseY >= top && mouseY <= bottom) {
-          if (i < PinnedMessages.pinnedList.size()) {
-            Text msg = PinnedMessages.pinnedList.get(i);
+        int startX = group.x;
+        int startY = group.y;
+        double scale = group.scale;
+
+        for (int i = 0; i < group.messages.size(); i++) {
+          int rowY = i * lineHeight;
+          double top = startY + (rowY - 2) * scale;
+          double bottom = startY + (rowY + 8) * scale;
+
+          if (mouseY >= top && mouseY <= bottom) {
+            String msgContent = group.messages.get(i);
+            Text msg = Text.of(msgContent);
 
             int maxWidth = dev.sfafy.pinchat.config.PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
             net.minecraft.text.StringVisitable trimmed = MinecraftClient.getInstance().textRenderer.trimToWidth(msg,
@@ -50,7 +55,7 @@ public class ChatScreenMixin {
             double localX = (mouseX - startX) / scale;
 
             if (localX >= -2 && localX <= msgWidth + 2) {
-              PinnedMessages.pinnedList.remove(i);
+              group.messages.remove(i);
               dev.sfafy.pinchat.config.PinChatConfigMalilib.saveConfig();
               MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
                   .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
@@ -98,7 +103,12 @@ public class ChatScreenMixin {
       }
 
       if (messageContent != null) {
-        PinnedMessages.toggle(messageContent);
+        if (PinnedMessages.groups.size() > 1) {
+          MinecraftClient.getInstance().setScreen(new dev.sfafy.pinchat.gui.GroupSelectionScreen(client.currentScreen,
+              messageContent, (int) mouseX, (int) mouseY));
+        } else {
+          PinnedMessages.toggle(messageContent);
+        }
 
         if (client.player != null) {
           client.player.playSound(

@@ -1,12 +1,18 @@
 package dev.sfafy.pinchat.config;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.*;
+import dev.sfafy.pinchat.MessageGroup;
+import dev.sfafy.pinchat.PinnedMessages;
 import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.config.options.ConfigDouble;
 import fi.dy.masa.malilib.config.options.ConfigInteger;
+import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.List;
 
 public class PinChatConfigMalilib implements IConfigHandler {
@@ -33,11 +39,11 @@ public class PinChatConfigMalilib implements IConfigHandler {
       PINNED_SCALE);
 
   public static void loadConfig() {
-    File configFile = new File(net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().toFile(),
+    File configFile = new File(FabricLoader.getInstance().getConfigDir().toFile(),
         "pinchat.json");
     if (configFile.exists()) {
-      try (java.io.FileReader reader = new java.io.FileReader(configFile)) {
-        com.google.gson.JsonObject json = com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();
+      try (FileReader reader = new FileReader(configFile)) {
+        JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
         if (json.has("maxPinnedMessages")) {
           MAX_PINNED_MESSAGES.setIntegerValue(json.get("maxPinnedMessages").getAsInt());
         }
@@ -47,15 +53,39 @@ public class PinChatConfigMalilib implements IConfigHandler {
         if (json.has("chatSensitivity")) {
           CHAT_SENSITIVITY.setDoubleValue(json.get("chatSensitivity").getAsDouble());
         }
-        if (json.has("pinnedX")) {
-          PINNED_X.setIntegerValue(json.get("pinnedX").getAsInt());
+
+        PinnedMessages.groups.clear();
+        if (json.has("groups")) {
+          JsonArray groupsArray = json.getAsJsonArray("groups");
+          for (JsonElement element : groupsArray) {
+            JsonObject groupObj = element.getAsJsonObject();
+            String name = groupObj.get("name").getAsString();
+            int x = groupObj.get("x").getAsInt();
+            int y = groupObj.get("y").getAsInt();
+            double scale = groupObj.get("scale").getAsDouble();
+
+            MessageGroup group = new MessageGroup(name, x, y, scale);
+
+            if (groupObj.has("messages")) {
+              JsonArray messagesArray = groupObj.getAsJsonArray("messages");
+              for (JsonElement msgElement : messagesArray) {
+                group.messages.add(msgElement.getAsString());
+              }
+            }
+
+            PinnedMessages.groups.add(group);
+          }
+        } else {
+          if (json.has("pinnedX") && json.has("pinnedY") && json.has("pinnedScale")) {
+
+            int x = json.get("pinnedX").getAsInt();
+            int y = json.get("pinnedY").getAsInt();
+            double scale = json.get("pinnedScale").getAsDouble();
+            PinnedMessages.groups
+                .add(new MessageGroup("Default Group", x, y, scale));
+          }
         }
-        if (json.has("pinnedY")) {
-          PINNED_Y.setIntegerValue(json.get("pinnedY").getAsInt());
-        }
-        if (json.has("pinnedScale")) {
-          PINNED_SCALE.setDoubleValue(json.get("pinnedScale").getAsDouble());
-        }
+
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -63,18 +93,33 @@ public class PinChatConfigMalilib implements IConfigHandler {
   }
 
   public static void saveConfig() {
-    File configFile = new File(net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().toFile(),
+    File configFile = new File(FabricLoader.getInstance().getConfigDir().toFile(),
         "pinchat.json");
-    try (java.io.FileWriter writer = new java.io.FileWriter(configFile)) {
-      com.google.gson.JsonObject json = new com.google.gson.JsonObject();
+    try (FileWriter writer = new FileWriter(configFile)) {
+      JsonObject json = new JsonObject();
       json.addProperty("maxPinnedMessages", MAX_PINNED_MESSAGES.getIntegerValue());
       json.addProperty("maxLineWidth", MAX_LINE_WIDTH.getIntegerValue());
       json.addProperty("chatSensitivity", CHAT_SENSITIVITY.getDoubleValue());
-      json.addProperty("pinnedX", PINNED_X.getIntegerValue());
-      json.addProperty("pinnedY", PINNED_Y.getIntegerValue());
-      json.addProperty("pinnedScale", PINNED_SCALE.getDoubleValue());
 
-      com.google.gson.Gson gson = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+      JsonArray groupsArray = new JsonArray();
+      for (MessageGroup group : PinnedMessages.groups) {
+        JsonObject groupObj = new JsonObject();
+        groupObj.addProperty("name", group.name);
+        groupObj.addProperty("x", group.x);
+        groupObj.addProperty("y", group.y);
+        groupObj.addProperty("scale", group.scale);
+
+        JsonArray messagesArray = new JsonArray();
+        for (String msg : group.messages) {
+          messagesArray.add(msg);
+        }
+        groupObj.add("messages", messagesArray);
+
+        groupsArray.add(groupObj);
+      }
+      json.add("groups", groupsArray);
+
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
       gson.toJson(json, writer);
     } catch (Exception e) {
       e.printStackTrace();

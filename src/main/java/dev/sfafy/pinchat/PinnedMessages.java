@@ -10,8 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PinnedMessages {
-
-  public static final List<Text> pinnedList = new ArrayList<>();
+  public static final List<MessageGroup> groups = new ArrayList<>();
 
   private static final Pattern COUNT_PATTERN = Pattern.compile(" \\(\\d+\\)$");
 
@@ -23,32 +22,52 @@ public class PinnedMessages {
     return text;
   }
 
-  public static void toggle(Text message) {
+  public static MessageGroup getOrCreateDefaultGroup() {
+    if (groups.isEmpty()) {
+      int x = PinChatConfigMalilib.PINNED_X.getIntegerValue();
+      int y = PinChatConfigMalilib.PINNED_Y.getIntegerValue();
+      double scale = PinChatConfigMalilib.PINNED_SCALE.getDoubleValue();
+      groups.add(new MessageGroup("Default Group", x, y, scale));
+    }
+    return groups.getFirst();
+  }
+
+  public static void toggle(Text message, MessageGroup targetGroup) {
+    if (targetGroup == null) {
+      targetGroup = getOrCreateDefaultGroup();
+    }
+
     String newContent = message.getString();
     String normalizedNew = normalize(newContent);
 
-    Text existingMatch = null;
-    for (Text pinned : pinnedList) {
-      if (normalize(pinned.getString()).equals(normalizedNew)) {
+    String existingMatch = null;
+    for (String pinned : targetGroup.messages) {
+      if (normalize(pinned).equals(normalizedNew)) {
         existingMatch = pinned;
         break;
       }
     }
 
     if (existingMatch != null) {
-
-      pinnedList.remove(existingMatch);
+      targetGroup.messages.remove(existingMatch);
     } else {
-
-      if (pinnedList.size() >= PinChatConfigMalilib.MAX_PINNED_MESSAGES.getIntegerValue()) {
+      if (targetGroup.messages.size() >= PinChatConfigMalilib.MAX_PINNED_MESSAGES.getIntegerValue()) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player != null) {
           client.player.sendMessage(Text.of("§cPinChat: Maximum number of pinned messages reached ("
               + PinChatConfigMalilib.MAX_PINNED_MESSAGES.getIntegerValue() + ")"), false);
         }
+
         return;
       }
-      pinnedList.add(message);
+
+      targetGroup.messages.add(newContent);
     }
+
+    PinChatConfigMalilib.saveConfig();
+  }
+
+  public static void toggle(Text message) {
+    toggle(message, null);
   }
 }
