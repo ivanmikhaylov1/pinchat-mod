@@ -115,6 +115,7 @@ public class PositionEditScreen extends Screen {
         context.drawText(this.textRenderer, msg, 0, y, 0xFFFFFFFF, true);
       }
     }
+    matrices.popMatrix();
 
     matrices.popMatrix();
 
