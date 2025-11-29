@@ -180,10 +180,8 @@ public class PositionEditScreen extends Screen {
           lastRightClickTime = 0;
           return true;
         }
-
         lastRightClickTime = currentTime;
       }
-
       return false;
     }
 
