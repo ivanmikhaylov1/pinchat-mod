@@ -8,6 +8,7 @@ public class MessageGroup {
   public int x;
   public int y;
   public double scale;
+  public boolean isCollapsed = false;
   public List<String> messages;
 
   public MessageGroup(String name, int x, int y, double scale) {

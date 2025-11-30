@@ -20,7 +20,8 @@ public class ChatScreenMixin {
 
   @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
   private void onMouseClicked(Click click, boolean isRightClick, CallbackInfoReturnable<Boolean> cir) {
-    if (click.buttonInfo().button() != 1)
+    int button = click.buttonInfo().button();
+    if (button != 0 && button != 1)
       return;
 
     double mouseX = click.x();
@@ -37,35 +38,66 @@ public class ChatScreenMixin {
         int startY = group.y;
         double scale = group.scale;
 
-        for (int i = 0; i < group.messages.size(); i++) {
-          int rowY = i * lineHeight;
-          double top = startY + (rowY - 2) * scale;
-          double bottom = startY + (rowY + 8) * scale;
+        if (button == 0) {
+          String indicator = group.isCollapsed ? "▶" : "▼";
+          int nameWidth = MinecraftClient.getInstance().textRenderer.getWidth(Text.of(indicator + " " + group.name));
 
-          if (mouseY >= top && mouseY <= bottom) {
-            String msgContent = group.messages.get(i);
-            Text msg = Text.of(msgContent);
+          double headerLocalX = 0;
+          double headerLocalY = -12;
+          double headerWidth = nameWidth;
+          double headerHeight = 12;
 
-            int maxWidth = dev.sfafy.pinchat.config.PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
-            net.minecraft.text.StringVisitable trimmed = MinecraftClient.getInstance().textRenderer.trimToWidth(msg,
-                maxWidth);
-            net.minecraft.text.OrderedText renderedText = net.minecraft.util.Language.getInstance().reorder(trimmed);
-            int msgWidth = MinecraftClient.getInstance().textRenderer.getWidth(renderedText);
+          double globalX = startX + headerLocalX * scale;
+          double globalY = startY + headerLocalY * scale;
+          double globalWidth = headerWidth * scale;
+          double globalHeight = headerHeight * scale;
 
-            double localX = (mouseX - startX) / scale;
+          if (mouseX >= globalX && mouseX <= globalX + globalWidth &&
+              mouseY >= globalY && mouseY <= globalY + globalHeight) {
 
-            if (localX >= -2 && localX <= msgWidth + 2) {
-              group.messages.remove(i);
-              dev.sfafy.pinchat.config.PinChatConfigMalilib.saveConfig();
-              MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
-                  .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
-              cir.setReturnValue(true);
-              return;
+            group.isCollapsed = !group.isCollapsed;
+            dev.sfafy.pinchat.config.PinChatConfigMalilib.saveConfig();
+            MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
+                .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            cir.setReturnValue(true);
+            return;
+          }
+        }
+
+        if (button == 1 && !group.isCollapsed) {
+          for (int i = 0; i < group.messages.size(); i++) {
+            int rowY = i * lineHeight;
+            double top = startY + (rowY - 2) * scale;
+            double bottom = startY + (rowY + 8) * scale;
+
+            if (mouseY >= top && mouseY <= bottom) {
+              String msgContent = group.messages.get(i);
+              Text msg = Text.of(msgContent);
+
+              int maxWidth = dev.sfafy.pinchat.config.PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
+              net.minecraft.text.StringVisitable trimmed = MinecraftClient.getInstance().textRenderer.trimToWidth(msg,
+                  maxWidth);
+              net.minecraft.text.OrderedText renderedText = net.minecraft.util.Language.getInstance().reorder(trimmed);
+              int msgWidth = MinecraftClient.getInstance().textRenderer.getWidth(renderedText);
+
+              double localX = (mouseX - startX) / scale;
+
+              if (localX >= -2 && localX <= msgWidth + 2) {
+                group.messages.remove(i);
+                dev.sfafy.pinchat.config.PinChatConfigMalilib.saveConfig();
+                MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
+                    .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                cir.setReturnValue(true);
+                return;
+              }
             }
           }
         }
       }
     }
+
+    if (button != 1)
+      return;
 
     MinecraftClient client = MinecraftClient.getInstance();
     ChatHud chatHud = client.inGameHud.getChatHud();

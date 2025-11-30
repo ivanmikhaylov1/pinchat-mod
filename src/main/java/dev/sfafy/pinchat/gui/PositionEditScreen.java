@@ -91,38 +91,42 @@ public class PositionEditScreen extends Screen {
       context.fill(-2, -2, width + 2, lineHeight + 2, 0x80000000);
       context.drawText(this.textRenderer, dummy, 0, 0, 0xFFFFFFFF, true);
 
-      context.drawText(this.textRenderer, Text.of(group.name), 0, -12, 0xFFAAAAAA, true);
+      String indicator = group.isCollapsed ? "▶" : "▼";
+      Text headerText = Text.of(indicator + " " + group.name);
+      context.drawText(this.textRenderer, headerText, 0, -12, 0xFFAAAAAA, true);
 
       if (PinnedMessages.groups.size() > 1) {
-        context.drawText(this.textRenderer, Text.of("[x]"), this.textRenderer.getWidth(Text.of(group.name)) + 4, -12,
+        context.drawText(this.textRenderer, Text.of("[x]"), this.textRenderer.getWidth(headerText) + 4, -12,
             0xFFFF5555, true);
       }
     } else {
-      context.drawText(this.textRenderer, Text.of(group.name), 0, -12, 0xFFAAAAAA, true);
+      String indicator = group.isCollapsed ? "▶" : "▼";
+      Text headerText = Text.of(indicator + " " + group.name);
+      context.drawText(this.textRenderer, headerText, 0, -12, 0xFFAAAAAA, true);
 
       if (PinnedMessages.groups.size() > 1) {
-        context.drawText(this.textRenderer, Text.of("[x]"), this.textRenderer.getWidth(Text.of(group.name)) + 4, -12,
+        context.drawText(this.textRenderer, Text.of("[x]"), this.textRenderer.getWidth(headerText) + 4, -12,
             0xFFFF5555, true);
       }
 
-      for (int i = 0; i < group.messages.size(); i++) {
-        String msgContent = group.messages.get(i);
-        Text msg = Text.of(msgContent);
-        int y = i * lineHeight;
-        int w = this.textRenderer.getWidth(msg);
+      if (!group.isCollapsed) {
+        for (int i = 0; i < group.messages.size(); i++) {
+          String msgContent = group.messages.get(i);
+          Text msg = Text.of(msgContent);
+          int y = i * lineHeight;
+          int w = this.textRenderer.getWidth(msg);
 
-        context.fill(-2, y - 2, w + 2, y + 8, 0x80000000);
-        context.drawText(this.textRenderer, msg, 0, y, 0xFFFFFFFF, true);
+          context.fill(-2, y - 2, w + 2, y + 8, 0x80000000);
+          context.drawText(this.textRenderer, msg, 0, y, 0xFFFFFFFF, true);
+        }
       }
     }
-    matrices.popMatrix();
-
     matrices.popMatrix();
 
     int scaledWidth = (int) (width * scale);
     int scaledHeight = (int) (height * scale);
 
-    if (!group.messages.isEmpty()) {
+    if (!group.messages.isEmpty() && !group.isCollapsed) {
       for (int i = 0; i < group.messages.size(); i++) {
         int rowY = i * lineHeight;
         double top = startY + (rowY - 2) * scale;
@@ -169,6 +173,9 @@ public class PositionEditScreen extends Screen {
         if (handleRightClickOnGroup(group, mouseX, mouseY)) {
           return true;
         }
+        if (checkHeaderRightClick(group, mouseX, mouseY)) {
+          return true;
+        }
         if (isMouseOverGroup(group, mouseX, mouseY)) {
           clickedOnGroup = true;
         }
@@ -213,6 +220,13 @@ public class PositionEditScreen extends Screen {
 
       for (int gIdx = PinnedMessages.groups.size() - 1; gIdx >= 0; gIdx--) {
         MessageGroup group = PinnedMessages.groups.get(gIdx);
+        if (checkHeaderClick(group, mouseX, mouseY)) {
+          return true;
+        }
+      }
+
+      for (int gIdx = PinnedMessages.groups.size() - 1; gIdx >= 0; gIdx--) {
+        MessageGroup group = PinnedMessages.groups.get(gIdx);
         if (checkDragClick(group, mouseX, mouseY)) {
           return true;
         }
@@ -233,7 +247,7 @@ public class PositionEditScreen extends Screen {
   }
 
   private boolean handleRightClickOnGroup(MessageGroup group, double mouseX, double mouseY) {
-    if (group.messages.isEmpty())
+    if (group.messages.isEmpty() || group.isCollapsed)
       return false;
 
     int startX = group.x;
@@ -286,7 +300,7 @@ public class PositionEditScreen extends Screen {
       }
 
       width = maxWidth;
-      height = group.messages.size() * lineHeight;
+      height = group.isCollapsed ? 0 : group.messages.size() * lineHeight;
     } else {
       width = this.textRenderer.getWidth(Text.translatable("pinchat.gui.positionEdit.exampleMessage"));
       height = lineHeight;
@@ -307,7 +321,8 @@ public class PositionEditScreen extends Screen {
     int startY = group.y;
     double scale = group.scale;
 
-    int nameWidth = this.textRenderer.getWidth(Text.of(group.name));
+    String indicator = group.isCollapsed ? "▶" : "▼";
+    int nameWidth = this.textRenderer.getWidth(Text.of(indicator + " " + group.name));
     double btnLocalX = nameWidth + 4;
     double btnLocalY = -12;
     double btnWidth = this.textRenderer.getWidth(Text.of("[x]"));
@@ -353,7 +368,7 @@ public class PositionEditScreen extends Screen {
       }
 
       width = maxWidth;
-      height = group.messages.size() * lineHeight;
+      height = group.isCollapsed ? 0 : group.messages.size() * lineHeight;
     } else {
       width = this.textRenderer.getWidth(Text.translatable("pinchat.gui.positionEdit.exampleMessage"));
       height = lineHeight;
@@ -376,6 +391,72 @@ public class PositionEditScreen extends Screen {
       this.initialMouseX = mouseX;
       this.initialMouseY = mouseY;
       this.initialScale = scale;
+      return true;
+    }
+
+    return false;
+  }
+
+  private boolean checkHeaderClick(MessageGroup group, double mouseX, double mouseY) {
+    int startX = group.x;
+    int startY = group.y;
+    double scale = group.scale;
+
+    String indicator = group.isCollapsed ? "▶" : "▼";
+    int nameWidth = this.textRenderer.getWidth(Text.of(indicator + " " + group.name));
+
+    double headerLocalX = 0;
+    double headerLocalY = -12;
+    double headerWidth = nameWidth;
+    double headerHeight = 12;
+
+    double globalX = startX + headerLocalX * scale;
+    double globalY = startY + headerLocalY * scale;
+    double globalWidth = headerWidth * scale;
+    double globalHeight = headerHeight * scale;
+
+    if (mouseX >= globalX && mouseX <= globalX + globalWidth &&
+        mouseY >= globalY && mouseY <= globalY + globalHeight) {
+
+      group.isCollapsed = !group.isCollapsed;
+      PinChatConfigMalilib.saveConfig();
+
+      if (this.client != null) {
+        this.client.getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
+            .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  private boolean checkHeaderRightClick(MessageGroup group, double mouseX, double mouseY) {
+    int startX = group.x;
+    int startY = group.y;
+    double scale = group.scale;
+
+    String indicator = group.isCollapsed ? "▶" : "▼";
+    int nameWidth = this.textRenderer.getWidth(Text.of(indicator + " " + group.name));
+
+    double headerLocalX = 0;
+    double headerLocalY = -12;
+    double headerWidth = nameWidth;
+    double headerHeight = 12;
+
+    double globalX = startX + headerLocalX * scale;
+    double globalY = startY + headerLocalY * scale;
+    double globalWidth = headerWidth * scale;
+    double globalHeight = headerHeight * scale;
+
+    if (mouseX >= globalX && mouseX <= globalX + globalWidth &&
+        mouseY >= globalY && mouseY <= globalY + globalHeight) {
+
+      if (this.client != null) {
+        this.client.getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
+            .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        this.client.setScreen(new GroupRenameScreen(this, group));
+      }
       return true;
     }
 

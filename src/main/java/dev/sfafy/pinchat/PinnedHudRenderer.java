@@ -34,24 +34,28 @@ public class PinnedHudRenderer implements HudRenderCallback {
 
       int lineHeight = 12;
 
-      for (int i = 0; i < group.messages.size(); i++) {
-        String msgContent = group.messages.get(i);
-        Text msg = Text.of(msgContent);
-        int y = i * lineHeight;
+      String indicator = group.isCollapsed ? "▶" : "▼";
+      Text headerText = Text.of(indicator + " " + group.name);
+      context.drawText(client.textRenderer, headerText, 0, -12, 0xFFAAAAAA, true);
 
-        int maxWidth = PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
-        StringVisitable trimmed = client.textRenderer.trimToWidth(msg, maxWidth);
-        OrderedText renderedText = Language.getInstance().reorder(trimmed);
-        int width = client.textRenderer.getWidth(renderedText);
+      if (!group.isCollapsed) {
+        for (int i = 0; i < group.messages.size(); i++) {
+          String msgContent = group.messages.get(i);
+          Text msg = Text.of(msgContent);
+          int y = i * lineHeight;
 
-        context.fill(-2, y - 2, width + 2, y + 8, 0x80000000);
+          int maxWidth = PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
+          StringVisitable trimmed = client.textRenderer.trimToWidth(msg, maxWidth);
+          OrderedText renderedText = Language.getInstance().reorder(trimmed);
+          int width = client.textRenderer.getWidth(renderedText);
 
-        context.drawText(client.textRenderer, renderedText, 0, y, 0xFFFFFFFF, true);
+          context.fill(-2, y - 2, width + 2, y + 8, 0x80000000);
+
+          context.drawText(client.textRenderer, renderedText, 0, y, 0xFFFFFFFF, true);
+        }
       }
 
       matrices.popMatrix();
     }
-
-    matrices.popMatrix();
   }
 }
