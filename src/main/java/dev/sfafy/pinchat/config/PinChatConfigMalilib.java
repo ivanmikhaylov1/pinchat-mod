@@ -63,8 +63,13 @@ public class PinChatConfigMalilib implements IConfigHandler {
             int x = groupObj.get("x").getAsInt();
             int y = groupObj.get("y").getAsInt();
             double scale = groupObj.get("scale").getAsDouble();
+            boolean isCollapsed = false;
+            if (groupObj.has("isCollapsed")) {
+              isCollapsed = groupObj.get("isCollapsed").getAsBoolean();
+            }
 
             MessageGroup group = new MessageGroup(name, x, y, scale);
+            group.isCollapsed = isCollapsed;
 
             if (groupObj.has("messages")) {
               JsonArray messagesArray = groupObj.getAsJsonArray("messages");
@@ -108,15 +113,18 @@ public class PinChatConfigMalilib implements IConfigHandler {
         groupObj.addProperty("x", group.x);
         groupObj.addProperty("y", group.y);
         groupObj.addProperty("scale", group.scale);
+        groupObj.addProperty("isCollapsed", group.isCollapsed);
 
         JsonArray messagesArray = new JsonArray();
         for (String msg : group.messages) {
           messagesArray.add(msg);
         }
+
         groupObj.add("messages", messagesArray);
 
         groupsArray.add(groupObj);
       }
+
       json.add("groups", groupsArray);
 
       Gson gson = new GsonBuilder().setPrettyPrinting().create();

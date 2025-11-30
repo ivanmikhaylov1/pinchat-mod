@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "id": "pinchat",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "name": "Pin Chat Messages",
   "description": "Allows pinning chat messages to the HUD with Right Click.",
   "authors": [
-    "You"
+    "Sfafy"
   ],
   "license": "MIT",
   "environment": "client",
