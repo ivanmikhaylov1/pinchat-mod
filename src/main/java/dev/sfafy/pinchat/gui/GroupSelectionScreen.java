@@ -28,7 +28,7 @@ public class GroupSelectionScreen extends Screen {
     int buttonHeight = 20;
     int spacing = 5;
 
-    int startY = this.targetY - (PinnedMessages.groups.size() * (buttonHeight + spacing));
+    int startY = this.targetY - ((PinnedMessages.groups.size() + 1) * (buttonHeight + spacing));
     if (startY < 0)
       startY = this.targetY + 10;
 
@@ -36,9 +36,17 @@ public class GroupSelectionScreen extends Screen {
     if (startX + buttonWidth > this.width)
       startX = this.width - buttonWidth - 5;
 
+    this.addDrawableChild(ButtonWidget.builder(Text.of("+ New Group"), (button) -> {
+      String name = "Group #" + (PinnedMessages.groups.size() + 1);
+      MessageGroup newGroup = new MessageGroup(name, 100, 100, 1.0);
+      PinnedMessages.groups.add(newGroup);
+      PinnedMessages.toggle(this.messageToPin, newGroup);
+      this.close();
+    }).dimensions(startX, startY, buttonWidth, buttonHeight).build());
+
     for (int i = 0; i < PinnedMessages.groups.size(); i++) {
       MessageGroup group = PinnedMessages.groups.get(i);
-      int y = startY + i * (buttonHeight + spacing);
+      int y = startY + (i + 1) * (buttonHeight + spacing);
 
       this.addDrawableChild(ButtonWidget.builder(Text.of(group.name), (button) -> {
         PinnedMessages.toggle(this.messageToPin, group);

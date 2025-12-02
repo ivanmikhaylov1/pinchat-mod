@@ -8,15 +8,129 @@ import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.text.Text;
+
+import dev.sfafy.pinchat.config.PinChatConfigMalilib;
 import org.spongepowered.asm.mixin.Mixin;
+
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import dev.sfafy.pinchat.MessageGroup;
+import net.minecraft.client.gui.DrawContext;
+import org.lwjgl.glfw.GLFW;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.List;
 
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
+  @Unique
+  private boolean isDragging = false;
+  @Unique
+  private boolean isResizing = false;
+  @Unique
+  private MessageGroup draggingGroup = null;
+  @Unique
+  private MessageGroup resizingGroup = null;
+  @Unique
+  private double lastMouseX = 0;
+  @Unique
+  private double lastMouseY = 0;
+  @Unique
+  private double initialScale = 1.0;
+  @Unique
+  private double initialMouseX = 0;
+  @Unique
+  private double initialMouseY = 0;
+
+  @Inject(method = "render", at = @At("TAIL"))
+  private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo cir) {
+    if (this.isDragging || this.isResizing) {
+      if (GLFW.glfwGetMouseButton(MinecraftClient.getInstance().getWindow().getHandle(), 0) != GLFW.GLFW_PRESS) {
+        this.isDragging = false;
+        this.isResizing = false;
+        this.draggingGroup = null;
+        this.resizingGroup = null;
+        PinChatConfigMalilib.saveConfig();
+      } else {
+        if (this.isDragging && this.draggingGroup != null) {
+          double deltaX = mouseX - this.lastMouseX;
+          double deltaY = mouseY - this.lastMouseY;
+          this.draggingGroup.x += (int) deltaX;
+          this.draggingGroup.y += (int) deltaY;
+        } else if (this.isResizing && this.resizingGroup != null) {
+          double diffX = mouseX - this.initialMouseX;
+          double diffY = mouseY - this.initialMouseY;
+          double diagonal = (diffX + diffY) / 200.0;
+          double newScale = this.initialScale + diagonal;
+          newScale = Math.max(0.5, Math.min(3.0, newScale));
+          this.resizingGroup.scale = newScale;
+        }
+        this.lastMouseX = mouseX;
+        this.lastMouseY = mouseY;
+      }
+    }
+
+    if (!PinnedMessages.groups.isEmpty()) {
+      for (MessageGroup group : PinnedMessages.groups) {
+        if (group.messages.isEmpty())
+          continue;
+
+        int startX = group.x;
+        int startY = group.y;
+        double scale = group.scale;
+        int lineHeight = 12;
+
+        int width = 0;
+        for (String msgContent : group.messages) {
+          Text msg = Text.of(msgContent);
+          int w = MinecraftClient.getInstance().textRenderer.getWidth(msg);
+          if (w > width)
+            width = w;
+        }
+        int height = group.isCollapsed ? 0 : group.messages.size() * lineHeight;
+
+        int scaledWidth = (int) (width * scale);
+        int scaledHeight = (int) (height * scale);
+
+        int handleX = startX + scaledWidth;
+        int handleY = startY + scaledHeight;
+        Text arrow = Text.of("↘");
+        int arrowW = MinecraftClient.getInstance().textRenderer.getWidth(arrow);
+        int arrowH = MinecraftClient.getInstance().textRenderer.fontHeight;
+
+        if (mouseX >= startX - 10 && mouseX <= startX + scaledWidth + 20 &&
+            mouseY >= startY - 20 && mouseY <= startY + scaledHeight + 20) {
+          context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, arrow, handleX - arrowW,
+              handleY - arrowH, 0xFFFFFFFF);
+
+          context.fill(startX - 2, startY - 14, startX + scaledWidth + 2, startY + scaledHeight + 2, 0x20FFFFFF);
+          String indicator = group.isCollapsed ? "▶" : "▼";
+          int nameWidth = MinecraftClient.getInstance().textRenderer.getWidth(Text.of(indicator + " " + group.name));
+
+          double btnLocalY = -12;
+          double renameBtnLocalX = nameWidth + 8;
+
+          int globalRenameX = (int) (startX + renameBtnLocalX * scale);
+          int globalBtnY = (int) (startY + btnLocalY * scale);
+
+          context.drawText(MinecraftClient.getInstance().textRenderer, Text.of("[R]"), globalRenameX, globalBtnY,
+              0xFFFFFF00,
+              true);
+
+          int deleteBtnLocalX = (int) (renameBtnLocalX
+              + MinecraftClient.getInstance().textRenderer.getWidth(Text.of("[R]")) + 4);
+          int globalDeleteX = (int) (startX + deleteBtnLocalX * scale);
+
+          context.drawText(MinecraftClient.getInstance().textRenderer, Text.of("[X]"), globalDeleteX, globalBtnY,
+              0xFFFF5555,
+              true);
+        }
+      }
+    }
+  }
 
   @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
   private void onMouseClicked(Click click, boolean isRightClick, CallbackInfoReturnable<Boolean> cir) {
@@ -30,13 +144,46 @@ public class ChatScreenMixin {
     int lineHeight = 12;
 
     if (!PinnedMessages.groups.isEmpty()) {
-      for (dev.sfafy.pinchat.MessageGroup group : PinnedMessages.groups) {
+      for (int i = PinnedMessages.groups.size() - 1; i >= 0; i--) {
+        MessageGroup group = PinnedMessages.groups.get(i);
         if (group.messages.isEmpty())
           continue;
 
         int startX = group.x;
         int startY = group.y;
         double scale = group.scale;
+
+        int width = 0;
+        for (String msgContent : group.messages) {
+          Text msg = Text.of(msgContent);
+          int w = MinecraftClient.getInstance().textRenderer.getWidth(msg);
+          if (w > width)
+            width = w;
+        }
+        int height = group.isCollapsed ? 0 : group.messages.size() * lineHeight;
+        int scaledWidth = (int) (width * scale);
+        int scaledHeight = (int) (height * scale);
+
+        if (button == 0) {
+          int handleX = startX + scaledWidth;
+          int handleY = startY + scaledHeight;
+          Text arrow = Text.of("↘");
+          int arrowW = MinecraftClient.getInstance().textRenderer.getWidth(arrow);
+          int arrowH = MinecraftClient.getInstance().textRenderer.fontHeight;
+
+          if (mouseX >= handleX - arrowW - 4 && mouseX <= handleX + 4 &&
+              mouseY >= handleY - arrowH - 4 && mouseY <= handleY + 4) {
+            this.isResizing = true;
+            this.resizingGroup = group;
+            this.initialMouseX = mouseX;
+            this.initialMouseY = mouseY;
+            this.lastMouseX = mouseX;
+            this.lastMouseY = mouseY;
+            this.initialScale = scale;
+            cir.setReturnValue(true);
+            return;
+          }
+        }
 
         if (button == 0) {
           String indicator = group.isCollapsed ? "▶" : "▼";
@@ -52,11 +199,40 @@ public class ChatScreenMixin {
           double globalWidth = headerWidth * scale;
           double globalHeight = headerHeight * scale;
 
+          int renameBtnX = nameWidth + 8;
+          int renameBtnW = MinecraftClient.getInstance().textRenderer.getWidth(Text.of("[R]"));
+          double globalRenameX = startX + renameBtnX * scale;
+          double globalRenameW = renameBtnW * scale;
+
+          if (mouseX >= globalRenameX && mouseX <= globalRenameX + globalRenameW &&
+              mouseY >= globalY && mouseY <= globalY + globalHeight) {
+            MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
+                .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            MinecraftClient.getInstance().setScreen(
+                new dev.sfafy.pinchat.gui.GroupRenameScreen(MinecraftClient.getInstance().currentScreen, group));
+            cir.setReturnValue(true);
+            return;
+          }
+
+          int deleteBtnX = renameBtnX + renameBtnW + 4;
+          int deleteBtnW = MinecraftClient.getInstance().textRenderer.getWidth(Text.of("[X]"));
+          double globalDeleteX = startX + deleteBtnX * scale;
+          double globalDeleteW = deleteBtnW * scale;
+
+          if (mouseX >= globalDeleteX && mouseX <= globalDeleteX + globalDeleteW &&
+              mouseY >= globalY && mouseY <= globalY + globalHeight) {
+            PinnedMessages.groups.remove(i);
+            PinChatConfigMalilib.saveConfig();
+            MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
+                .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            cir.setReturnValue(true);
+            return;
+          }
+
           if (mouseX >= globalX && mouseX <= globalX + globalWidth &&
               mouseY >= globalY && mouseY <= globalY + globalHeight) {
-
             group.isCollapsed = !group.isCollapsed;
-            dev.sfafy.pinchat.config.PinChatConfigMalilib.saveConfig();
+            PinChatConfigMalilib.saveConfig();
             MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
                 .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
             cir.setReturnValue(true);
@@ -64,32 +240,46 @@ public class ChatScreenMixin {
           }
         }
 
-        if (button == 1 && !group.isCollapsed) {
-          for (int i = 0; i < group.messages.size(); i++) {
-            int rowY = i * lineHeight;
-            double top = startY + (rowY - 2) * scale;
-            double bottom = startY + (rowY + 8) * scale;
+        if (!group.isCollapsed) {
+          if (button == 1) {
+            for (int j = 0; j < group.messages.size(); j++) {
+              int rowY = j * lineHeight;
+              double top = startY + (rowY - 2) * scale;
+              double bottom = startY + (rowY + 8) * scale;
 
-            if (mouseY >= top && mouseY <= bottom) {
-              String msgContent = group.messages.get(i);
-              Text msg = Text.of(msgContent);
+              if (mouseY >= top && mouseY <= bottom) {
+                String msgContent = group.messages.get(j);
+                Text msg = Text.of(msgContent);
+                int maxWidth = PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
+                net.minecraft.text.StringVisitable trimmed = MinecraftClient.getInstance().textRenderer.trimToWidth(msg,
+                    maxWidth);
+                net.minecraft.text.OrderedText renderedText = net.minecraft.util.Language.getInstance()
+                    .reorder(trimmed);
+                int msgWidth = MinecraftClient.getInstance().textRenderer.getWidth(renderedText);
+                double localX = (mouseX - startX) / scale;
 
-              int maxWidth = dev.sfafy.pinchat.config.PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
-              net.minecraft.text.StringVisitable trimmed = MinecraftClient.getInstance().textRenderer.trimToWidth(msg,
-                  maxWidth);
-              net.minecraft.text.OrderedText renderedText = net.minecraft.util.Language.getInstance().reorder(trimmed);
-              int msgWidth = MinecraftClient.getInstance().textRenderer.getWidth(renderedText);
-
-              double localX = (mouseX - startX) / scale;
-
-              if (localX >= -2 && localX <= msgWidth + 2) {
-                group.messages.remove(i);
-                dev.sfafy.pinchat.config.PinChatConfigMalilib.saveConfig();
-                MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
-                    .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                cir.setReturnValue(true);
-                return;
+                if (localX >= -2 && localX <= msgWidth + 2) {
+                  group.messages.remove(j);
+                  PinChatConfigMalilib.saveConfig();
+                  MinecraftClient.getInstance().getSoundManager()
+                      .play(net.minecraft.client.sound.PositionedSoundInstance
+                          .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                  cir.setReturnValue(true);
+                  return;
+                }
               }
+            }
+          }
+
+          if (button == 0) {
+            if (mouseX >= startX && mouseX <= startX + scaledWidth &&
+                mouseY >= startY && mouseY <= startY + scaledHeight) {
+              this.isDragging = true;
+              this.draggingGroup = group;
+              this.lastMouseX = mouseX;
+              this.lastMouseY = mouseY;
+              cir.setReturnValue(true);
+              return;
             }
           }
         }
@@ -135,12 +325,8 @@ public class ChatScreenMixin {
       }
 
       if (messageContent != null) {
-        if (PinnedMessages.groups.size() > 1) {
-          MinecraftClient.getInstance().setScreen(new dev.sfafy.pinchat.gui.GroupSelectionScreen(client.currentScreen,
-              messageContent, (int) mouseX, (int) mouseY));
-        } else {
-          PinnedMessages.toggle(messageContent);
-        }
+        MinecraftClient.getInstance().setScreen(new dev.sfafy.pinchat.gui.GroupSelectionScreen(client.currentScreen,
+            messageContent, (int) mouseX, (int) mouseY));
 
         if (client.player != null) {
           client.player.playSound(
@@ -154,6 +340,5 @@ public class ChatScreenMixin {
         PinChatMod.LOGGER.warn("Could not find matching ChatHudLine for visible line with tick {}", creationTick);
       }
     }
-
   }
 }
