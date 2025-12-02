@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.11-SNAPSHOT'
+    id 'fabric-loom' version '1.13-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -52,3 +52,13 @@ java {
 test {
     useJUnitPlatform()
 }
+
+loom {
+    runtimeOnlyLog4j.set(true)
+}
+
+tasks.withType(Jar) {
+    enabled = true
+}
+
+tasks.javadoc.enabled = false

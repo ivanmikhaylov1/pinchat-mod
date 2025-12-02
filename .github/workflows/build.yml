@@ -2,7 +2,7 @@ name: Build and Release
 
 on:
   push:
-    branches: master
+    branches: master, 1.21.11-pre4
     tags:
       - 'v*'
   pull_request:
