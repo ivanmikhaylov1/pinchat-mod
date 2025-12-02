@@ -1,6 +1,5 @@
 package dev.sfafy.pinchat;
 
-import dev.sfafy.pinchat.config.PinChatConfigMalilib;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -44,7 +43,7 @@ public class PinnedHudRenderer implements HudRenderCallback {
           Text msg = Text.of(msgContent);
           int y = i * lineHeight;
 
-          int maxWidth = PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
+          int maxWidth = dev.sfafy.pinchat.config.PinChatConfig.maxLineWidth;
           StringVisitable trimmed = client.textRenderer.trimToWidth(msg, maxWidth);
           OrderedText renderedText = Language.getInstance().reorder(trimmed);
           int width = client.textRenderer.getWidth(renderedText);

@@ -1,8 +1,7 @@
 package dev.sfafy.pinchat;
 
 import dev.sfafy.pinchat.command.PinChatCommand;
-import dev.sfafy.pinchat.config.PinChatConfigMalilib;
-import fi.dy.masa.malilib.event.InitializationHandler;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -13,11 +12,15 @@ public class PinChatMod implements ClientModInitializer {
   public static final Logger LOGGER = LoggerFactory.getLogger("pinchat");
   public static final String MOD_ID = "pinchat";
 
-  @Override
   public void onInitializeClient() {
+    dev.sfafy.pinchat.integration.IntegrationManager.detectMods();
+    dev.sfafy.pinchat.config.PinChatConfig.load();
+    dev.sfafy.pinchat.keybindings.PinChatKeyBindings.register();
 
-    InitializationHandler.getInstance().registerInitializationHandler(new PinChatInitHandler());
-    PinChatConfigMalilib.loadConfig();
+    if (dev.sfafy.pinchat.integration.IntegrationManager.isMalilibLoaded()) {
+      // Optional: Initialize Malilib integration if needed
+      dev.sfafy.pinchat.integration.MalilibIntegration.init();
+    }
 
     ClientCommandRegistrationCallback.EVENT
         .register((dispatcher, registryAccess) -> PinChatCommand.register(dispatcher));

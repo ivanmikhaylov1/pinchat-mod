@@ -1,7 +1,7 @@
 package dev.sfafy.pinchat.gui;
 
 import dev.sfafy.pinchat.MessageGroup;
-import dev.sfafy.pinchat.config.PinChatConfigMalilib;
+import dev.sfafy.pinchat.config.PinChatConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -14,7 +14,7 @@ public class GroupRenameScreen extends Screen {
 	private TextFieldWidget nameField;
 
 	public GroupRenameScreen(Screen parent, MessageGroup group) {
-		super(Text.of("Rename Group"));
+		super(Text.translatable("pinchat.gui.groupRename.title"));
 		this.parent = parent;
 		this.group = group;
 	}
@@ -25,18 +25,18 @@ public class GroupRenameScreen extends Screen {
 		int centerY = this.height / 2;
 
 		this.nameField = new TextFieldWidget(this.textRenderer, centerX - 100, centerY - 20, 200, 20,
-				Text.of("Group Name"));
+				Text.translatable("pinchat.gui.groupRename.field"));
 		this.nameField.setText(this.group.name);
 		this.nameField.setMaxLength(32);
 		this.addDrawableChild(this.nameField);
 
-		this.addDrawableChild(ButtonWidget.builder(Text.of("Save"), button -> {
+		this.addDrawableChild(ButtonWidget.builder(Text.translatable("pinchat.gui.groupRename.save"), button -> {
 			this.group.name = this.nameField.getText();
-			PinChatConfigMalilib.saveConfig();
+			PinChatConfig.save();
 			this.client.setScreen(this.parent);
 		}).dimensions(centerX - 105, centerY + 10, 100, 20).build());
 
-		this.addDrawableChild(ButtonWidget.builder(Text.of("Cancel"), button -> {
+		this.addDrawableChild(ButtonWidget.builder(Text.translatable("pinchat.gui.groupRename.cancel"), button -> {
 			this.client.setScreen(this.parent);
 		}).dimensions(centerX + 5, centerY + 10, 100, 20).build());
 	}

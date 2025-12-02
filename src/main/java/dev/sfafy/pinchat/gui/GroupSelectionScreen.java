@@ -14,7 +14,7 @@ public class GroupSelectionScreen extends Screen {
   private final int targetY;
 
   public GroupSelectionScreen(Screen parent, Text messageToPin, int x, int y) {
-    super(Text.of("Select Group"));
+    super(Text.translatable("pinchat.gui.groupSelection.title"));
     this.parent = parent;
     this.messageToPin = messageToPin;
     this.targetX = x;
@@ -36,7 +36,7 @@ public class GroupSelectionScreen extends Screen {
     if (startX + buttonWidth > this.width)
       startX = this.width - buttonWidth - 5;
 
-    this.addDrawableChild(ButtonWidget.builder(Text.of("+ New Group"), (button) -> {
+    this.addDrawableChild(ButtonWidget.builder(Text.translatable("pinchat.gui.groupSelection.newGroup"), (button) -> {
       String name = "Group #" + (PinnedMessages.groups.size() + 1);
       MessageGroup newGroup = new MessageGroup(name, 100, 100, 1.0);
       PinnedMessages.groups.add(newGroup);

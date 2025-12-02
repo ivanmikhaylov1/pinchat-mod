@@ -10,7 +10,7 @@ public class PinChatInitHandler implements IInitializationHandler {
   public void registerModHandlers() {
     PinChatMod.LOGGER.info("=== PinChatInitHandler: registerModHandlers() called by MaLiLib ===");
     PinChatMod.LOGGER.info("Registering PinChat config handlers...");
-    ConfigManager.getInstance().registerConfigHandler(Reference.MOD_INFO.getModId(), new PinChatConfigMalilib());
+    ConfigManager.getInstance().registerConfigHandler(Reference.MOD_ID, new PinChatConfigMalilib());
     PinChatMod.LOGGER.info("Config handler registered, now registering keybinds...");
     PinChatInputHandler.getInstance().registerKeybinds();
     PinChatMod.LOGGER.info("=== PinChat config handlers and keybinds registered successfully ===");

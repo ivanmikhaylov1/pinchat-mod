@@ -39,99 +39,31 @@ public class PinChatConfigMalilib implements IConfigHandler {
       PINNED_SCALE);
 
   public static void loadConfig() {
-    File configFile = new File(FabricLoader.getInstance().getConfigDir().toFile(),
-        "pinchat.json");
-    if (configFile.exists()) {
-      try (FileReader reader = new FileReader(configFile)) {
-        JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-        if (json.has("maxPinnedMessages")) {
-          MAX_PINNED_MESSAGES.setIntegerValue(json.get("maxPinnedMessages").getAsInt());
-        }
-        if (json.has("maxLineWidth")) {
-          MAX_LINE_WIDTH.setIntegerValue(json.get("maxLineWidth").getAsInt());
-        }
-        if (json.has("chatSensitivity")) {
-          CHAT_SENSITIVITY.setDoubleValue(json.get("chatSensitivity").getAsDouble());
-        }
-
-        PinnedMessages.groups.clear();
-        if (json.has("groups")) {
-          JsonArray groupsArray = json.getAsJsonArray("groups");
-          for (JsonElement element : groupsArray) {
-            JsonObject groupObj = element.getAsJsonObject();
-            String name = groupObj.get("name").getAsString();
-            int x = groupObj.get("x").getAsInt();
-            int y = groupObj.get("y").getAsInt();
-            double scale = groupObj.get("scale").getAsDouble();
-            boolean isCollapsed = false;
-            if (groupObj.has("isCollapsed")) {
-              isCollapsed = groupObj.get("isCollapsed").getAsBoolean();
-            }
-
-            MessageGroup group = new MessageGroup(name, x, y, scale);
-            group.isCollapsed = isCollapsed;
-
-            if (groupObj.has("messages")) {
-              JsonArray messagesArray = groupObj.getAsJsonArray("messages");
-              for (JsonElement msgElement : messagesArray) {
-                group.messages.add(msgElement.getAsString());
-              }
-            }
-
-            PinnedMessages.groups.add(group);
-          }
-        } else {
-          if (json.has("pinnedX") && json.has("pinnedY") && json.has("pinnedScale")) {
-
-            int x = json.get("pinnedX").getAsInt();
-            int y = json.get("pinnedY").getAsInt();
-            double scale = json.get("pinnedScale").getAsDouble();
-            PinnedMessages.groups
-                .add(new MessageGroup("Default Group", x, y, scale));
-          }
-        }
-
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
+    // Sync from PinChatConfig
+    MAX_PINNED_MESSAGES.setIntegerValue(PinChatConfig.maxPinnedMessages);
+    MAX_LINE_WIDTH.setIntegerValue(PinChatConfig.maxLineWidth);
+    CHAT_SENSITIVITY.setDoubleValue(PinChatConfig.chatSensitivity);
+    PINNED_X.setIntegerValue(PinChatConfig.pinnedX);
+    PINNED_Y.setIntegerValue(PinChatConfig.pinnedY);
+    PINNED_SCALE.setDoubleValue(PinChatConfig.pinnedScale);
   }
 
   public static void saveConfig() {
-    File configFile = new File(FabricLoader.getInstance().getConfigDir().toFile(),
-        "pinchat.json");
-    try (FileWriter writer = new FileWriter(configFile)) {
-      JsonObject json = new JsonObject();
-      json.addProperty("maxPinnedMessages", MAX_PINNED_MESSAGES.getIntegerValue());
-      json.addProperty("maxLineWidth", MAX_LINE_WIDTH.getIntegerValue());
-      json.addProperty("chatSensitivity", CHAT_SENSITIVITY.getDoubleValue());
+    // Sync to PinChatConfig
+    PinChatConfig.maxPinnedMessages = MAX_PINNED_MESSAGES.getIntegerValue();
+    PinChatConfig.maxLineWidth = MAX_LINE_WIDTH.getIntegerValue();
+    PinChatConfig.chatSensitivity = CHAT_SENSITIVITY.getDoubleValue();
+    PinChatConfig.pinnedX = PINNED_X.getIntegerValue();
+    PinChatConfig.pinnedY = PINNED_Y.getIntegerValue();
+    PinChatConfig.pinnedScale = PINNED_SCALE.getDoubleValue();
 
-      JsonArray groupsArray = new JsonArray();
-      for (MessageGroup group : PinnedMessages.groups) {
-        JsonObject groupObj = new JsonObject();
-        groupObj.addProperty("name", group.name);
-        groupObj.addProperty("x", group.x);
-        groupObj.addProperty("y", group.y);
-        groupObj.addProperty("scale", group.scale);
-        groupObj.addProperty("isCollapsed", group.isCollapsed);
+    // Groups are shared via PinnedMessages.groups, so no need to sync explicit list
+    // if they point to same objects
+    // But PinChatConfig.groups is a POJO list, PinnedMessages.groups is static
+    // list.
+    // PinChatConfig.save() handles saving PinnedMessages.groups.
 
-        JsonArray messagesArray = new JsonArray();
-        for (String msg : group.messages) {
-          messagesArray.add(msg);
-        }
-
-        groupObj.add("messages", messagesArray);
-
-        groupsArray.add(groupObj);
-      }
-
-      json.add("groups", groupsArray);
-
-      Gson gson = new GsonBuilder().setPrettyPrinting().create();
-      gson.toJson(json, writer);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    PinChatConfig.save();
   }
 
   @Override
