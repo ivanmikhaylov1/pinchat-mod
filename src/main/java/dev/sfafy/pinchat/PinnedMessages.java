@@ -1,6 +1,5 @@
 package dev.sfafy.pinchat;
 
-import dev.sfafy.pinchat.config.PinChatConfigMalilib;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
@@ -24,9 +23,9 @@ public class PinnedMessages {
 
   public static MessageGroup getOrCreateDefaultGroup() {
     if (groups.isEmpty()) {
-      int x = PinChatConfigMalilib.PINNED_X.getIntegerValue();
-      int y = PinChatConfigMalilib.PINNED_Y.getIntegerValue();
-      double scale = PinChatConfigMalilib.PINNED_SCALE.getDoubleValue();
+      int x = dev.sfafy.pinchat.config.PinChatConfig.pinnedX;
+      int y = dev.sfafy.pinchat.config.PinChatConfig.pinnedY;
+      double scale = dev.sfafy.pinchat.config.PinChatConfig.pinnedScale;
       groups.add(new MessageGroup("Default Group", x, y, scale));
     }
     return groups.getFirst();
@@ -51,11 +50,11 @@ public class PinnedMessages {
     if (existingMatch != null) {
       targetGroup.messages.remove(existingMatch);
     } else {
-      if (targetGroup.messages.size() >= PinChatConfigMalilib.MAX_PINNED_MESSAGES.getIntegerValue()) {
+      if (targetGroup.messages.size() >= dev.sfafy.pinchat.config.PinChatConfig.maxPinnedMessages) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player != null) {
           client.player.sendMessage(Text.of("§cPinChat: Maximum number of pinned messages reached ("
-              + PinChatConfigMalilib.MAX_PINNED_MESSAGES.getIntegerValue() + ")"), false);
+              + dev.sfafy.pinchat.config.PinChatConfig.maxPinnedMessages + ")"), false);
         }
 
         return;
@@ -64,7 +63,7 @@ public class PinnedMessages {
       targetGroup.messages.add(newContent);
     }
 
-    PinChatConfigMalilib.saveConfig();
+    dev.sfafy.pinchat.config.PinChatConfig.save();
   }
 
   public static void toggle(Text message) {

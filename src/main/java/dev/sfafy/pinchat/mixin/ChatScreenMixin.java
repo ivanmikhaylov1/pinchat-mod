@@ -9,7 +9,7 @@ import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.text.Text;
 
-import dev.sfafy.pinchat.config.PinChatConfigMalilib;
+import dev.sfafy.pinchat.config.PinChatConfig;
 import org.spongepowered.asm.mixin.Mixin;
 
 import org.spongepowered.asm.mixin.injection.At;
@@ -53,7 +53,7 @@ public class ChatScreenMixin {
         this.isResizing = false;
         this.draggingGroup = null;
         this.resizingGroup = null;
-        PinChatConfigMalilib.saveConfig();
+        PinChatConfig.save();
       } else {
         if (this.isDragging && this.draggingGroup != null) {
           double deltaX = mouseX - this.lastMouseX;
@@ -222,7 +222,7 @@ public class ChatScreenMixin {
           if (mouseX >= globalDeleteX && mouseX <= globalDeleteX + globalDeleteW &&
               mouseY >= globalY && mouseY <= globalY + globalHeight) {
             PinnedMessages.groups.remove(i);
-            PinChatConfigMalilib.saveConfig();
+            PinChatConfig.save();
             MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
                 .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
             cir.setReturnValue(true);
@@ -232,7 +232,7 @@ public class ChatScreenMixin {
           if (mouseX >= globalX && mouseX <= globalX + globalWidth &&
               mouseY >= globalY && mouseY <= globalY + globalHeight) {
             group.isCollapsed = !group.isCollapsed;
-            PinChatConfigMalilib.saveConfig();
+            PinChatConfig.save();
             MinecraftClient.getInstance().getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance
                 .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));
             cir.setReturnValue(true);
@@ -250,7 +250,7 @@ public class ChatScreenMixin {
               if (mouseY >= top && mouseY <= bottom) {
                 String msgContent = group.messages.get(j);
                 Text msg = Text.of(msgContent);
-                int maxWidth = PinChatConfigMalilib.MAX_LINE_WIDTH.getIntegerValue();
+                int maxWidth = dev.sfafy.pinchat.config.PinChatConfig.maxLineWidth;
                 net.minecraft.text.StringVisitable trimmed = MinecraftClient.getInstance().textRenderer.trimToWidth(msg,
                     maxWidth);
                 net.minecraft.text.OrderedText renderedText = net.minecraft.util.Language.getInstance()
@@ -260,7 +260,7 @@ public class ChatScreenMixin {
 
                 if (localX >= -2 && localX <= msgWidth + 2) {
                   group.messages.remove(j);
-                  PinChatConfigMalilib.saveConfig();
+                  dev.sfafy.pinchat.config.PinChatConfig.save();
                   MinecraftClient.getInstance().getSoundManager()
                       .play(net.minecraft.client.sound.PositionedSoundInstance
                           .master(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 1.0F));

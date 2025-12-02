@@ -1,8 +1,7 @@
 package dev.sfafy.pinchat.gui;
 
 import dev.sfafy.pinchat.PinChatMod;
-import dev.sfafy.pinchat.config.PinChatConfigMalilib;
-import dev.sfafy.pinchat.input.PinChatInputHandler;
+
 import dev.sfafy.pinchat.mixin.ChatScreenAccessor;
 import dev.sfafy.pinchat.mixin.PinChatKeyBindingAccessor;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -71,29 +70,25 @@ public class MoveableChatScreen extends ChatScreen {
       return;
 
     boolean isPressed = false;
-    try {
-      fi.dy.masa.malilib.hotkeys.IKeybind keybind = PinChatInputHandler.OPEN_MOVEABLE_CHAT.getKeybind();
-      if (keybind instanceof fi.dy.masa.malilib.hotkeys.KeybindMulti multi) {
-        net.minecraft.client.util.Window window = this.client.getWindow();
-
-        for (Integer keyCode : multi.getKeys()) {
-          if (InputUtil.isKeyPressed(window, keyCode)) {
-            isPressed = true;
-            break;
-          }
-        }
-      }
-    } catch (Exception e) {
-      net.minecraft.client.util.Window window = this.client.getWindow();
-      if (InputUtil.isKeyPressed(window, GLFW.GLFW_KEY_U)) {
+    if (false) { // Keybindings temporarily disabled
+      // dev.sfafy.pinchat.keybindings.PinChatKeyBindings.openMoveableChatKey.isPressed())
+      // {
+      InputUtil.Key key = ((dev.sfafy.pinchat.mixin.PinChatKeyBindingAccessor) dev.sfafy.pinchat.keybindings.PinChatKeyBindings.openMoveableChatKey)
+          .getBoundKey();
+      if (InputUtil.isKeyPressed(this.client.getWindow(), key.getCode())) {
         isPressed = true;
       }
+    }
+
+    InputUtil.Key boundKey = ((dev.sfafy.pinchat.mixin.PinChatKeyBindingAccessor) dev.sfafy.pinchat.keybindings.PinChatKeyBindings.openMoveableChatKey)
+        .getBoundKey();
+    if (InputUtil.isKeyPressed(this.client.getWindow(), boundKey.getCode())) {
+      isPressed = true;
     }
 
     if (isPressed && !wasCloseKeyPressed && timeOpened > 5) {
       this.close();
     }
-
 
     wasCloseKeyPressed = isPressed;
     timeOpened++;
@@ -110,7 +105,7 @@ public class MoveableChatScreen extends ChatScreen {
         double d = sensitivity * 0.6 + 0.2;
         double e = d * d * d * 8.0;
 
-        double configSensitivity = PinChatConfigMalilib.CHAT_SENSITIVITY.getDoubleValue();
+        double configSensitivity = dev.sfafy.pinchat.config.PinChatConfig.chatSensitivity;
         double f = e * configSensitivity;
 
         this.client.player.changeLookDirection(deltaX * f, deltaY * f);
