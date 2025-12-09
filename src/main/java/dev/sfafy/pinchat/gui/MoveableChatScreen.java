@@ -70,9 +70,7 @@ public class MoveableChatScreen extends ChatScreen {
       return;
 
     boolean isPressed = false;
-    if (false) { // Keybindings temporarily disabled
-      // dev.sfafy.pinchat.keybindings.PinChatKeyBindings.openMoveableChatKey.isPressed())
-      // {
+    if (false) {
       InputUtil.Key key = ((dev.sfafy.pinchat.mixin.PinChatKeyBindingAccessor) dev.sfafy.pinchat.keybindings.PinChatKeyBindings.openMoveableChatKey)
           .getBoundKey();
       if (InputUtil.isKeyPressed(this.client.getWindow(), key.getCode())) {

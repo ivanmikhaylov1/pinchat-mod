@@ -13,14 +13,11 @@ import net.fabricmc.loader.api.FabricLoader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PinChatConfig {
   private static final File CONFIG_FILE = new File(FabricLoader.getInstance().getConfigDir().toFile(), "pinchat.json");
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-  // Default values
   public static int maxPinnedMessages = 5;
   public static int maxLineWidth = 200;
   public static double chatSensitivity = 3.0;
@@ -30,7 +27,7 @@ public class PinChatConfig {
 
   public static void load() {
     if (!CONFIG_FILE.exists()) {
-      save(); // Create default config
+      save();
       return;
     }
 
@@ -77,7 +74,6 @@ public class PinChatConfig {
           PinnedMessages.groups.add(group);
         }
       } else {
-        // Legacy fallback or new default
         if (PinnedMessages.groups.isEmpty()) {
           PinnedMessages.groups.add(new MessageGroup("Default Group", pinnedX, pinnedY, pinnedScale));
         }
