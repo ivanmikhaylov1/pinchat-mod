@@ -38,7 +38,6 @@ public class YaclIntegration {
                     .range(0.1, 10.0)
                     .step(0.1))
                 .build())
-            // Pinned HUD settings
             .option(dev.isxander.yacl3.api.Option.<Integer>createBuilder()
                 .name(net.minecraft.text.Text.translatable("pinchat.config.pinnedX"))
                 .binding(10, () -> dev.sfafy.pinchat.config.PinChatConfig.pinnedX,

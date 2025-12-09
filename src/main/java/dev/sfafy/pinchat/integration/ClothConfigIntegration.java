@@ -39,7 +39,6 @@ public class ClothConfigIntegration {
         .setSaveConsumer(newValue -> dev.sfafy.pinchat.config.PinChatConfig.chatSensitivity = newValue)
         .build());
 
-    // Pinned HUD settings
     general.addEntry(entryBuilder
         .startIntField(net.minecraft.text.Text.translatable("pinchat.config.pinnedX"),
             dev.sfafy.pinchat.config.PinChatConfig.pinnedX)

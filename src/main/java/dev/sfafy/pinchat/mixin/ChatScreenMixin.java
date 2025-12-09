@@ -307,7 +307,7 @@ public class ChatScreenMixin {
     double yFromBottom = (chatBottomY - mouseY) / chatScale;
     int lineIndex = (int) (yFromBottom / 9.0);
 
-    int chatWidth = chatHud.getWidth();
+    int chatWidth = ((ChatHudAccessor) chatHud).invokeGetWidth();
 
     if (chatX >= 0 && chatX <= chatWidth / chatScale && lineIndex >= 0 && lineIndex < visibleMessages.size()) {
       ChatHudLine.Visible visibleLine = visibleMessages.get(lineIndex);

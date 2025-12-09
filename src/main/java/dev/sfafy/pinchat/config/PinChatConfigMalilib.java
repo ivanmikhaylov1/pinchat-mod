@@ -1,18 +1,10 @@
 package dev.sfafy.pinchat.config;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.*;
-import dev.sfafy.pinchat.MessageGroup;
-import dev.sfafy.pinchat.PinnedMessages;
 import fi.dy.masa.malilib.config.IConfigBase;
 import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.config.options.ConfigDouble;
 import fi.dy.masa.malilib.config.options.ConfigInteger;
-import net.fabricmc.loader.api.FabricLoader;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.List;
 
 public class PinChatConfigMalilib implements IConfigHandler {
@@ -39,7 +31,6 @@ public class PinChatConfigMalilib implements IConfigHandler {
       PINNED_SCALE);
 
   public static void loadConfig() {
-    // Sync from PinChatConfig
     MAX_PINNED_MESSAGES.setIntegerValue(PinChatConfig.maxPinnedMessages);
     MAX_LINE_WIDTH.setIntegerValue(PinChatConfig.maxLineWidth);
     CHAT_SENSITIVITY.setDoubleValue(PinChatConfig.chatSensitivity);
@@ -49,20 +40,12 @@ public class PinChatConfigMalilib implements IConfigHandler {
   }
 
   public static void saveConfig() {
-    // Sync to PinChatConfig
     PinChatConfig.maxPinnedMessages = MAX_PINNED_MESSAGES.getIntegerValue();
     PinChatConfig.maxLineWidth = MAX_LINE_WIDTH.getIntegerValue();
     PinChatConfig.chatSensitivity = CHAT_SENSITIVITY.getDoubleValue();
     PinChatConfig.pinnedX = PINNED_X.getIntegerValue();
     PinChatConfig.pinnedY = PINNED_Y.getIntegerValue();
     PinChatConfig.pinnedScale = PINNED_SCALE.getDoubleValue();
-
-    // Groups are shared via PinnedMessages.groups, so no need to sync explicit list
-    // if they point to same objects
-    // But PinChatConfig.groups is a POJO list, PinnedMessages.groups is static
-    // list.
-    // PinChatConfig.save() handles saving PinnedMessages.groups.
-
     PinChatConfig.save();
   }
 

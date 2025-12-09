@@ -18,7 +18,6 @@ public class PinChatMod implements ClientModInitializer {
     dev.sfafy.pinchat.keybindings.PinChatKeyBindings.register();
 
     if (dev.sfafy.pinchat.integration.IntegrationManager.isMalilibLoaded()) {
-      // Optional: Initialize Malilib integration if needed
       dev.sfafy.pinchat.integration.MalilibIntegration.init();
     }
 
