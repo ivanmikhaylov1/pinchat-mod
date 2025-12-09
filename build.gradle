@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.11-SNAPSHOT'
+    id 'fabric-loom' version '1.13-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -24,9 +24,9 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modCompileOnly "maven.modrinth:malilib:0.26.3"
-    modCompileOnly "me.shedaniel.cloth:cloth-config-fabric:15.0.140"
+    modCompileOnly "maven.modrinth:cloth-config:20.0.149+fabric"
     modCompileOnly "com.terraformersmc:modmenu:11.0.3"
-    modCompileOnly "dev.isxander:yet-another-config-lib:3.5.0+1.21-fabric"
+    modCompileOnly "dev.isxander:yet-another-config-lib:3.8.1+1.21.11-fabric"
     
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
