@@ -18,6 +18,14 @@ repositories {
     maven { url "https://maven.isxander.dev/releases" }
 }
 
+// Создаем source set для testmod
+sourceSets {
+    testmod {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
@@ -30,6 +38,13 @@ dependencies {
     
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.0'
+    
+    // Зависимости для тестов с запуском Minecraft
+    testmodImplementation sourceSets.main.output
+    testmodImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    testmodImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    testmodImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 }
 
 processResources {
@@ -51,4 +66,35 @@ java {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
+// Настройка testmod source set для тестов с запуском Minecraft
+loom {
+    runs {
+        testClient {
+            client()
+            name "Test Client"
+            source sourceSets.testmod
+            
+            // Настройки для тестового клиента
+            vmArgs "-Dfabric.log.level=DEBUG"
+            property "fabric.log.level", "DEBUG"
+        }
+    }
+}
+
+// Задача runClient автоматически создается Fabric Loom
+// Использование: ./gradlew runClient
+
+// Задача для запуска тестового клиента
+// Использование: ./gradlew runTestClient
+// Это запустит Minecraft клиент с тестовым модом для проверки загрузки
+
+// Задача для запуска тестов перед сборкой
+tasks.named('build') {
+    dependsOn 'test'
 }
