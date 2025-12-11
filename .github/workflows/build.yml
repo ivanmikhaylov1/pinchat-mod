@@ -5,6 +5,7 @@ on:
     branches: 
       - master
       - 1.21.11
+      - feature/tests
     tags:
       - 'v*'
   pull_request:
