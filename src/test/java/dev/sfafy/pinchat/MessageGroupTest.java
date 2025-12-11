@@ -9,9 +9,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Тесты для класса MessageGroup с полным покрытием edge cases
- */
+
 @DisplayName("Тесты MessageGroup")
 public class MessageGroupTest {
 

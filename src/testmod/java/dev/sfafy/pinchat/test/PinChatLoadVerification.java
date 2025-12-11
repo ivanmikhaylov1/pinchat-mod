@@ -10,12 +10,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Класс для проверки загрузки мода PinChat
- * 
- * Этот класс проверяет что все компоненты мода корректно инициализированы
- * при запуске Minecraft клиента.
- */
+
 public class PinChatLoadVerification implements ClientModInitializer {
     private static final Logger LOGGER = LoggerFactory.getLogger("pinchat-testmod");
     private static boolean allChecksPassed = false;
@@ -23,11 +18,11 @@ public class PinChatLoadVerification implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         LOGGER.info("=== Начало проверки загрузки мода PinChat ===");
-        
+
         int checksPassed = 0;
         int totalChecks = 0;
 
-        // Проверка 1: Мод загружен в FabricLoader
+
         totalChecks++;
         if (FabricLoader.getInstance().isModLoaded("pinchat")) {
             LOGGER.info("✓ Проверка 1: Мод pinchat загружен в FabricLoader");
@@ -36,7 +31,7 @@ public class PinChatLoadVerification implements ClientModInitializer {
             LOGGER.error("✗ Проверка 1: Мод pinchat НЕ загружен в FabricLoader");
         }
 
-        // Проверка 2: MOD_ID установлен
+
         totalChecks++;
         if (PinChatMod.MOD_ID != null && PinChatMod.MOD_ID.equals("pinchat")) {
             LOGGER.info("✓ Проверка 2: MOD_ID установлен корректно");
@@ -45,7 +40,7 @@ public class PinChatLoadVerification implements ClientModInitializer {
             LOGGER.error("✗ Проверка 2: MOD_ID установлен некорректно");
         }
 
-        // Проверка 3: Logger инициализирован
+
         totalChecks++;
         if (PinChatMod.LOGGER != null) {
             LOGGER.info("✓ Проверка 3: Logger инициализирован");
@@ -54,7 +49,7 @@ public class PinChatLoadVerification implements ClientModInitializer {
             LOGGER.error("✗ Проверка 3: Logger НЕ инициализирован");
         }
 
-        // Проверка 4: Конфигурация доступна
+
         totalChecks++;
         try {
             if (PinChatConfig.maxPinnedMessages > 0 && 
@@ -70,7 +65,7 @@ public class PinChatLoadVerification implements ClientModInitializer {
             LOGGER.error("✗ Проверка 4: Ошибка при проверке конфигурации: {}", e.getMessage());
         }
 
-        // Проверка 5: IntegrationManager работает
+
         totalChecks++;
         try {
             IntegrationManager.detectMods();
@@ -80,7 +75,7 @@ public class PinChatLoadVerification implements ClientModInitializer {
             LOGGER.error("✗ Проверка 5: Ошибка в IntegrationManager: {}", e.getMessage());
         }
 
-        // Проверка 6: PinnedMessages инициализирован
+
         totalChecks++;
         if (PinnedMessages.groups != null) {
             LOGGER.info("✓ Проверка 6: PinnedMessages инициализирован");
@@ -89,7 +84,7 @@ public class PinChatLoadVerification implements ClientModInitializer {
             LOGGER.error("✗ Проверка 6: PinnedMessages НЕ инициализирован");
         }
 
-        // Проверка 7: Классы доступны
+
         totalChecks++;
         try {
             if (PinChatKeyBindings.class != null && 
@@ -103,9 +98,9 @@ public class PinChatLoadVerification implements ClientModInitializer {
             LOGGER.error("✗ Проверка 7: Ошибка при проверке классов: {}", e.getMessage());
         }
 
-        // Итоговый результат
+
         LOGGER.info("=== Результаты проверки: {}/{} проверок пройдено ===", checksPassed, totalChecks);
-        
+
         if (checksPassed == totalChecks) {
             allChecksPassed = true;
             LOGGER.info("✓✓✓ ВСЕ ПРОВЕРКИ ПРОЙДЕНЫ УСПЕШНО! ✓✓✓");

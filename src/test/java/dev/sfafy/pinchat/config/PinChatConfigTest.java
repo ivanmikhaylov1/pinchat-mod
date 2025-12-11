@@ -4,13 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Тесты для PinChatConfig
- * 
- * Примечание: Тесты конфигурации ограничены, так как PinChatConfig требует FabricLoader
- * для инициализации, который недоступен в unit тестах.
- * Полное тестирование требует интеграционных тестов с запуском Minecraft клиента.
- */
+
 @DisplayName("Тесты PinChatConfig")
 public class PinChatConfigTest {
 
@@ -23,7 +17,7 @@ public class PinChatConfigTest {
     @Test
     @DisplayName("Проверка что методы save и load существуют")
     void testSaveAndLoadMethodsExist() {
-        // Проверяем что методы существуют через рефлексию
+
         try {
             PinChatConfig.class.getDeclaredMethod("save");
             PinChatConfig.class.getDeclaredMethod("load");
@@ -36,7 +30,7 @@ public class PinChatConfigTest {
     @Test
     @DisplayName("Проверка что поля конфигурации существуют")
     void testConfigFieldsExist() {
-        // Проверяем что поля существуют через рефлексию
+
         try {
             PinChatConfig.class.getField("maxPinnedMessages");
             PinChatConfig.class.getField("maxLineWidth");

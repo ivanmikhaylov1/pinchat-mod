@@ -5,9 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Тесты для проверки состояния isCollapsed в MessageGroup
- */
+
 @DisplayName("Тесты состояния isCollapsed MessageGroup")
 public class MessageGroupCollapsedTest {
 
@@ -34,8 +32,8 @@ public class MessageGroupCollapsedTest {
         group.isCollapsed = true;
         assertTrue(group.isCollapsed, 
             "isCollapsed должен быть установлен в true");
-        
-        // Сообщения должны остаться
+
+
         assertFalse(group.messages.isEmpty(), 
             "Сообщения не должны быть удалены при сворачивании");
         assertEquals(3, group.messages.size());
@@ -45,14 +43,14 @@ public class MessageGroupCollapsedTest {
     @DisplayName("Проверка переключения isCollapsed")
     void testToggleIsCollapsed() {
         assertFalse(group.isCollapsed);
-        
+
         group.isCollapsed = true;
         assertTrue(group.isCollapsed);
-        
+
         group.isCollapsed = false;
         assertFalse(group.isCollapsed);
-        
-        // Сообщения должны остаться на всех этапах
+
+
         assertEquals(3, group.messages.size());
     }
 
@@ -60,11 +58,11 @@ public class MessageGroupCollapsedTest {
     @DisplayName("Проверка что сворачивание не влияет на сообщения")
     void testCollapsedDoesNotAffectMessages() {
         int originalSize = group.messages.size();
-        
+
         group.isCollapsed = true;
         assertEquals(originalSize, group.messages.size(), 
             "Количество сообщений не должно измениться");
-        
+
         group.isCollapsed = false;
         assertEquals(originalSize, group.messages.size(), 
             "Количество сообщений не должно измениться");
@@ -76,7 +74,7 @@ public class MessageGroupCollapsedTest {
         MessageGroup emptyGroup = new MessageGroup("Empty", 0, 0, 1.0);
         assertTrue(emptyGroup.messages.isEmpty());
         assertFalse(emptyGroup.isCollapsed);
-        
+
         emptyGroup.isCollapsed = true;
         assertTrue(emptyGroup.isCollapsed);
         assertTrue(emptyGroup.messages.isEmpty());
@@ -87,7 +85,7 @@ public class MessageGroupCollapsedTest {
     void testAddMessagesToCollapsedGroup() {
         group.isCollapsed = true;
         assertTrue(group.isCollapsed);
-        
+
         group.messages.add("Message 4");
         assertEquals(4, group.messages.size());
         assertTrue(group.isCollapsed, 

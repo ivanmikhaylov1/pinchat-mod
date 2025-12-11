@@ -10,12 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Тесты жизненного цикла мода с проверкой инициализации
- * 
- * Эти тесты проверяют что мод корректно инициализируется
- * и все компоненты готовы к работе.
- */
+
 @DisplayName("Тесты жизненного цикла мода")
 @Environment(EnvType.CLIENT)
 public class PinChatModLifecycleTest {
@@ -23,7 +18,7 @@ public class PinChatModLifecycleTest {
     @Test
     @DisplayName("Проверка что мы в клиентской среде")
     void testClientEnvironment() {
-        // В тестовом клиенте мы должны быть в клиентской среде
+
         assertNotNull(FabricLoader.getInstance(), "FabricLoader должен быть доступен");
         assertTrue(true, "Тесты выполняются в клиентской среде");
     }
@@ -33,8 +28,8 @@ public class PinChatModLifecycleTest {
     void testPinnedMessagesInitialized() {
         assertNotNull(PinnedMessages.groups, 
             "Список групп сообщений должен быть инициализирован");
-        
-        // Проверяем что можно работать с группами
+
+
         assertDoesNotThrow(() -> {
             MessageGroup testGroup = new MessageGroup("Test", 0, 0, 1.0);
             assertNotNull(testGroup);
@@ -62,17 +57,17 @@ public class PinChatModLifecycleTest {
     @Test
     @DisplayName("Проверка что конфигурация имеет разумные значения")
     void testConfigHasReasonableValues() {
-        // В среде с FabricLoader конфигурация должна быть загружена
+
         assertDoesNotThrow(() -> {
-            // Проверяем что значения в разумных пределах
+
             assertTrue(dev.sfafy.pinchat.config.PinChatConfig.maxPinnedMessages > 0 
                 && dev.sfafy.pinchat.config.PinChatConfig.maxPinnedMessages <= 1000,
                 "maxPinnedMessages должен быть в разумных пределах");
-            
+
             assertTrue(dev.sfafy.pinchat.config.PinChatConfig.maxLineWidth > 0 
                 && dev.sfafy.pinchat.config.PinChatConfig.maxLineWidth <= 10000,
                 "maxLineWidth должен быть в разумных пределах");
-            
+
             assertTrue(dev.sfafy.pinchat.config.PinChatConfig.pinnedScale > 0 
                 && dev.sfafy.pinchat.config.PinChatConfig.pinnedScale <= 10.0,
                 "pinnedScale должен быть в разумных пределах");

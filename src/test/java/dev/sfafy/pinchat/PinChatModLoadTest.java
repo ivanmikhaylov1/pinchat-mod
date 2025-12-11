@@ -4,9 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Тесты для проверки загрузки мода PinChat
- */
+
 @DisplayName("Тесты загрузки мода PinChat")
 public class PinChatModLoadTest {
 

@@ -14,20 +14,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeAll;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Интеграционные тесты с запуском Minecraft клиента
- * 
- * Эти тесты запускаются в среде с FabricLoader и могут проверять
- * реальную инициализацию мода в Minecraft.
- * 
- * Запуск: ./gradlew runTestClient
- */
+
 @DisplayName("Тесты инициализации мода с запуском Minecraft")
 public class PinChatModInitializationTest {
 
     @BeforeAll
     static void setup() {
-        // Проверяем что мы в среде с FabricLoader
+
         assertNotNull(FabricLoader.getInstance(), 
             "FabricLoader должен быть доступен в тестовой среде");
     }
@@ -59,9 +52,9 @@ public class PinChatModInitializationTest {
     @Test
     @DisplayName("Проверка что конфигурация может быть загружена")
     void testConfigCanBeLoaded() {
-        // В среде с FabricLoader конфигурация должна быть доступна
+
         assertDoesNotThrow(() -> {
-            // Проверяем что значения конфигурации валидны
+
             assertTrue(PinChatConfig.maxPinnedMessages > 0, 
                 "maxPinnedMessages должен быть положительным");
             assertTrue(PinChatConfig.maxLineWidth > 0, 
@@ -78,14 +71,14 @@ public class PinChatModInitializationTest {
     void testIntegrationManagerWorks() {
         assertDoesNotThrow(() -> {
             IntegrationManager.detectMods();
-            
-            // Проверяем что методы работают
+
+
             boolean malilib = IntegrationManager.isMalilibLoaded();
             boolean clothConfig = IntegrationManager.isClothConfigLoaded();
             boolean modMenu = IntegrationManager.isModMenuLoaded();
             boolean yacl = IntegrationManager.isYaclLoaded();
-            
-            // Значения должны быть boolean (true или false)
+
+
             assertTrue(malilib == true || malilib == false);
             assertTrue(clothConfig == true || clothConfig == false);
             assertTrue(modMenu == true || modMenu == false);
@@ -98,10 +91,10 @@ public class PinChatModInitializationTest {
     void testPinnedMessagesCanCreateDefaultGroup() {
         assertDoesNotThrow(() -> {
             PinnedMessages.groups.clear();
-            
-            // В среде с FabricLoader это должно работать
+
+
             MessageGroup defaultGroup = PinnedMessages.getOrCreateDefaultGroup();
-            
+
             assertNotNull(defaultGroup, "Группа по умолчанию должна быть создана");
             assertEquals("Default Group", defaultGroup.name, 
                 "Имя группы по умолчанию должно быть 'Default Group'");
@@ -116,17 +109,17 @@ public class PinChatModInitializationTest {
         assertDoesNotThrow(() -> {
             PinnedMessages.groups.clear();
             MessageGroup group = new MessageGroup("Test", 0, 0, 1.0);
-            
+
             Text text1 = Text.of("Test message 1");
             Text text2 = Text.literal("Test message 2");
-            
+
             PinnedMessages.toggle(text1, group);
             PinnedMessages.toggle(text2, group);
-            
+
             assertEquals(2, group.messages.size(), 
                 "Должно быть добавлено 2 сообщения");
-            
-            // Удаляем одно
+
+
             PinnedMessages.toggle(text1, group);
             assertEquals(1, group.messages.size(), 
                 "После удаления должно остаться 1 сообщение");
