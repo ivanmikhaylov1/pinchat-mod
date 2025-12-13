@@ -4,13 +4,14 @@ on:
   push:
     branches: 
       - master
-      - main
+      - 1.21.11
+      - refactor/multi-loader-architecture
     tags:
       - 'v*'
   pull_request:
     branches:
       - master
-      - main
+      - 1.21.11
 
 env:
   JAVA_VERSION: '21'
