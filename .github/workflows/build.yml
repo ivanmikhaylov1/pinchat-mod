@@ -5,7 +5,6 @@ on:
     branches: 
       - master
       - 1.21.11
-      - refactor/multi-loader-architecture
     tags:
       - 'v*'
   pull_request:
