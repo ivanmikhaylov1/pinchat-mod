@@ -39,7 +39,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradlew test --no-daemon
+        run: ./gradlew :fabric:test --no-daemon
         continue-on-error: false
 
       - name: Upload test results
@@ -48,8 +48,8 @@ jobs:
         with:
           name: test-results
           path: |
-            build/reports/tests/test/
-            build/test-results/test/
+            fabric/build/reports/tests/test/
+            fabric/build/test-results/test/
 
   build:
     runs-on: ubuntu-latest
@@ -80,13 +80,15 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon
+        run: ./gradlew buildAll --no-daemon
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: pinchat-mod
-          path: build/libs/*.jar
+          path: |
+            fabric/build/libs/*.jar
+            forge/build/libs/*.jar
           retention-days: 30
 
   release:
@@ -121,12 +123,14 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon
+        run: ./gradlew buildAll --no-daemon
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/libs/*.jar
+          files: |
+            fabric/build/libs/*.jar
+            forge/build/libs/*.jar
           draft: false
           prerelease: false
           generate_release_notes: true

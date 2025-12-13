@@ -1,29 +1,25 @@
 package dev.sfafy.pinchat;
 
 import dev.sfafy.pinchat.config.PinChatConfig;
-import dev.sfafy.pinchat.config.PinChatConfigData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PinnedMessages {
   public static final List<MessageGroup> groups = new ArrayList<>();
 
-  private static final PinnedMessagesManager manager = createManager();
+  private static final Pattern COUNT_PATTERN = Pattern.compile(" \\(\\d+\\)$");
 
-  private static PinnedMessagesManager createManager() {
-    PinChatConfigData data = new PinChatConfigData();
-
-    data.groups = groups;
-
-    return new PinnedMessagesManager(data, (msg, overlay) -> {
-      MinecraftClient client = MinecraftClient.getInstance();
-      if (client.player != null) {
-        client.player.sendMessage(Text.of(msg), overlay);
-      }
-    });
+  private static String normalize(String text) {
+    Matcher matcher = COUNT_PATTERN.matcher(text);
+    if (matcher.find()) {
+      return matcher.replaceAll("");
+    }
+    return text;
   }
 
   public static MessageGroup getOrCreateDefaultGroup() {
@@ -35,12 +31,36 @@ public class PinnedMessages {
   }
 
   public static void toggle(Text message, MessageGroup targetGroup) {
+    if (targetGroup == null) {
+      targetGroup = getOrCreateDefaultGroup();
+    }
 
-    PinChatConfigData data = manager.getConfig();
-    data.maxPinnedMessages = PinChatConfig.maxPinnedMessages;
-    data.groups = groups;
+    String newContent = message.getString();
+    String normalizedNew = normalize(newContent);
 
-    manager.toggle(message.getString(), targetGroup);
+    String existingMatch = null;
+    for (String pinned : targetGroup.messages) {
+      if (normalize(pinned).equals(normalizedNew)) {
+        existingMatch = pinned;
+        break;
+      }
+    }
+
+    if (existingMatch != null) {
+      targetGroup.messages.remove(existingMatch);
+    } else {
+      if (targetGroup.messages.size() >= PinChatConfig.maxPinnedMessages) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player != null) {
+          client.player.sendMessage(
+              Text.of("§cPinChat: Maximum number of pinned messages reached (" + PinChatConfig.maxPinnedMessages + ")"),
+              false);
+        }
+        return;
+      }
+      targetGroup.messages.add(newContent);
+    }
+
     PinChatConfig.save();
   }
 
