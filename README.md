@@ -116,7 +116,7 @@ Access settings through one of these methods:
 | **Pinned Position X/Y** | Default position for new groups | 10, 10 |
 | **Pinned Scale** | Text scale for pinned messages | 1.0 |
 
-## 🛠️ Building from Source
+## Building from Source
 
 ```bash
 git clone https://github.com/ivanmikhaylov1/pinchat-mod.git
