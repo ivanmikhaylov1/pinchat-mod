@@ -8,9 +8,9 @@
 
 A Minecraft mod that enhances chat functionality with message pinning, grouping, and a moveable chat screen. Works on both **Fabric** and **Forge** mod loaders!
 
-## ✨ Features
+## Features
 
-### 📌 Pin Chat Messages
+### Pin Chat Messages
 
 - **Right-click** on any chat message to pin/unpin it
 - Pinned messages are displayed **persistently** on your HUD
@@ -19,7 +19,7 @@ A Minecraft mod that enhances chat functionality with message pinning, grouping,
 - Configurable maximum number of pinned messages
 - Adjustable text width for pinned messages
 
-### 📂 Message Groups
+### Message Groups
 
 - Organize pinned messages into separate groups
 - Each group can be positioned independently on the screen
@@ -27,27 +27,27 @@ A Minecraft mod that enhances chat functionality with message pinning, grouping,
 - Create new groups on the fly when pinning a message
 - Rename groups to keep things organized
 
-### 🎮 Moveable Chat Screen
+### Moveable Chat Screen
 
 - Open a special chat mode where you can **move while typing** (default: `U`)
 - Look around freely with your mouse while the chat is open
 - Smooth movement transitions — no abrupt stops when opening/closing chat
 - Configurable mouse sensitivity for chat mode
 
-### ⚙️ Flexible Configuration
+### Flexible Configuration
 
 PinChat works **standalone**, but also integrates with popular configuration mods for enhanced settings experience:
 
 | Mod | Integration |
 |-----|-------------|
-| **Cloth Config** | ✅ Full GUI integration |
-| **YACL** | ✅ Full GUI integration |
-| **MaLiLib** | ✅ Hotkey configuration |
-| **ModMenu** | ✅ Settings button in mod list |
+| **Cloth Config** | Full GUI integration |
+| **YACL** | Full GUI integration |
+| **MaLiLib** | Hotkey configuration |
+| **ModMenu** | Settings button in mod list |
 
 > All dependencies are **optional**! The mod works perfectly without any of them.
 
-## 📦 Installation
+## Installation
 
 ### Requirements
 
@@ -77,7 +77,7 @@ For enhanced configuration UI, you can optionally install:
 - [MaLiLib](https://modrinth.com/mod/malilib) — Advanced hotkey configuration
 - [ModMenu](https://modrinth.com/mod/modmenu) — Access settings from mod list
 
-## 🎮 Usage
+## Usage
 
 ### Pinning Messages
 
@@ -140,7 +140,7 @@ Compiled JARs will be in:
 - Fabric: `fabric/build/libs/`
 - Forge: `forge/build/libs/`
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 pinchat-mod/
@@ -151,7 +151,7 @@ pinchat-mod/
 └── .github/         # GitHub Actions workflows
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -161,17 +161,17 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Credits
+## Credits
 
 - Built with [Fabric](https://fabricmc.net/) and [Forge](https://minecraftforge.net/)
 - Uses [Architectury Loom](https://github.com/architectury/architectury-loom) for multi-platform builds
 - Optional integration with [Cloth Config](https://github.com/shedaniel/cloth-config), [YACL](https://github.com/isXander/YetAnotherConfigLib), and [MaLiLib](https://github.com/maruohon/malilib)
 
-## ❓ Support
+## Support
 
 If you encounter any issues or have suggestions:
 
