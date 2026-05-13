@@ -12,6 +12,7 @@ public class PinChatConfigScreen extends Screen {
   private EditBox maxPinnedMessagesField;
   private EditBox maxLineWidthField;
   private EditBox chatSensitivityField;
+  private EditBox highlightKeywordsField;
 
   public PinChatConfigScreen(Screen parent) {
     super(Component.translatable("pinchat.config.title"));
@@ -49,6 +50,15 @@ public class PinChatConfigScreen extends Screen {
     this.addRenderableWidget(chatSensitivityField);
     y += 25;
 
+    this.addRenderableWidget(Button.builder(Component.translatable("pinchat.config.highlightKeywords"), b -> {
+    }).bounds(center - 100 - 10, y, labelWidth, 20).build()).active = false;
+    highlightKeywordsField = new EditBox(this.font, center + 10, y, fieldWidth + 120, 20,
+        Component.translatable("pinchat.config.highlightKeywords"));
+    highlightKeywordsField.setMaxLength(512);
+    highlightKeywordsField.setValue(String.join(", ", PinChatConfig.highlightKeywords));
+    this.addRenderableWidget(highlightKeywordsField);
+    y += 25;
+
     this.addRenderableWidget(Button.builder(Component.translatable("pinchat.config.save"), button -> {
       save();
       this.minecraft.setScreen(this.parent);
@@ -68,6 +78,10 @@ public class PinChatConfigScreen extends Screen {
       PinChatConfig.chatSensitivity = Double.parseDouble(chatSensitivityField.getValue());
     } catch (NumberFormatException ignored) {
     }
+    PinChatConfig.highlightKeywords = java.util.Arrays.stream(highlightKeywordsField.getValue().split(","))
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
 
     PinChatConfig.save();
   }

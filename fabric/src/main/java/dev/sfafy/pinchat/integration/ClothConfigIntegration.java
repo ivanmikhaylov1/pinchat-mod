@@ -60,6 +60,20 @@ public class ClothConfigIntegration {
         .setSaveConsumer(newValue -> dev.sfafy.pinchat.config.PinChatConfig.pinnedScale = newValue)
         .build());
 
+    general.addEntry(entryBuilder
+        .startStrField(net.minecraft.text.Text.translatable("pinchat.config.highlightKeywords"),
+            String.join(", ", dev.sfafy.pinchat.config.PinChatConfig.highlightKeywords))
+        .setDefaultValue("")
+        .setTooltip(net.minecraft.text.Text.translatable("pinchat.config.highlightKeywords.tooltip"))
+        .setSaveConsumer(newValue -> {
+          dev.sfafy.pinchat.config.PinChatConfig.highlightKeywords =
+              java.util.Arrays.stream(newValue.split(","))
+                  .map(String::trim)
+                  .filter(s -> !s.isEmpty())
+                  .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+        })
+        .build());
+
     return builder.build();
   }
 }

@@ -58,6 +58,20 @@ public class YaclIntegration {
                     .range(0.5, 3.0)
                     .step(0.1))
                 .build())
+            .option(dev.isxander.yacl3.api.Option.<String>createBuilder()
+                .name(net.minecraft.text.Text.translatable("pinchat.config.highlightKeywords"))
+                .description(dev.isxander.yacl3.api.OptionDescription
+                    .of(net.minecraft.text.Text.translatable("pinchat.config.highlightKeywords.tooltip")))
+                .binding("", () -> String.join(", ", dev.sfafy.pinchat.config.PinChatConfig.highlightKeywords),
+                    newValue -> {
+                      dev.sfafy.pinchat.config.PinChatConfig.highlightKeywords =
+                          java.util.Arrays.stream(newValue.split(","))
+                              .map(String::trim)
+                              .filter(s -> !s.isEmpty())
+                              .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+                    })
+                .controller(dev.isxander.yacl3.api.controller.StringControllerBuilder::create)
+                .build())
             .build())
         .save(dev.sfafy.pinchat.config.PinChatConfig::save)
         .build()

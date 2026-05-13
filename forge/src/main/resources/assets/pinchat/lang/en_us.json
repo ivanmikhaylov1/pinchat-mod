@@ -19,6 +19,8 @@
   "pinchat.gui.groupSelection.newGroup": "+ New Group",
   "pinchat.gui.positionEdit.newGroup": "New Group",
   "pinchat.gui.positionEdit.tooltip.unpin": "Right-click to unpin",
+  "pinchat.config.highlightKeywords": "Highlight Keywords",
+  "pinchat.config.highlightKeywords.tooltip": "Comma-separated words to highlight in chat (e.g. your name). Plays a sound when triggered.",
   "pinchat.hotkey.openConfig": "Open PinChat Config",
   "pinchat.hotkey.openMoveableChat": "Open Moveable Chat"
 }
