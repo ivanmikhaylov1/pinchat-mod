@@ -2,8 +2,8 @@ package dev.sfafy.pinchat;
 
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -12,7 +12,7 @@ import net.minecraft.util.Language;
 public class PinnedHudRenderer implements HudRenderCallback {
 
   @Override
-  public void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
+  public void onHudRender(MatrixStack matrixStack, float tickDelta) {
     MinecraftClient client = MinecraftClient.getInstance();
 
     if (client == null || client.options == null)
@@ -21,21 +21,19 @@ public class PinnedHudRenderer implements HudRenderCallback {
     if (client.options.hudHidden || PinnedMessages.groups.isEmpty())
       return;
 
-    var matrices = context.getMatrices();
-
     for (MessageGroup group : PinnedMessages.groups) {
       if (group.messages.isEmpty())
         continue;
 
-      matrices.pushMatrix();
-      matrices.translate(group.x, group.y);
-      matrices.scale((float) group.scale, (float) group.scale);
+      matrixStack.push();
+      matrixStack.translate(group.x, group.y, 0f);
+      matrixStack.scale((float) group.scale, (float) group.scale, 1f);
 
       int lineHeight = 12;
 
       String indicator = group.isCollapsed ? "▶" : "▼";
       Text headerText = Text.of(indicator + " " + group.name);
-      context.drawText(client.textRenderer, headerText, 0, -12, 0xFFAAAAAA, true);
+      client.textRenderer.drawWithShadow(matrixStack, headerText, 0, -12, 0xFFAAAAAA);
 
       if (!group.isCollapsed) {
         for (int i = 0; i < group.messages.size(); i++) {
@@ -48,13 +46,13 @@ public class PinnedHudRenderer implements HudRenderCallback {
           OrderedText renderedText = Language.getInstance().reorder(trimmed);
           int width = client.textRenderer.getWidth(renderedText);
 
-          context.fill(-2, y - 2, width + 2, y + 8, 0x80000000);
+          DrawableHelper.fill(matrixStack, -2, y - 2, width + 2, y + 8, 0x80000000);
 
-          context.drawText(client.textRenderer, renderedText, 0, y, 0xFFFFFFFF, true);
+          client.textRenderer.drawWithShadow(matrixStack, renderedText, 0, y, 0xFFFFFFFF);
         }
       }
 
-      matrices.popMatrix();
+      matrixStack.pop();
     }
   }
 }

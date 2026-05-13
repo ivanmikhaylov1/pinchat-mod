@@ -1,5 +1,6 @@
 package dev.sfafy.pinchat.mixin;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.sfafy.pinchat.PinChatMod;
 import dev.sfafy.pinchat.PinnedMessages;
 import net.minecraft.client.Minecraft;
@@ -17,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import dev.sfafy.pinchat.MessageGroup;
-import net.minecraft.client.gui.GuiGraphics;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -47,9 +47,8 @@ public class ChatScreenMixin {
   private double initialMouseY = 0;
 
   @Inject(method = "render", at = @At("TAIL"))
-  private void onRender(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo cir) {
+  private void onRender(PoseStack poseStack, int mouseX, int mouseY, float delta, CallbackInfo cir) {
     if (this.isDragging || this.isResizing) {
-
       if (GLFW.glfwGetMouseButton(GLFW.glfwGetCurrentContext(), 0) != GLFW.GLFW_PRESS) {
         this.isDragging = false;
         this.isResizing = false;
@@ -105,10 +104,10 @@ public class ChatScreenMixin {
 
         if (mouseX >= startX - 10 && mouseX <= startX + scaledWidth + 20 &&
             mouseY >= startY - 20 && mouseY <= startY + scaledHeight + 20) {
-          context.drawString(Minecraft.getInstance().font, arrow, handleX - arrowW,
-              handleY - arrowH, 0xFFFFFFFF);
+          Minecraft.getInstance().font.drawShadow(poseStack, arrow, handleX - arrowW, handleY - arrowH, 0xFFFFFFFF);
 
-          context.fill(startX - 2, startY - 14, startX + scaledWidth + 2, startY + scaledHeight + 2, 0x20FFFFFF);
+          net.minecraft.client.gui.GuiComponent.fill(poseStack, startX - 2, startY - 14,
+              startX + scaledWidth + 2, startY + scaledHeight + 2, 0x20FFFFFF);
           String indicator = group.isCollapsed ? "▶" : "▼";
           int nameWidth = Minecraft.getInstance().font.width(Component.literal(indicator + " " + group.name));
 
@@ -118,31 +117,20 @@ public class ChatScreenMixin {
           int globalRenameX = (int) (startX + renameBtnLocalX * scale);
           int globalBtnY = (int) (startY + btnLocalY * scale);
 
-          context.drawString(Minecraft.getInstance().font, Component.literal("[R]"), globalRenameX, globalBtnY,
-              0xFFFFFF00,
-              true);
+          Minecraft.getInstance().font.draw(poseStack, "[R]", globalRenameX, globalBtnY, 0xFFFFFF00);
 
           int deleteBtnLocalX = (int) (renameBtnLocalX
-              + Minecraft.getInstance().font.width(Component.literal("[R]")) + 4);
+              + Minecraft.getInstance().font.width("[R]") + 4);
           int globalDeleteX = (int) (startX + deleteBtnLocalX * scale);
 
-          context.drawString(Minecraft.getInstance().font, Component.literal("[X]"), globalDeleteX, globalBtnY,
-              0xFFFF5555,
-              true);
+          Minecraft.getInstance().font.draw(poseStack, "[X]", globalDeleteX, globalBtnY, 0xFFFF5555);
         }
       }
     }
   }
 
   @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-  private void onMouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean handled,
-      CallbackInfoReturnable<Boolean> cir) {
-    if (handled)
-      return;
-
-    double mouseX = event.x();
-    double mouseY = event.y();
-    int button = event.button();
+  private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
     if (button != 0 && button != 1)
       return;
 
@@ -205,7 +193,7 @@ public class ChatScreenMixin {
           double globalHeight = headerHeight * scale;
 
           int renameBtnX = nameWidth + 8;
-          int renameBtnW = Minecraft.getInstance().font.width(Component.literal("[R]"));
+          int renameBtnW = Minecraft.getInstance().font.width("[R]");
           double globalRenameX = startX + renameBtnX * scale;
           double globalRenameW = renameBtnW * scale;
 
@@ -220,7 +208,7 @@ public class ChatScreenMixin {
           }
 
           int deleteBtnX = renameBtnX + renameBtnW + 4;
-          int deleteBtnW = Minecraft.getInstance().font.width(Component.literal("[X]"));
+          int deleteBtnW = Minecraft.getInstance().font.width("[X]");
           double globalDeleteX = startX + deleteBtnX * scale;
           double globalDeleteW = deleteBtnW * scale;
 
@@ -335,10 +323,7 @@ public class ChatScreenMixin {
             messageContent, (int) mouseX, (int) mouseY));
 
         if (client.player != null) {
-          client.player.playSound(
-              SoundEvents.UI_BUTTON_CLICK.value(),
-              0.5f,
-              1.0f);
+          client.player.playSound(SoundEvents.UI_BUTTON_CLICK, 0.5f, 1.0f);
         }
 
         cir.setReturnValue(true);

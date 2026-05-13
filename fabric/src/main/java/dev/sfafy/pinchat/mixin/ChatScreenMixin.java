@@ -3,10 +3,11 @@ package dev.sfafy.pinchat.mixin;
 import dev.sfafy.pinchat.PinChatMod;
 import dev.sfafy.pinchat.PinnedMessages;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Click;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 import dev.sfafy.pinchat.config.PinChatConfig;
@@ -18,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import dev.sfafy.pinchat.MessageGroup;
-import net.minecraft.client.gui.DrawContext;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -46,7 +46,7 @@ public class ChatScreenMixin {
   private double initialMouseY = 0;
 
   @Inject(method = "render", at = @At("TAIL"))
-  private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo cir) {
+  private void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo cir) {
     if (this.isDragging || this.isResizing) {
       if (GLFW.glfwGetMouseButton(MinecraftClient.getInstance().getWindow().getHandle(), 0) != GLFW.GLFW_PRESS) {
         this.isDragging = false;
@@ -103,10 +103,11 @@ public class ChatScreenMixin {
 
         if (mouseX >= startX - 10 && mouseX <= startX + scaledWidth + 20 &&
             mouseY >= startY - 20 && mouseY <= startY + scaledHeight + 20) {
-          context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, arrow, handleX - arrowW,
-              handleY - arrowH, 0xFFFFFFFF);
+          MinecraftClient.getInstance().textRenderer.drawWithShadow(matrices, arrow.asOrderedText(),
+              handleX - arrowW, handleY - arrowH, 0xFFFFFFFF);
 
-          context.fill(startX - 2, startY - 14, startX + scaledWidth + 2, startY + scaledHeight + 2, 0x20FFFFFF);
+          DrawableHelper.fill(matrices, startX - 2, startY - 14, startX + scaledWidth + 2,
+              startY + scaledHeight + 2, 0x20FFFFFF);
           String indicator = group.isCollapsed ? "▶" : "▼";
           int nameWidth = MinecraftClient.getInstance().textRenderer.getWidth(Text.of(indicator + " " + group.name));
 
@@ -116,30 +117,24 @@ public class ChatScreenMixin {
           int globalRenameX = (int) (startX + renameBtnLocalX * scale);
           int globalBtnY = (int) (startY + btnLocalY * scale);
 
-          context.drawText(MinecraftClient.getInstance().textRenderer, Text.of("[R]"), globalRenameX, globalBtnY,
-              0xFFFFFF00,
-              true);
+          MinecraftClient.getInstance().textRenderer.draw(matrices, "[R]", globalRenameX, globalBtnY,
+              0xFFFFFF00);
 
           int deleteBtnLocalX = (int) (renameBtnLocalX
-              + MinecraftClient.getInstance().textRenderer.getWidth(Text.of("[R]")) + 4);
+              + MinecraftClient.getInstance().textRenderer.getWidth("[R]") + 4);
           int globalDeleteX = (int) (startX + deleteBtnLocalX * scale);
 
-          context.drawText(MinecraftClient.getInstance().textRenderer, Text.of("[X]"), globalDeleteX, globalBtnY,
-              0xFFFF5555,
-              true);
+          MinecraftClient.getInstance().textRenderer.draw(matrices, "[X]", globalDeleteX, globalBtnY,
+              0xFFFF5555);
         }
       }
     }
   }
 
   @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-  private void onMouseClicked(Click click, boolean isRightClick, CallbackInfoReturnable<Boolean> cir) {
-    int button = click.buttonInfo().button();
+  private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
     if (button != 0 && button != 1)
       return;
-
-    double mouseX = click.x();
-    double mouseY = click.y();
 
     int lineHeight = 12;
 
@@ -200,7 +195,7 @@ public class ChatScreenMixin {
           double globalHeight = headerHeight * scale;
 
           int renameBtnX = nameWidth + 8;
-          int renameBtnW = MinecraftClient.getInstance().textRenderer.getWidth(Text.of("[R]"));
+          int renameBtnW = MinecraftClient.getInstance().textRenderer.getWidth("[R]");
           double globalRenameX = startX + renameBtnX * scale;
           double globalRenameW = renameBtnW * scale;
 
@@ -215,7 +210,7 @@ public class ChatScreenMixin {
           }
 
           int deleteBtnX = renameBtnX + renameBtnW + 4;
-          int deleteBtnW = MinecraftClient.getInstance().textRenderer.getWidth(Text.of("[X]"));
+          int deleteBtnW = MinecraftClient.getInstance().textRenderer.getWidth("[X]");
           double globalDeleteX = startX + deleteBtnX * scale;
           double globalDeleteW = deleteBtnW * scale;
 
@@ -292,7 +287,7 @@ public class ChatScreenMixin {
     MinecraftClient client = MinecraftClient.getInstance();
     ChatHud chatHud = client.inGameHud.getChatHud();
 
-    List<ChatHudLine.Visible> visibleMessages = ((ChatHudAccessor) chatHud).getVisibleMessages();
+    List<ChatHudLine> visibleMessages = ((ChatHudAccessor) chatHud).getVisibleMessages();
 
     if (visibleMessages == null || visibleMessages.isEmpty()) {
       return;
@@ -310,9 +305,9 @@ public class ChatScreenMixin {
     int chatWidth = ((ChatHudAccessor) chatHud).invokeGetWidth();
 
     if (chatX >= 0 && chatX <= chatWidth / chatScale && lineIndex >= 0 && lineIndex < visibleMessages.size()) {
-      ChatHudLine.Visible visibleLine = visibleMessages.get(lineIndex);
+      ChatHudLine visibleLine = visibleMessages.get(lineIndex);
 
-      int creationTick = visibleLine.addedTime();
+      int creationTick = visibleLine.creationTick();
 
       List<ChatHudLine> messages = ((ChatHudAccessor) chatHud).getMessages();
       Text messageContent = null;
@@ -329,10 +324,7 @@ public class ChatScreenMixin {
             messageContent, (int) mouseX, (int) mouseY));
 
         if (client.player != null) {
-          client.player.playSound(
-              net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK.value(),
-              0.5f,
-              1.0f);
+          client.player.playSound(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK, 0.5f, 1.0f);
         }
 
         cir.setReturnValue(true);

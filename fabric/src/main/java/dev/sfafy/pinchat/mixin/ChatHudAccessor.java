@@ -11,7 +11,7 @@ import java.util.List;
 @Mixin(ChatHud.class)
 public interface ChatHudAccessor {
   @Accessor("visibleMessages")
-  List<ChatHudLine.Visible> getVisibleMessages();
+  List<ChatHudLine> getVisibleMessages();
 
   @Accessor("messages")
   List<ChatHudLine> getMessages();
