@@ -47,7 +47,7 @@ dependencies {
     modCompileOnly "maven.modrinth:malilib:0.16.3"
     modCompileOnly "maven.modrinth:cloth-config:8.3.103+fabric"
     modCompileOnly "com.terraformersmc:modmenu:5.0.2"
-    modCompileOnly "dev.isxander:yet-another-config-lib:2.2.0+1.19.2-fabric"
+    modCompileOnly "dev.isxander:yet-another-config-lib:2.2.0-for-1.19.2"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
