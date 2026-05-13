@@ -18,6 +18,12 @@ public class ConfigSerializer {
     json.addProperty("pinnedY", config.pinnedY);
     json.addProperty("pinnedScale", config.pinnedScale);
 
+    JsonArray keywordsArray = new JsonArray();
+    for (String keyword : config.highlightKeywords) {
+      keywordsArray.add(keyword);
+    }
+    json.add("highlightKeywords", keywordsArray);
+
     JsonArray groupsArray = new JsonArray();
     for (MessageGroup group : config.groups) {
       JsonObject groupObj = new JsonObject();
@@ -58,6 +64,16 @@ public class ConfigSerializer {
         config.pinnedY = json.get("pinnedY").getAsInt();
       if (json.has("pinnedScale"))
         config.pinnedScale = json.get("pinnedScale").getAsDouble();
+
+      config.highlightKeywords.clear();
+      if (json.has("highlightKeywords")) {
+        for (JsonElement el : json.getAsJsonArray("highlightKeywords")) {
+          String kw = el.getAsString().trim();
+          if (!kw.isEmpty()) {
+            config.highlightKeywords.add(kw);
+          }
+        }
+      }
 
       config.groups.clear();
       if (json.has("groups")) {

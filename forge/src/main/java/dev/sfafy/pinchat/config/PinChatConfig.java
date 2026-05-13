@@ -5,6 +5,8 @@ import dev.sfafy.pinchat.PinnedMessages;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PinChatConfig {
   private static final File CONFIG_FILE = new File(FMLPaths.CONFIGDIR.get().toFile(), "pinchat.json");
@@ -15,6 +17,7 @@ public class PinChatConfig {
   public static int pinnedX = PinChatConfigData.DEFAULT_PINNED_X;
   public static int pinnedY = PinChatConfigData.DEFAULT_PINNED_Y;
   public static double pinnedScale = PinChatConfigData.DEFAULT_PINNED_SCALE;
+  public static List<String> highlightKeywords = new ArrayList<>();
 
   public static void load() {
     PinChatConfigData data = ConfigSerializer.loadFromFile(CONFIG_FILE);
@@ -28,6 +31,7 @@ public class PinChatConfig {
     pinnedX = data.pinnedX;
     pinnedY = data.pinnedY;
     pinnedScale = data.pinnedScale;
+    highlightKeywords = new ArrayList<>(data.highlightKeywords);
 
     PinnedMessages.groups.clear();
     if (!data.groups.isEmpty()) {
@@ -45,6 +49,7 @@ public class PinChatConfig {
     data.pinnedX = pinnedX;
     data.pinnedY = pinnedY;
     data.pinnedScale = pinnedScale;
+    data.highlightKeywords.addAll(highlightKeywords);
     data.groups.addAll(PinnedMessages.groups);
 
     ConfigSerializer.saveToFile(data, CONFIG_FILE);

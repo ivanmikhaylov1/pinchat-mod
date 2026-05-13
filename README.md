@@ -6,123 +6,95 @@
 [![Fabric](https://img.shields.io/badge/loader-Fabric-dbd0b4.svg)](https://fabricmc.net/)
 [![Forge](https://img.shields.io/badge/loader-Forge-1f1f1f.svg)](https://minecraftforge.net/)
 
-A Minecraft mod that enhances chat functionality with message pinning, grouping, and a moveable chat screen. Works on both **Fabric** and **Forge** mod loaders!
+A Minecraft mod that enhances chat with message pinning, keyword highlighting, and a moveable chat screen. Works on both **Fabric** and **Forge**.
 
-## ✨ Features
+## Features
 
-### 📌 Pin Chat Messages
+### Pin Messages to Your HUD
+- **Right-click** any chat message to pin or unpin it
+- Pinned messages stay visible on screen at all times
+- Configurable maximum number of pinned messages per group
 
-- **Right-click** on any chat message to pin/unpin it
-- Pinned messages are displayed **persistently** on your HUD
-- Create multiple **message groups** to organize your pinned messages
-- **Drag and drop** groups anywhere on your screen
-- Configurable maximum number of pinned messages
-- Adjustable text width for pinned messages
+### Message Groups
+- Organize pinned messages into named groups
+- **Drag groups** anywhere on the screen
+- **Collapse / expand** groups with one click
+- Rename or delete groups on the fly
+- Each group has its own position and scale
 
-### 📂 Message Groups
-
-- Organize pinned messages into separate groups
-- Each group can be positioned independently on the screen
-- **Collapse/expand** groups with a single click
-- Create new groups on the fly when pinning a message
-- Rename groups to keep things organized
-
-### 🎮 Moveable Chat Screen
-
-- Open a special chat mode where you can **move while typing** (default: `U`)
-- Look around freely with your mouse while the chat is open
-- Smooth movement transitions — no abrupt stops when opening/closing chat
-- Configurable mouse sensitivity for chat mode
-
-### ⚙️ Flexible Configuration
-
-PinChat works **standalone**, but also integrates with popular configuration mods for enhanced settings experience:
-
-| Mod | Integration |
-|-----|-------------|
-| **Cloth Config** | ✅ Full GUI integration |
-| **YACL** | ✅ Full GUI integration |
-| **MaLiLib** | ✅ Hotkey configuration |
-| **ModMenu** | ✅ Settings button in mod list |
-
-> All dependencies are **optional**! The mod works perfectly without any of them.
-
-## 📦 Installation
-
-### Requirements
-
-- **Minecraft**: 1.21.11
-- **Java**: 21 or higher
-- **Mod Loader**: Fabric or Forge (choose one)
-
-### For Fabric
-
-1. Install [Fabric Loader](https://fabricmc.net/use/) (0.18.1+)
-2. Download [Fabric API](https://modrinth.com/mod/fabric-api)
-3. Download PinChat for Fabric from [Releases](../../releases)
-4. Place all mods in your `.minecraft/mods` folder
-
-### For Forge
-
-1. Install [Forge](https://files.minecraftforge.net/) (1.21.11-61.0.2+)
-2. Download PinChat for Forge from [Releases](../../releases)
-3. Place the mod in your `.minecraft/mods` folder
-
-### Optional Mods (Fabric only)
-
-For enhanced configuration UI, you can optionally install:
-
-- [Cloth Config](https://modrinth.com/mod/cloth-config) — Config GUI
-- [YACL](https://modrinth.com/mod/yacl) — Alternative config GUI
-- [MaLiLib](https://modrinth.com/mod/malilib) — Advanced hotkey configuration
-- [ModMenu](https://modrinth.com/mod/modmenu) — Access settings from mod list
-
-## 🎮 Usage
-
-### Pinning Messages
-
-1. Open the chat (`T` or `/`)
-2. **Right-click** on any message to open the pin menu
-3. Select **Pin to [Group Name]** or **Create New Group**
-4. Right-click on a pinned message header to **unpin** or manage the group
-
-### Managing Groups
-
-- **Left-click and drag** the group header to move it on screen
-- **Click the collapse button** to minimize a group
-- Right-click for more options (rename, delete, etc.)
+### Keyword Highlighting
+- Define words (e.g. your username) that should stand out in chat
+- Matching words turn **yellow** in incoming messages
+- A sound plays when a highlight is triggered, so you never miss a mention
+- Configure via `/pinchat config` or the settings screen
 
 ### Moveable Chat
+- Press `U` to open a chat mode where you can **move and look around** while typing
+- Smooth transitions when opening and closing
+- Configurable mouse sensitivity
 
-1. Press `U` (or your configured key) to open moveable chat
-2. Type your message while moving and looking around
-3. Press `U` again or `ESC` to close
+### Optional Integrations (Fabric)
 
-### Configuration
+| Mod | What it adds |
+|-----|-------------|
+| [Cloth Config](https://modrinth.com/mod/cloth-config) | Full settings GUI |
+| [YACL](https://modrinth.com/mod/yacl) | Alternative settings GUI |
+| [MaLiLib](https://modrinth.com/mod/malilib) | Hotkey configuration |
+| [ModMenu](https://modrinth.com/mod/modmenu) | Settings button in mod list |
 
-Access settings through one of these methods:
+All integrations are **optional** — the mod works without any of them.
 
-- **Command**: `/pinchat config`
-- **ModMenu**: Click the settings icon next to PinChat in the mod list
-- **In-game**: Use the keybind if configured
+## Installation
 
-#### Available Settings
+**Requirements:** Minecraft 1.21.11 · Java 21+
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Max Pinned Messages** | Maximum number of pinned messages per group | 5 |
-| **Max Line Width** | Maximum width of pinned messages in pixels | 200 |
-| **Chat Sensitivity** | Mouse sensitivity multiplier in moveable chat | 1.0 |
-| **Pinned Position X/Y** | Default position for new groups | 10, 10 |
-| **Pinned Scale** | Text scale for pinned messages | 1.0 |
+### Fabric
+1. Install [Fabric Loader](https://fabricmc.net/use/) 0.18.1+
+2. Download [Fabric API](https://modrinth.com/mod/fabric-api)
+3. Drop both JARs into `.minecraft/mods/`
 
-## 🛠️ Building from Source
+### Forge
+1. Install [Forge](https://files.minecraftforge.net/) 1.21.11-61.0.2+
+2. Drop the PinChat JAR into `.minecraft/mods/`
+
+## Usage
+
+### Pinning messages
+1. Open chat (`T`)
+2. Right-click any message
+3. Choose a group or create a new one
+
+### Managing groups
+- **Left-click and drag** the group header to reposition it
+- Click **▼/▶** to collapse or expand
+- Click **[R]** to rename, **[X]** to delete
+
+### Keyword highlighting
+1. Open config via `/pinchat config`, ModMenu, or the keybind
+2. In the **Highlight Keywords** field enter comma-separated words — for example: `Steve, admin, !help`
+3. Save — those words will glow yellow in chat and play a ping sound when received
+
+### Moveable chat
+- Press `U` to toggle; type while walking and looking around freely
+
+## Configuration
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| Max Pinned Messages | 5 | Per-group limit |
+| Max Line Width | 200 px | Wrapping width for pinned text |
+| Chat Sensitivity | 1.0 | Mouse speed in moveable chat |
+| Highlight Keywords | _(empty)_ | Comma-separated trigger words |
+| Pinned Position X / Y | 10, 10 | Default spawn position for new groups |
+| Pinned Scale | 1.0 | Text scale for pinned messages |
+
+## Building from Source
 
 ```bash
 git clone https://github.com/ivanmikhaylov1/pinchat-mod.git
 cd pinchat-mod
 
-# Build both Fabric and Forge versions
+# Build both loaders
 ./gradlew buildAll
 
 # Build only Fabric
@@ -135,51 +107,32 @@ cd pinchat-mod
 ./gradlew :fabric:test
 ```
 
-Compiled JARs will be in:
+Output JARs:
+- Fabric → `fabric/build/libs/`
+- Forge → `forge/build/libs/`
 
-- Fabric: `fabric/build/libs/`
-- Forge: `forge/build/libs/`
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 pinchat-mod/
-├── common/          # Shared code (configuration, data classes)
-├── fabric/          # Fabric-specific implementation
-├── forge/           # Forge-specific implementation
-├── gradle/          # Gradle wrapper files
-└── .github/         # GitHub Actions workflows
+├── common/    # Shared data classes and config logic
+├── fabric/    # Fabric implementation
+├── forge/     # Forge implementation
+└── .github/   # CI workflows
 ```
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Pull requests are welcome.
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create a branch — `feature/your-feature` or `fix/your-fix`
+3. Commit and push, then open a PR against `master`
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Credits
-
-- Built with [Fabric](https://fabricmc.net/) and [Forge](https://minecraftforge.net/)
-- Uses [Architectury Loom](https://github.com/architectury/architectury-loom) for multi-platform builds
-- Optional integration with [Cloth Config](https://github.com/shedaniel/cloth-config), [YACL](https://github.com/isXander/YetAnotherConfigLib), and [MaLiLib](https://github.com/maruohon/malilib)
-
-## ❓ Support
-
-If you encounter any issues or have suggestions:
-
-- [Open an Issue](../../issues)
-- Make sure to include your Minecraft version, mod loader, and any crash logs
+MIT — see [LICENSE](LICENSE).
 
 ---
 
-<p align="center">
-  Made with ❤️ by <a href="https://github.com/ivanmikhaylov1">Sfafy</a>
-</p>
+<p align="center">Made with ❤️ by <a href="https://github.com/ivanmikhaylov1">Sfafy</a></p>

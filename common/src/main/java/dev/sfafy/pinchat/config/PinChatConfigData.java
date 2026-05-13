@@ -20,6 +20,7 @@ public class PinChatConfigData {
   public int pinnedX = DEFAULT_PINNED_X;
   public int pinnedY = DEFAULT_PINNED_Y;
   public double pinnedScale = DEFAULT_PINNED_SCALE;
+  public List<String> highlightKeywords = new ArrayList<>();
   public List<MessageGroup> groups = new ArrayList<>();
 
   public PinChatConfigData() {
@@ -32,6 +33,7 @@ public class PinChatConfigData {
     pinnedX = DEFAULT_PINNED_X;
     pinnedY = DEFAULT_PINNED_Y;
     pinnedScale = DEFAULT_PINNED_SCALE;
+    highlightKeywords.clear();
     groups.clear();
   }
 
@@ -50,6 +52,7 @@ public class PinChatConfigData {
     copy.pinnedX = this.pinnedX;
     copy.pinnedY = this.pinnedY;
     copy.pinnedScale = this.pinnedScale;
+    copy.highlightKeywords.addAll(this.highlightKeywords);
     for (MessageGroup group : this.groups) {
       copy.groups.add(group.copy());
     }
