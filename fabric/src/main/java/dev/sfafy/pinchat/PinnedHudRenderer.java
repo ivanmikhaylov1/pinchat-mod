@@ -3,7 +3,6 @@ package dev.sfafy.pinchat;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -12,7 +11,7 @@ import net.minecraft.util.Language;
 public class PinnedHudRenderer implements HudRenderCallback {
 
   @Override
-  public void onHudRender(DrawContext context, RenderTickCounter tickCounter) {
+  public void onHudRender(DrawContext context, float tickDelta) {
     MinecraftClient client = MinecraftClient.getInstance();
 
     if (client == null || client.options == null)
@@ -27,9 +26,9 @@ public class PinnedHudRenderer implements HudRenderCallback {
       if (group.messages.isEmpty())
         continue;
 
-      matrices.pushMatrix();
-      matrices.translate(group.x, group.y);
-      matrices.scale((float) group.scale, (float) group.scale);
+      matrices.push();
+      matrices.translate(group.x, group.y, 0f);
+      matrices.scale((float) group.scale, (float) group.scale, 1f);
 
       int lineHeight = 12;
 
@@ -54,7 +53,7 @@ public class PinnedHudRenderer implements HudRenderCallback {
         }
       }
 
-      matrices.popMatrix();
+      matrices.pop();
     }
   }
 }

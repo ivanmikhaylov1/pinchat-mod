@@ -1,9 +1,10 @@
 package dev.sfafy.pinchat;
 
-import net.minecraft.resources.Identifier;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,15 +12,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.locale.Language;
-import org.joml.Matrix3x2fStack;
 
-@Mod.EventBusSubscriber(modid = PinChatMod.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = PinChatMod.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class PinnedHudRenderer {
 
   @SubscribeEvent
-  public static void registerOverlays(net.minecraftforge.client.event.AddGuiOverlayLayersEvent event) {
-    event.getLayeredDraw().add(Identifier.fromNamespaceAndPath(PinChatMod.MOD_ID, "pinned_messages"),
-        (graphics, delta) -> {
+  public static void registerOverlays(net.minecraftforge.client.event.RegisterGuiOverlaysEvent event) {
+    event.registerAboveAll(new ResourceLocation(PinChatMod.MOD_ID, "pinned_messages"),
+        (gui, graphics, partialTick, screenWidth, screenHeight) -> {
           onRenderGui(graphics);
         });
   }
@@ -33,15 +33,15 @@ public class PinnedHudRenderer {
     if (client.options.hideGui || PinnedMessages.groups.isEmpty())
       return;
 
-    org.joml.Matrix3x2fStack matrices = context.pose();
+    PoseStack matrices = context.pose();
 
     for (MessageGroup group : PinnedMessages.groups) {
       if (group.messages.isEmpty())
         continue;
 
-      matrices.pushMatrix();
-      matrices.translate((float) group.x, (float) group.y);
-      matrices.scale((float) group.scale, (float) group.scale);
+      matrices.pushPose();
+      matrices.translate((float) group.x, (float) group.y, 0f);
+      matrices.scale((float) group.scale, (float) group.scale, 1f);
 
       int lineHeight = 12;
 
@@ -66,7 +66,7 @@ public class PinnedHudRenderer {
         }
       }
 
-      matrices.popMatrix();
+      matrices.popPose();
     }
   }
 }

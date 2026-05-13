@@ -3,7 +3,6 @@ package dev.sfafy.pinchat.mixin;
 import dev.sfafy.pinchat.PinChatMod;
 import dev.sfafy.pinchat.PinnedMessages;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -133,13 +132,9 @@ public class ChatScreenMixin {
   }
 
   @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-  private void onMouseClicked(Click click, boolean isRightClick, CallbackInfoReturnable<Boolean> cir) {
-    int button = click.buttonInfo().button();
+  private void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
     if (button != 0 && button != 1)
       return;
-
-    double mouseX = click.x();
-    double mouseY = click.y();
 
     int lineHeight = 12;
 

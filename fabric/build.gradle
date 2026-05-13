@@ -44,10 +44,10 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modCompileOnly "maven.modrinth:malilib:0.26.3"
-    modCompileOnly "maven.modrinth:cloth-config:20.0.149+fabric"
-    modCompileOnly "com.terraformersmc:modmenu:11.0.3"
-    modCompileOnly "dev.isxander:yet-another-config-lib:3.8.1+1.21.11-fabric"
+    modCompileOnly "maven.modrinth:malilib:0.16.3"
+    modCompileOnly "maven.modrinth:cloth-config:13.0.121+fabric"
+    modCompileOnly "com.terraformersmc:modmenu:7.2.2"
+    modCompileOnly "dev.isxander:yet-another-config-lib:3.3.2+1.20.1-fabric"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -67,13 +67,13 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 21
+    it.options.release = 17
 }
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 test {
