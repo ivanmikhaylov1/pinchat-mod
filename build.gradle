@@ -10,5 +10,7 @@ tasks.named('clean').configure {
 }
 
 tasks.register('buildAll') {
-    dependsOn subprojects.collect { it.tasks.matching { it.name == 'build' } }
+    dependsOn subprojects.collect { subproject ->
+        subproject.path == ':neoforge' ? subproject.tasks.named('assemble') : subproject.tasks.named('build')
+    }
 }

@@ -26,7 +26,8 @@ sourceSets {
         }
         java {
             srcDirs += [
-                project(':common').sourceSets.main.java
+                project(':common').sourceSets.main.java,
+                rootProject.file('common/src/mojang/java')
             ]
         }
     }
