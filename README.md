@@ -56,7 +56,7 @@ The next build step is to add version subprojects or a Stonecutter-style source 
 
 ### Babric / Minecraft Beta 1.7.3
 
-Babric is a separate Java 8-era port, not a source set of this modern build. A small amount of model logic can be adapted: storing pinned message text, grouping messages and saving group positions. Chat HUD interception, mouse hit testing, rendering, key handling and the moveable chat screen need new implementations. In particular, there is no modern chat screen, Fabric API or mixin surface to reuse for the current movement behavior.
+Babric is a separate Java 8-era port, not a source set of this modern build. A small amount of model logic can be adapted: storing pinned message text, grouping messages and saving group positions. Chat HUD interception, mouse hit testing, rendering, key handling and the moveable chat screen need new implementations. Babric can use Mixins, but its game classes and available APIs do not match the modern chat and movement code. The [old Babric example](https://github.com/babric/babric-example-mod) is archived and points to the [StationAPI example](https://github.com/calmilamsy/stationapi-example-mod) as a starting point.
 
 Estimate **2–4 weeks for one experienced modder** for a usable prototype with pinning and groups, plus **1–2 additional weeks** to investigate moveable chat and test compatibility with Babric mods. This is an engineering estimate, not a release commitment. A separate `babric` branch/repository should first establish a Beta 1.7.3 client build, then add chat interception and persistence, then groups and HUD dragging, and finally assess movement while typing. It does not block modern-loader releases.
 
