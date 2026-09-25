@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "pinchat",
+  "version": "${version}",
+  "name": "PinChat",
+  "description": "Pin chat messages and organize them into movable groups.",
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": { "client": ["dev.sfafy.pinchat.PinChatMod"] },
+  "mixins": ["pinchat.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "${minecraft_dependency}",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

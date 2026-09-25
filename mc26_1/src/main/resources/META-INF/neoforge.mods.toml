@@ -11,7 +11,7 @@ config="pinchat.mixins.json"
 [[dependencies.pinchat]]
     modId="minecraft"
     type="required"
-    versionRange="[26.1]"
+    versionRange="${minecraft_dependency}"
     ordering="NONE"
     side="BOTH"
 

@@ -6,14 +6,33 @@ Pin chat messages on the HUD, organize them into movable groups, and optionally 
 
 | Minecraft | Java | Fabric | Quilt | Forge | NeoForge |
 |---|---:|:---:|:---:|:---:|:---:|
-| 1.21.11 | 21 | ✓ | ✓* | ✓ | ✓† |
-| 26.1 | 25 | — | — | — | ✓† |
+| 1.21.11 | 21 | ✓ | ✓* | ✓ | ✓ |
+| 26.1 | 25 | ✓ | ✓† | — | ✓ |
+| 26.1.1 | 25 | ✓‡ | ✓‡ | — | ✓‡ |
+| 26.1.2 | 25 | ✓‡ | ✓‡ | — | ✓‡ |
+| 26.2 | 25 | ✓ | ✓† | — | ✓ |
+| 26.3 | 25 | — | — | — | — |
 
-\* The Quilt artifact is the same binary as Fabric, repackaged with a loader-specific filename. Quilt Loader supports Fabric mods and Fabric API. CI verifies its metadata, entrypoint and mixin classes, but does not launch a Quilt client. The current Gradle wrapper and Quilt Loom versions could not provide a reliable Quilt dev launch: Fabric Loom's Quilt launch failed during Minecraft bootstrap, and recent Quilt Loom requires Gradle 9. A manual Quilt client check is required before release.
+\* The 1.21.11 Quilt artifact is the Fabric binary with a loader-specific filename. Quilt 1.21.11 still needs a manual client check before release.
 
-† CI launches both NeoForge clients under Xvfb after `buildAll` and requires the PinChat client setup event, completed GUI atlas and a visible Minecraft window for 15 seconds. This checks startup, not in-game interactions. The same script passed locally for 1.21.11 and 26.1 using the render-ready log checkpoint and a live client process.
+† Quilt 26.x uses the **identical Fabric JAR**. Quilt Loader 0.30.1 accepts Fabric mod metadata and the upstream Fabric API; the previous Quilted Fabric API was [retired starting with 26.1](https://quiltmc.org/en/blog/2026-02-03-non-obfuscated-updates/). Local Quilt client smoke tests reached the GUI atlas with PinChat's entrypoint on 26.1, 26.1.1, 26.1.2 and 26.2. The CI workflow repeats these startup checks.
 
-Minecraft 26.1.1, 26.1.2, 26.2 and 26.3 are released, but **PinChat does not currently support them**. Minecraft 26.1 introduced Java 25 and unobfuscated game binaries; 26.3 changed input handling to SDL3. Each additional version requires version-specific client code and runtime checks before it can be added to this table.
+‡ Use the **26.1 JAR** from the [Build and Release artifacts](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/build.yml) for both hotfixes. The Fabric/Quilt filename is `pinchat-mod-fabric-3.0.0-mc26.1.jar` (or its byte-identical Quilt alias); the NeoForge filename is `pinchat-mod-neoforge-3.0.0-mc26.1.jar`. Fabric 26.1.1 and 26.1.2, and Quilt 26.1.2, were launched locally with the exact same 26.1 PinChat JAR. The metadata accepts `>=26.1 <26.2` on Fabric/Quilt and `[26.1,26.2)` on NeoForge. On NeoForge 26.1.1, all 23 compiled class files matched the 26.1 release JAR byte for byte and the client passed a startup smoke test. The same comparison and launch check is run for 26.1.2 in CI.
+
+[Minecraft 26.1.1](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-1) fixes a chat reporting bug; [26.1.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-2) is another hotfix. Neither official release note announces new obfuscation or a modding API migration. The actual 26.1 binary is exercised on hotfix clients because release notes alone cannot prove compatibility. [Minecraft 26.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-2) changes the resource pack version to 88.0 and client screen/HUD APIs used by PinChat, so it has separately compiled Fabric and NeoForge JARs built from the same shared code.
+
+The official client JARs contain `version.json`. Their values, checked from downloaded binaries, are:
+
+| Minecraft | Protocol | World data version | Data pack | Resource pack |
+|---|---:|---:|---:|---:|
+| 26.1 | 775 | 4786 | 101.1 | 84.0 |
+| 26.1.1 | 775 | 4788 | 101.1 | 84.0 |
+| 26.1.2 | 775 | 4790 | 101.1 | 84.0 |
+| 26.2 | 776 | 4903 | 107.1 | 88.0 |
+
+The hotfixes change the world data number but keep the protocol and pack formats. All four ship unobfuscated game classes and require Java 25; [Fabric Loom uses the official unobfuscated names](https://www.fabricmc.net/2026/03/14/261.html) without a separate mappings artifact. These values inform the compatibility decision; actual client startup and bytecode comparisons provide the runtime evidence.
+
+Forge 26.x releases exist, but PinChat has no Forge 26.x port. A 1.21.11 Forge JAR is **not** compatible with 26.x; Forge needs a separate Java 25 client registration and runtime port. Minecraft 26.3 is outside this release because its [SDL3 input migration](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-3) replaces the GLFW input used by PinChat.
 
 ## Features and usage
 
@@ -29,13 +48,12 @@ PinChat stores groups, positions and the moveable chat switch in `config/pinchat
 
 Choose **one** JAR matching your Minecraft version and loader, then put it in `.minecraft/mods`:
 
-- **Fabric:** Fabric Loader 0.18.4 or newer and Fabric API for 1.21.11.
-- **Quilt:** Quilt Loader and Fabric API for 1.21.11. Use the Quilt artifact; it contains the Fabric-compatible mod binary.
-- **Forge:** Forge 1.21.11-61.0.2 or newer in the 61.x series.
-- **NeoForge:** NeoForge 21.11.38-beta or newer in the 21.11 series.
-- **NeoForge 26.1:** NeoForge 26.1.0.19-beta and the `mc26.1` JAR.
+- **1.21.11:** use the platform-specific 1.21.11 JAR and Java 21. Fabric and Quilt need Fabric API for 1.21.11.
+- **26.1 / 26.1.1 / 26.1.2:** use the `mc26.1` JAR and Java 25. Fabric Loader 0.19.5 or Quilt Loader 0.30.1 also need Fabric API for the exact game patch version. NeoForge uses the matching 26.1.x loader; PinChat was compiled against 26.1.0.19-beta.
+- **26.2:** use the `mc26.2` JAR and Java 25. Fabric Loader 0.19.5 or Quilt Loader 0.30.1 need Fabric API for 26.2. The NeoForge build targets 26.2.0.88.
+- **Forge:** supported only on 1.21.11 (Forge 61.x).
 
-Minecraft 1.21.11 requires Java 21; Minecraft 26.1 requires **Java 25**. No Cloth Config, YACL, MaLiLib, or ModMenu installation is required.
+On Quilt 26.x, select the Fabric 26.x JAR. CI provides a second `quilt` filename containing the same bytes for convenience. No Cloth Config, YACL, MaLiLib or ModMenu installation is required.
 
 ## Build
 
@@ -43,35 +61,34 @@ Minecraft 1.21.11 requires Java 21; Minecraft 26.1 requires **Java 25**. No Clot
 ./gradlew buildAll
 ```
 
-This command runs the common and Fabric tests, builds all four 1.21.11 loader artifacts, compiles the Java 25 toolchain probe, and assembles the NeoForge 26.1 artifact. NeoForge is assembled without NeoGradle's in-game JUnit task because these client-only modules have no game tests; that task downloads the complete Minecraft asset set. Output JARs are in `fabric/build/libs/`, `quilt/build/libs/`, `forge/build/libs/`, `neoforge/build/libs/` and `mc26_1/build/libs/`.
+The command builds all existing 1.21.11 loaders, plus Fabric/Quilt-compatible and NeoForge artifacts for 26.1.x and 26.2. The 26.x builds share `common/src/main/java` and `common/src/mojang/java`; only loader bindings and version-specific API adaptations differ. The root build runs on Java 21, and the nested Gradle 9.2 builds select Java 25. Install both JDKs; if Gradle cannot discover Java 25, set `JAVA_25_HOME`.
 
-The build needs JDK 21 and JDK 25 installed. The root Gradle build runs on JDK 21 and selects JDK 25 for `java25-toolchain-check/`. The 26.1 module uses a nested Gradle 9.2 wrapper and Java 25 because NeoForge 26.1 requires Gradle 9.1 or newer. In CI, both Temurin versions are installed. Locally, set `JAVA_25_HOME` to the JDK 25 home if Gradle cannot discover it automatically.
+Output JARs are in `fabric/build/libs/`, `quilt/build/libs/`, `forge/build/libs/`, `neoforge/build/libs/`, `fabric26_1/build/libs/` and `mc26_1/build/libs/`. `mc26_1/` also builds the distinct 26.2 NeoForge target through version parameters. CI copies release artifacts to `dist/` with unambiguous version and loader names.
 
-CI also checks the packaged 1.21.11 and 26.1 NeoForge and Quilt-compatible JAR metadata, entrypoint classes and mixin classes. NeoForge client smoke tests run separately under Xvfb and fail if the client exits, PinChat's client event does not fire, the GUI atlas is not built, or the Minecraft window does not remain open. Quilt has no automated client launch yet; its metadata check cannot prove runtime compatibility.
+CI validates packaged metadata and mixin classes, then launches NeoForge 1.21.11/26.1/26.2 under Xvfb. It also launches the **packaged** Fabric JAR on Fabric 26.1, 26.1.1, 26.1.2 and 26.2, and on Quilt 26.1, 26.1.1, 26.1.2 and 26.2 with Fabric API. NeoForge hotfix runs also compare their compiled class files with the 26.1 JAR to ensure the distributed binary is unchanged. Each client must invoke the PinChat entrypoint, build the GUI atlas and keep a visible window alive for 15 seconds. These are startup checks; they cannot prove mouse interaction or persistence.
 
-Before a release, manually launch the Quilt artifact with Quilt Loader and Fabric API for Minecraft 1.21.11 and check:
+Before each release, on each advertised 26.x loader and game version:
 
-1. The main menu opens without a loader, mixin or entrypoint error.
-2. Right-click a chat line to pin and unpin it; Shift + right-click creates a group.
-3. Drag a group, close and reopen the game, and confirm its position persists.
-4. Press `P` and toggle moveable chat; press `U` and verify movement while chat is open.
-
-Run the same interaction checks once on each NeoForge version. CI's NeoForge smoke tests cover startup only.
+1. Open a world, right-click a chat line to pin and unpin it, and Shift + right-click to create a group.
+2. Drag a group, restart the game and verify its position persists.
+3. Press `P`, toggle moveable chat, then press `U` and check movement while chat is open.
+4. Confirm no mixin, event bus or loader errors in the client log. Smoke tests cover startup only; repeat the in-game interaction checks on NeoForge 26.1.1 and 26.1.2 before release.
 
 ```text
 common/src/main/java       shared model and config serialization
-common/src/mojang/java     Minecraft client code shared by Forge and NeoForge
-fabric/                    Fabric implementation (Yarn mappings)
-quilt/                     Fabric-compatible Quilt artifact, no copied Java code
-forge/                     Forge registration and configuration path
-neoforge/                  NeoForge registration and configuration path
-java25-toolchain-check/     empty Java 25 build probe for future 26.1 modules
-mc26_1/                    NeoForge 26.1 sources and Java 25 / Gradle 9.2 build
+common/src/mojang/java     Minecraft client code shared by Java 25 targets
+fabric/                    Fabric 1.21.11 implementation (Yarn mappings)
+quilt/                     1.21.11 Fabric-compatible Quilt artifact
+forge/                     Forge 1.21.11 registration
+neoforge/                  NeoForge registration reused by Java 25 target
+java25-toolchain-check/     Java 25 build probe
+fabric26_1/                Fabric 26.1.x and 26.2 Java 25 / Gradle 9.2 builds
+mc26_1/                    NeoForge 26.1.x and 26.2 Java 25 / Gradle 9.2 builds
 ```
 
-### Minecraft 26.x migration plan
+### Minecraft 26.3 port estimate
 
-The 26.1 module shares the model in `common/src/main/java`, reuses the Mojang-mapped client source and NeoForge registration, and overlays only classes whose 26.1 APIs changed. Later 26.x versions need their own compatibility checks. SDL3 input work for 26.3 is a separate task.
+[26.3 replaces GLFW with SDL3](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-3) for windows and input. PinChat directly reads GLFW mouse state in its chat mixin and uses GLFW key codes for shortcuts, so a simple dependency bump is insufficient. Estimate **4–8 development days plus 2–3 days of platform and mouse interaction testing** for Fabric/Quilt and NeoForge. This is an estimate, not a release commitment; the work belongs in a separate task.
 
 ### Babric / Minecraft Beta 1.7.3
 

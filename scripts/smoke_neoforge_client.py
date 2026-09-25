@@ -14,14 +14,19 @@ import time
 
 root = pathlib.Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
-parser.add_argument("--target", choices=("1.21.11", "26.1"), default="1.21.11")
+parser.add_argument("--target", choices=("1.21.11", "26.1", "26.2"), default="1.21.11")
 parser.add_argument("--require-window", action="store_true")
+parser.add_argument("--neo-version", help="Override NeoForge version for hotfix compatibility smoke")
 args = parser.parse_args()
 target = args.target
 if args.require_window and (not os.environ.get("DISPLAY") or not shutil.which("xdotool")):
     parser.error("--require-window requires DISPLAY and xdotool")
-if target == "26.1":
+if target in ("26.1", "26.2"):
     command = [str(root / "mc26_1/gradlew"), "-p", str(root / "mc26_1"), "runClient"]
+    if target == "26.2":
+        command.extend(["-Pminecraft_version=26.2", "-Pneo_version=26.2.0.88", "-Ppack_format=88"])
+    if args.neo_version:
+        command.append(f"-Pneo_version={args.neo_version}")
 else:
     command = [str(root / "gradlew"), ":neoforge:runClient"]
 deadline = time.monotonic() + 900
