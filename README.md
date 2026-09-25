@@ -6,9 +6,11 @@ Pin chat messages on the HUD, organize them into movable groups, and optionally 
 
 | Minecraft | Java | Fabric | Quilt | Forge | NeoForge |
 |---|---:|:---:|:---:|:---:|:---:|
-| 1.21.11 | 21 | ✓ | ✓* | ✓ | ✓ |
+| 1.21.11 | 21 | ✓ | ✓* | ✓ | ✓† |
 
 \* The Quilt artifact is the same binary as Fabric, repackaged with a loader-specific filename. Quilt Loader supports Fabric mods and Fabric API. The project builds this artifact, but does not yet run an automated Quilt game launch test.
+
+† The NeoForge artifact compiles and packages successfully; an in-game client launch has not yet been verified.
 
 Minecraft 26.1, 26.1.1, 26.1.2, 26.2 and 26.3 are released, but **PinChat does not currently support them**. Minecraft 26.1 introduced Java 25 and unobfuscated game binaries; 26.3 changed input handling to SDL3. Supporting them requires version-specific client code and runtime checks before they can be added to this table.
 
