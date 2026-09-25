@@ -1,185 +1,65 @@
 # PinChat
 
-[![Build Status](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/build.yml/badge.svg)](https://github.com/ivanmikhaylov1/pinchat-mod/actions)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Minecraft](https://img.shields.io/badge/minecraft-1.21.11-brightgreen.svg)](https://www.minecraft.net/)
-[![Fabric](https://img.shields.io/badge/loader-Fabric-dbd0b4.svg)](https://fabricmc.net/)
-[![Forge](https://img.shields.io/badge/loader-Forge-1f1f1f.svg)](https://minecraftforge.net/)
+Pin chat messages on the HUD, organize them into movable groups, and optionally move while the chat screen is open.
 
-A Minecraft mod that enhances chat functionality with message pinning, grouping, and a moveable chat screen. Works on both **Fabric** and **Forge** mod loaders!
+## Supported versions and loaders
 
-## Features
+| Minecraft | Java | Fabric | Quilt | Forge | NeoForge |
+|---|---:|:---:|:---:|:---:|:---:|
+| 1.21.11 | 21 | ✓ | ✓* | ✓ | ✓ |
 
-### Pin Chat Messages
+\* The Quilt artifact is the same binary as Fabric, repackaged with a loader-specific filename. Quilt Loader supports Fabric mods and Fabric API. The project builds this artifact, but does not yet run an automated Quilt game launch test.
 
-- **Right-click** on any chat message to pin/unpin it
-- Pinned messages are displayed **persistently** on your HUD
-- Create multiple **message groups** to organize your pinned messages
-- **Drag and drop** groups anywhere on your screen
-- Configurable maximum number of pinned messages
-- Adjustable text width for pinned messages
+Minecraft 26.1, 26.1.1, 26.1.2, 26.2 and 26.3 are released, but **PinChat does not currently support them**. Minecraft 26.1 introduced Java 25 and unobfuscated game binaries; 26.3 changed input handling to SDL3. Supporting them requires version-specific client code and runtime checks before they can be added to this table.
 
-### Message Groups
+## Features and usage
 
-- Organize pinned messages into separate groups
-- Each group can be positioned independently on the screen
-- **Collapse/expand** groups with a single click
-- Create new groups on the fly when pinning a message
-- Rename groups to keep things organized
+- Open chat with `T` or `/`, then **right-click a message** to pin it in the default group. Right-click it again to unpin it.
+- **Shift + right-click a message** to create a new group containing that message in one action.
+- **Drag a group** with the left mouse button to place it on screen. Click its header to collapse or expand it; hover over the group for rename and delete buttons. Right-click a pinned line to remove it.
+- Press **U** to open the moveable chat screen. Press **U** again or **Esc** to close it. Movement uses your normal game keys.
+- Press **P** for PinChat settings. The built-in screen has one switch: moveable chat on or off. It works without any configuration mod. On Fabric, ModMenu can also open this same screen if installed.
 
-### Moveable Chat Screen
-
-- Open a special chat mode where you can **move while typing** (default: `U`)
-- Look around freely with your mouse while the chat is open
-- Smooth movement transitions — no abrupt stops when opening/closing chat
-- Configurable mouse sensitivity for chat mode
-
-### Flexible Configuration
-
-PinChat works **standalone**, but also integrates with popular configuration mods for enhanced settings experience:
-
-| Mod | Integration |
-|-----|-------------|
-| **Cloth Config** | Full GUI integration |
-| **YACL** | Full GUI integration |
-| **MaLiLib** | Hotkey configuration |
-| **ModMenu** | Settings button in mod list |
-
-> All dependencies are **optional**! The mod works perfectly without any of them.
+PinChat stores groups, positions and the moveable chat switch in `config/pinchat.json`. Existing files retain their saved groups and positions. Older numeric fields remain readable for compatibility but are no longer exposed as settings.
 
 ## Installation
 
-### Requirements
+Choose **one** JAR matching Minecraft 1.21.11 and your loader, then put it in `.minecraft/mods`:
 
-- **Minecraft**: 1.21.11
-- **Java**: 21 or higher
-- **Mod Loader**: Fabric or Forge (choose one)
+- **Fabric:** Fabric Loader 0.18.4 or newer and Fabric API for 1.21.11.
+- **Quilt:** Quilt Loader and Fabric API for 1.21.11. Use the Quilt artifact; it contains the Fabric-compatible mod binary.
+- **Forge:** Forge 1.21.11-61.0.2 or newer in the 61.x series.
+- **NeoForge:** NeoForge 21.11.38-beta or newer in the 21.11 series.
 
-### For Fabric
+Java 21 or newer is required for this Minecraft version. No Cloth Config, YACL, MaLiLib, or ModMenu installation is required.
 
-1. Install [Fabric Loader](https://fabricmc.net/use/) (0.18.1+)
-2. Download [Fabric API](https://modrinth.com/mod/fabric-api)
-3. Download PinChat for Fabric from [Releases](../../releases)
-4. Place all mods in your `.minecraft/mods` folder
-
-### For Forge
-
-1. Install [Forge](https://files.minecraftforge.net/) (1.21.11-61.0.2+)
-2. Download PinChat for Forge from [Releases](../../releases)
-3. Place the mod in your `.minecraft/mods` folder
-
-### Optional Mods (Fabric only)
-
-For enhanced configuration UI, you can optionally install:
-
-- [Cloth Config](https://modrinth.com/mod/cloth-config) — Config GUI
-- [YACL](https://modrinth.com/mod/yacl) — Alternative config GUI
-- [MaLiLib](https://modrinth.com/mod/malilib) — Advanced hotkey configuration
-- [ModMenu](https://modrinth.com/mod/modmenu) — Access settings from mod list
-
-## Usage
-
-### Pinning Messages
-
-1. Open the chat (`T` or `/`)
-2. **Right-click** on any message to open the pin menu
-3. Select **Pin to [Group Name]** or **Create New Group**
-4. Right-click on a pinned message header to **unpin** or manage the group
-
-### Managing Groups
-
-- **Left-click and drag** the group header to move it on screen
-- **Click the collapse button** to minimize a group
-- Right-click for more options (rename, delete, etc.)
-
-### Moveable Chat
-
-1. Press `U` (or your configured key) to open moveable chat
-2. Type your message while moving and looking around
-3. Press `U` again or `ESC` to close
-
-### Configuration
-
-Access settings through one of these methods:
-
-- **Command**: `/pinchat config`
-- **ModMenu**: Click the settings icon next to PinChat in the mod list
-- **In-game**: Use the keybind if configured
-
-#### Available Settings
-
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Max Pinned Messages** | Maximum number of pinned messages per group | 5 |
-| **Max Line Width** | Maximum width of pinned messages in pixels | 200 |
-| **Chat Sensitivity** | Mouse sensitivity multiplier in moveable chat | 1.0 |
-| **Pinned Position X/Y** | Default position for new groups | 10, 10 |
-| **Pinned Scale** | Text scale for pinned messages | 1.0 |
-
-## Building from Source
+## Build
 
 ```bash
-git clone https://github.com/ivanmikhaylov1/pinchat-mod.git
-cd pinchat-mod
-
-# Build both Fabric and Forge versions
 ./gradlew buildAll
-
-# Build only Fabric
-./gradlew :fabric:build
-
-# Build only Forge
-./gradlew :forge:build
-
-# Run tests
-./gradlew :fabric:test
 ```
 
-Compiled JARs will be in:
+This command runs the common and Fabric tests and builds all four 1.21.11 loader artifacts. NeoForge is assembled without NeoGradle's in-game JUnit task because this client-only module has no game tests; that task downloads the complete Minecraft asset set. Output JARs are in `fabric/build/libs/`, `quilt/build/libs/`, `forge/build/libs/` and `neoforge/build/libs/`.
 
-- Fabric: `fabric/build/libs/`
-- Forge: `forge/build/libs/`
-
-## Project Structure
-
-```
-pinchat-mod/
-├── common/          # Shared code (configuration, data classes)
-├── fabric/          # Fabric-specific implementation
-├── forge/           # Forge-specific implementation
-├── gradle/          # Gradle wrapper files
-└── .github/         # GitHub Actions workflows
+```text
+common/src/main/java       shared model and config serialization
+common/src/mojang/java     Minecraft client code shared by Forge and NeoForge
+fabric/                    Fabric implementation (Yarn mappings)
+quilt/                     Fabric-compatible Quilt artifact, no copied Java code
+forge/                     Forge registration and configuration path
+neoforge/                  NeoForge registration and configuration path
 ```
 
-## Contributing
+### Minecraft 26.x migration plan
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+The next build step is to add version subprojects or a Stonecutter-style source overlay for 26.1–26.3, keeping the pure model in `common/src/main/java`. A Java 25 toolchain is needed. Input code needs separate GLFW (up to 26.2) and SDL3 (26.3) implementations, while mixins and chat HUD hooks must be compiled and launched for each version. Add a version to the supported table only after `buildAll` produces its loader artifacts and a client smoke test confirms pinning, dragging and moveable chat.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Babric / Minecraft Beta 1.7.3
+
+Babric is a separate Java 8-era port, not a source set of this modern build. A small amount of model logic can be adapted: storing pinned message text, grouping messages and saving group positions. Chat HUD interception, mouse hit testing, rendering, key handling and the moveable chat screen need new implementations. In particular, there is no modern chat screen, Fabric API or mixin surface to reuse for the current movement behavior.
+
+Estimate **2–4 weeks for one experienced modder** for a usable prototype with pinning and groups, plus **1–2 additional weeks** to investigate moveable chat and test compatibility with Babric mods. This is an engineering estimate, not a release commitment. A separate `babric` branch/repository should first establish a Beta 1.7.3 client build, then add chat interception and persistence, then groups and HUD dragging, and finally assess movement while typing. It does not block modern-loader releases.
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
-## Credits
-
-- Built with [Fabric](https://fabricmc.net/) and [Forge](https://minecraftforge.net/)
-- Uses [Architectury Loom](https://github.com/architectury/architectury-loom) for multi-platform builds
-- Optional integration with [Cloth Config](https://github.com/shedaniel/cloth-config), [YACL](https://github.com/isXander/YetAnotherConfigLib), and [MaLiLib](https://github.com/maruohon/malilib)
-
-## Support
-
-If you encounter any issues or have suggestions:
-
-- [Open an Issue](../../issues)
-- Make sure to include your Minecraft version, mod loader, and any crash logs
-
----
-
-<p align="center">
-  Made with ❤️ by <a href="https://github.com/ivanmikhaylov1">Sfafy</a>
-</p>
+MIT. See [LICENSE](LICENSE).
