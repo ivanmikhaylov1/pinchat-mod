@@ -2,10 +2,7 @@ name: Build and Release
 
 on:
   push:
-    branches: [master, '1.*', '26.*']
-    tags: ['v*']
   pull_request:
-    branches: [master, '1.*', '26.*']
 
 jobs:
   build:
@@ -26,12 +23,20 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Build all supported loader artifacts
         run: ./gradlew buildAll --no-daemon
-      - name: Verify NeoForge and Quilt-compatible JAR metadata
+      - name: Verify 1.21.11 and 26.1 loader JAR metadata
         run: python3 scripts/verify_loader_jars.py
       - name: Install virtual display for NeoForge smoke test
         run: sudo apt-get update && sudo apt-get install -y xvfb xauth xdotool libgl1-mesa-dri
-      - name: Smoke test NeoForge client
-        run: xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py
+      - name: Smoke test NeoForge 1.21.11 client
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --require-window
+      - name: Smoke test NeoForge 26.1 client
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.1 --require-window
       - name: Collect release jars
         shell: bash
         run: |
@@ -43,6 +48,7 @@ jobs:
           cp "quilt/build/libs/pinchat-mod-quilt-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc${mc_version}.jar"
           cp "forge/build/libs/pinchat-mod-forge-${mod_version}.jar" "dist/pinchat-mod-forge-${mod_version}-mc${mc_version}.jar"
           cp "neoforge/build/libs/pinchat-mod-neoforge-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc${mc_version}.jar"
+          cp "mc26_1/build/libs/pinchat-mod-neoforge-mc26.1-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc26.1.jar"
       - uses: actions/upload-artifact@v4
         with:
           name: pinchat-${{ github.sha }}

@@ -16,6 +16,7 @@ properties = dict(
 version = properties["mod_version"]
 fabric = root / "quilt/build/libs" / f"pinchat-mod-quilt-{version}.jar"
 neoforge = root / "neoforge/build/libs" / f"pinchat-mod-neoforge-{version}.jar"
+neoforge_26 = root / "mc26_1/build/libs" / f"pinchat-mod-neoforge-mc26.1-{version}.jar"
 
 
 def check_mixin(archive):
@@ -47,4 +48,14 @@ with zipfile.ZipFile(neoforge) as archive:
     assert "dev/sfafy/pinchat/ClientSetup.class" in archive.namelist()
     check_mixin(archive)
 
-print("Quilt-compatible Fabric and NeoForge JAR metadata, entrypoints and mixin classes: OK")
+with zipfile.ZipFile(neoforge_26) as archive:
+    metadata = archive.read("META-INF/neoforge.mods.toml").decode()
+    assert 'modId="pinchat"' in metadata
+    assert f'version="{version}"' in metadata
+    assert 'versionRange="[26.1]"' in metadata
+    assert 'config="pinchat.mixins.json"' in metadata
+    assert json.loads(archive.read("pinchat.mixins.json"))["compatibilityLevel"] == "JAVA_25"
+    assert int.from_bytes(archive.read("dev/sfafy/pinchat/PinChatMod.class")[6:8], "big") == 69
+    check_mixin(archive)
+
+print("Quilt-compatible Fabric, NeoForge 1.21.11 and NeoForge 26.1 JAR metadata: OK")
