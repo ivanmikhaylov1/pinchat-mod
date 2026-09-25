@@ -4,6 +4,7 @@
 import os
 import pathlib
 import signal
+import shutil
 import subprocess
 import sys
 import threading
@@ -22,6 +23,8 @@ process = subprocess.Popen(
     start_new_session=True,
 )
 seen_client_setup = threading.Event()
+seen_render_ready = threading.Event()
+require_window = bool(os.environ.get("DISPLAY") and shutil.which("xdotool"))
 
 
 def read_output():
@@ -29,6 +32,8 @@ def read_output():
         print(line, end="", flush=True)
         if "PinChat Client Setup" in line:
             seen_client_setup.set()
+        if "Render thread" in line and "textures/atlas/gui.png-atlas" in line:
+            seen_render_ready.set()
 
 
 threading.Thread(target=read_output, daemon=True).start()
@@ -37,21 +42,24 @@ try:
     while time.monotonic() < deadline:
         if process.poll() is not None:
             raise RuntimeError(f"NeoForge client exited early with code {process.returncode}")
-        window = subprocess.run(
-            ["xdotool", "search", "--onlyvisible", "--name", "Minecraft"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        ).returncode == 0
-        if window and seen_client_setup.is_set():
+        window = True
+        if require_window:
+            window = subprocess.run(
+                ["xdotool", "search", "--onlyvisible", "--name", "Minecraft"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            ).returncode == 0
+        if window and seen_client_setup.is_set() and seen_render_ready.is_set():
             stable_since = stable_since or time.monotonic()
             if time.monotonic() - stable_since >= 15:
-                print("NeoForge client smoke test: PinChat client event and stable Minecraft window observed")
+                print("NeoForge client smoke test: PinChat event and render-ready checkpoint observed"
+                      + (" with a stable Minecraft window" if require_window else " with a live client process"))
                 sys.exit(0)
         else:
             stable_since = None
         time.sleep(2)
-    raise TimeoutError("NeoForge client did not reach PinChat setup and a stable Minecraft window within 15 minutes")
+    raise TimeoutError("NeoForge client did not reach PinChat setup and stable render readiness within 15 minutes")
 finally:
     os.killpg(process.pid, signal.SIGTERM)
     try:
