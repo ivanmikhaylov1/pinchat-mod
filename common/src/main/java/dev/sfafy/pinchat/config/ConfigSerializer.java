@@ -17,6 +17,7 @@ public class ConfigSerializer {
     json.addProperty("pinnedX", config.pinnedX);
     json.addProperty("pinnedY", config.pinnedY);
     json.addProperty("pinnedScale", config.pinnedScale);
+    json.addProperty("moveableChatEnabled", config.moveableChatEnabled);
 
     JsonArray groupsArray = new JsonArray();
     for (MessageGroup group : config.groups) {
@@ -58,6 +59,8 @@ public class ConfigSerializer {
         config.pinnedY = json.get("pinnedY").getAsInt();
       if (json.has("pinnedScale"))
         config.pinnedScale = json.get("pinnedScale").getAsDouble();
+      if (json.has("moveableChatEnabled"))
+        config.moveableChatEnabled = json.get("moveableChatEnabled").getAsBoolean();
 
       config.groups.clear();
       if (json.has("groups")) {

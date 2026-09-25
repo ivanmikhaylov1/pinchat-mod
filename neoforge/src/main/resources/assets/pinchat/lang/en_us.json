@@ -20,5 +20,6 @@
   "pinchat.gui.positionEdit.newGroup": "New Group",
   "pinchat.gui.positionEdit.tooltip.unpin": "Right-click to unpin",
   "pinchat.hotkey.openConfig": "Open PinChat Config",
-  "pinchat.hotkey.openMoveableChat": "Open Moveable Chat"
+  "pinchat.hotkey.openMoveableChat": "Open Moveable Chat",
+  "pinchat.config.moveableChat": "Moveable chat: %s"
 }

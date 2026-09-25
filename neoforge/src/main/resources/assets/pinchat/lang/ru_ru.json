@@ -20,5 +20,6 @@
   "pinchat.gui.positionEdit.newGroup": "Новая группа",
   "pinchat.gui.positionEdit.tooltip.unpin": "ПКМ чтобы открепить",
   "pinchat.hotkey.openConfig": "Открыть настройки PinChat",
-  "pinchat.hotkey.openMoveableChat": "Открыть подвижный чат"
+  "pinchat.hotkey.openMoveableChat": "Открыть подвижный чат",
+  "pinchat.config.moveableChat": "Подвижный чат: %s"
 }

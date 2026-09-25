@@ -1,7 +1,5 @@
 package dev.sfafy.pinchat;
 
-import dev.sfafy.pinchat.command.PinChatCommand;
-
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;

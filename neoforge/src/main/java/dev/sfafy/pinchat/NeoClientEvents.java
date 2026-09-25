@@ -22,7 +22,7 @@ public class NeoClientEvents {
     while (PinChatKeyBindings.openMoveableChatKey.consumeClick()) {
       if (client.screen instanceof MoveableChatScreen) {
         client.setScreen(null);
-      } else {
+      } else if (dev.sfafy.pinchat.config.PinChatConfig.moveableChatEnabled) {
         client.setScreen(new MoveableChatScreen(""));
       }
     }

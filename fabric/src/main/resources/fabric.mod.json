@@ -12,6 +12,9 @@
   "entrypoints": {
     "client": [
       "dev.sfafy.pinchat.PinChatMod"
+    ],
+    "modmenu": [
+      "dev.sfafy.pinchat.integration.ModMenuIntegration"
     ]
   },
   "mixins": [
@@ -24,9 +27,6 @@
     "fabric-api": "*"
   },
   "suggests": {
-    "malilib": "*",
-    "cloth-config": "*",
-    "modmenu": "*",
-    "yet-another-config-lib": "*"
+    "modmenu": "*"
   }
 }

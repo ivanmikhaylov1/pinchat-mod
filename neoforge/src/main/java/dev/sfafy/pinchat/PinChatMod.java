@@ -1,6 +1,5 @@
 package dev.sfafy.pinchat;
 
-import dev.sfafy.pinchat.command.PinChatCommand;
 import dev.sfafy.pinchat.keybindings.PinChatKeyBindings;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -18,6 +17,5 @@ public class PinChatMod {
     modBus.addListener(PinChatKeyBindings::registerKeyMappings);
     modBus.addListener(PinnedHudRenderer::registerOverlays);
     NeoForge.EVENT_BUS.addListener(NeoClientEvents::onKeyInput);
-    NeoForge.EVENT_BUS.addListener(PinChatCommand::onRegisterCommands);
   }
 }

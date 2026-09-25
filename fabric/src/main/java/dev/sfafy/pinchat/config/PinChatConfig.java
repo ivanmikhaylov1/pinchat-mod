@@ -15,6 +15,7 @@ public class PinChatConfig {
   public static int pinnedX = PinChatConfigData.DEFAULT_PINNED_X;
   public static int pinnedY = PinChatConfigData.DEFAULT_PINNED_Y;
   public static double pinnedScale = PinChatConfigData.DEFAULT_PINNED_SCALE;
+  public static boolean moveableChatEnabled = PinChatConfigData.DEFAULT_MOVEABLE_CHAT_ENABLED;
 
   public static void load() {
     PinChatConfigData data = ConfigSerializer.loadFromFile(CONFIG_FILE);
@@ -28,6 +29,7 @@ public class PinChatConfig {
     pinnedX = data.pinnedX;
     pinnedY = data.pinnedY;
     pinnedScale = data.pinnedScale;
+    moveableChatEnabled = data.moveableChatEnabled;
 
     PinnedMessages.groups.clear();
     if (!data.groups.isEmpty()) {
@@ -45,6 +47,7 @@ public class PinChatConfig {
     data.pinnedX = pinnedX;
     data.pinnedY = pinnedY;
     data.pinnedScale = pinnedScale;
+    data.moveableChatEnabled = moveableChatEnabled;
     data.groups.addAll(PinnedMessages.groups);
 
     ConfigSerializer.saveToFile(data, CONFIG_FILE);
