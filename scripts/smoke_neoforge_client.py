@@ -36,6 +36,8 @@ process = subprocess.Popen(
 )
 seen_client_setup = threading.Event()
 seen_render_ready = threading.Event()
+startup_error = threading.Event()
+error_line = [""]
 require_window = args.require_window or bool(os.environ.get("DISPLAY") and shutil.which("xdotool"))
 
 
@@ -46,12 +48,17 @@ def read_output():
             seen_client_setup.set()
         if "Render thread" in line and "textures/atlas/gui.png-atlas" in line:
             seen_render_ready.set()
+        if "Failed to find a primary monitor" in line or "Game crashed!" in line or "/FATAL]" in line:
+            error_line[0] = line.strip()
+            startup_error.set()
 
 
 threading.Thread(target=read_output, daemon=True).start()
 stable_since = None
 try:
     while time.monotonic() < deadline:
+        if startup_error.is_set():
+            raise RuntimeError(f"NeoForge client startup error: {error_line[0]}")
         if process.poll() is not None:
             raise RuntimeError(f"NeoForge client exited early with code {process.returncode}")
         window = True

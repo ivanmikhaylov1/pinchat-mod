@@ -13,13 +13,25 @@ repositories {
 }
 
 def sharedRoot = projectDir.parentFile
+def adaptGuiSource = { String line ->
+    line.replace('net.minecraft.client.gui.GuiGraphics', 'net.minecraft.client.gui.GuiGraphicsExtractor')
+        .replace('GuiGraphics context', 'GuiGraphicsExtractor context')
+        .replace('context.drawCenteredString(', 'context.centeredText(')
+        .replace('context.drawString(', 'context.text(')
+        .replace('public void render(GuiGraphicsExtractor context', 'public void extractRenderState(GuiGraphicsExtractor context')
+        .replace('super.render(context,', 'super.extractRenderState(context,')
+}
 
 tasks.register('syncModSources', Sync) {
     into layout.buildDirectory.dir('generated/pinchat/java')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from 'src/main/java'
-    from new File(sharedRoot, 'neoforge/src/main/java')
-    from new File(sharedRoot, 'common/src/mojang/java')
+    from(new File(sharedRoot, 'neoforge/src/main/java')) {
+        filter { String line -> adaptGuiSource(line) }
+    }
+    from(new File(sharedRoot, 'common/src/mojang/java')) {
+        filter { String line -> adaptGuiSource(line) }
+    }
     from new File(sharedRoot, 'common/src/main/java')
 }
 
