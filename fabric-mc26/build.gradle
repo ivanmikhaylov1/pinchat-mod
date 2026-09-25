@@ -36,7 +36,7 @@ tasks.register('syncModSources', Sync) {
     into layout.buildDirectory.dir('generated/pinchat/java')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from('src/main/java') { filter { String line -> adaptVersionSource(line) } }
-    from(new File(sharedRoot, 'mc26_1/src/main/java')) {
+    from(new File(sharedRoot, 'neoforge-mc26/src/main/java')) {
         filter { String line -> minecraft_version == '26.2' ? adaptVersionSource(line) : line }
     }
     from(new File(sharedRoot, 'common/src/mojang/java')) {

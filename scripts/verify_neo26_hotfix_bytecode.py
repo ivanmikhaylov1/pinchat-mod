@@ -4,8 +4,8 @@ import pathlib
 import zipfile
 
 root = pathlib.Path(__file__).resolve().parents[1]
-jar = root / 'mc26_1/build/libs/pinchat-mod-neoforge-mc26.1-3.0.0.jar'
-classes = root / 'mc26_1/build/classes/java/main'
+jar = root / 'neoforge-mc26/build/libs/pinchat-mod-neoforge-mc26.1-3.0.0.jar'
+classes = root / 'neoforge-mc26/build/classes/java/main'
 with zipfile.ZipFile(jar) as archive:
     expected = {name for name in archive.namelist() if name.endswith('.class')}
     actual = {str(path.relative_to(classes)) for path in classes.rglob('*.class')}

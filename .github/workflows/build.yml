@@ -111,12 +111,12 @@ jobs:
           cp "quilt/build/libs/pinchat-mod-quilt-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc${mc_version}.jar"
           cp "forge/build/libs/pinchat-mod-forge-${mod_version}.jar" "dist/pinchat-mod-forge-${mod_version}-mc${mc_version}.jar"
           cp "neoforge/build/libs/pinchat-mod-neoforge-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc${mc_version}.jar"
-          cp "mc26_1/build/libs/pinchat-mod-neoforge-mc26.1-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc26.1.jar"
-          cp "fabric26_1/build/libs/pinchat-mod-fabric-mc26.1-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc26.1.jar"
-          cp "fabric26_1/build/libs/pinchat-mod-fabric-mc26.1-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc26.1.jar"
-          cp "mc26_1/build/libs/pinchat-mod-neoforge-mc26.2-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc26.2.jar"
-          cp "fabric26_1/build/libs/pinchat-mod-fabric-mc26.2-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc26.2.jar"
-          cp "fabric26_1/build/libs/pinchat-mod-fabric-mc26.2-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc26.2.jar"
+          cp "neoforge-mc26/build/libs/pinchat-mod-neoforge-mc26.1-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc26.1.jar"
+          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.1-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc26.1.jar"
+          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.1-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc26.1.jar"
+          cp "neoforge-mc26/build/libs/pinchat-mod-neoforge-mc26.2-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc26.2.jar"
+          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.2-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc26.2.jar"
+          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.2-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc26.2.jar"
       - uses: actions/upload-artifact@v4
         with:
           name: pinchat-${{ github.sha }}

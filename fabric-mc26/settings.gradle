@@ -4,4 +4,4 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-rootProject.name = 'pinchat-mod-fabric-26.1'
+rootProject.name = 'pinchat-mod-fabric-mc26'

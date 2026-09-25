@@ -20,7 +20,7 @@ parser.add_argument('--artifact-version', default='26.1')
 parser.add_argument('--fabric-api-version')
 args = parser.parse_args()
 root = pathlib.Path(__file__).resolve().parents[1]
-props = dict(line.split('=', 1) for line in (root / 'fabric26_1/gradle.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))
+props = dict(line.split('=', 1) for line in (root / 'fabric-mc26/gradle.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))
 game = root / 'build/client26-smoke'
 mods = game / 'mods'
 mods.mkdir(parents=True, exist_ok=True)
@@ -38,7 +38,7 @@ if args.loader == 'quilt':
     launcher.quilt.install_quilt(version, game, loader_version=loader, java=java_exec)
 else:
     launcher.fabric.install_fabric(version, game, loader_version=loader, java=java_exec)
-mod_jar = root / 'fabric26_1/build/libs' / f"pinchat-mod-fabric-mc{args.artifact_version}-{props['mod_version']}.jar"
+mod_jar = root / 'fabric-mc26/build/libs' / f"pinchat-mod-fabric-mc{args.artifact_version}-{props['mod_version']}.jar"
 shutil.copy2(mod_jar, mods / mod_jar.name)
 api = args.fabric_api_version or props['fabric_api_version']
 api_jar = mods / f'fabric-api-{api}.jar'

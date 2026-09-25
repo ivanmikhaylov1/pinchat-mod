@@ -16,10 +16,10 @@ properties = dict(
 version = properties["mod_version"]
 fabric = root / "quilt/build/libs" / f"pinchat-mod-quilt-{version}.jar"
 neoforge = root / "neoforge/build/libs" / f"pinchat-mod-neoforge-{version}.jar"
-neoforge_26 = root / "mc26_1/build/libs" / f"pinchat-mod-neoforge-mc26.1-{version}.jar"
-fabric_26 = root / "fabric26_1/build/libs" / f"pinchat-mod-fabric-mc26.1-{version}.jar"
-fabric_26_2 = root / "fabric26_1/build/libs" / f"pinchat-mod-fabric-mc26.2-{version}.jar"
-neoforge_26_2 = root / "mc26_1/build/libs" / f"pinchat-mod-neoforge-mc26.2-{version}.jar"
+neoforge_26 = root / "neoforge-mc26/build/libs" / f"pinchat-mod-neoforge-mc26.1-{version}.jar"
+fabric_26 = root / "fabric-mc26/build/libs" / f"pinchat-mod-fabric-mc26.1-{version}.jar"
+fabric_26_2 = root / "fabric-mc26/build/libs" / f"pinchat-mod-fabric-mc26.2-{version}.jar"
+neoforge_26_2 = root / "neoforge-mc26/build/libs" / f"pinchat-mod-neoforge-mc26.2-{version}.jar"
 
 
 def check_mixin(archive):
