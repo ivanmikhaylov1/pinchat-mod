@@ -43,14 +43,14 @@ jobs:
           GALLIUM_DRIVER: llvmpipe
         run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.1 --neo-version 26.1.1.15-beta --require-window
       - name: Verify NeoForge 26.1.1 bytecode compatibility
-        run: python3 scripts/verify_neo26_hotfix_bytecode.py
+        run: python3 scripts/verify_neoforge_mc26_hotfix_bytecode.py
       - name: Smoke test NeoForge 26.1.2 with shared 26.1 sources
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
         run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.1 --neo-version 26.1.2.109 --require-window
       - name: Verify NeoForge 26.1.2 bytecode compatibility
-        run: python3 scripts/verify_neo26_hotfix_bytecode.py
+        run: python3 scripts/verify_neoforge_mc26_hotfix_bytecode.py
       - name: Smoke test NeoForge 26.2 client
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
@@ -62,44 +62,44 @@ jobs:
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt26_client.py --loader fabric
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric
       - name: Smoke test Quilt 26.1 client with Fabric JAR
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt26_client.py --loader quilt
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt
       - name: Smoke test Fabric 26.1.1 with 26.1 JAR
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt26_client.py --loader fabric --minecraft-version 26.1.1 --fabric-api-version 0.145.4+26.1.1
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric --minecraft-version 26.1.1 --fabric-api-version 0.145.4+26.1.1
       - name: Smoke test Fabric 26.1.2 with 26.1 JAR
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt26_client.py --loader fabric --minecraft-version 26.1.2 --fabric-api-version 0.155.3+26.1.2
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric --minecraft-version 26.1.2 --fabric-api-version 0.155.3+26.1.2
       - name: Smoke test Quilt 26.1.1 with 26.1 Fabric JAR
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt26_client.py --loader quilt --minecraft-version 26.1.1 --fabric-api-version 0.145.4+26.1.1
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt --minecraft-version 26.1.1 --fabric-api-version 0.145.4+26.1.1
       - name: Smoke test Quilt 26.1.2 with 26.1 Fabric JAR
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt26_client.py --loader quilt --minecraft-version 26.1.2 --fabric-api-version 0.155.3+26.1.2
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt --minecraft-version 26.1.2 --fabric-api-version 0.155.3+26.1.2
       - name: Smoke test Fabric 26.2 client
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt26_client.py --loader fabric --minecraft-version 26.2 --artifact-version 26.2 --fabric-api-version 0.161.0+26.2
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric --minecraft-version 26.2 --artifact-version 26.2 --fabric-api-version 0.161.0+26.2
       - name: Smoke test Quilt 26.2 client with Fabric JAR
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt26_client.py --loader quilt --minecraft-version 26.2 --artifact-version 26.2 --fabric-api-version 0.161.0+26.2
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt --minecraft-version 26.2 --artifact-version 26.2 --fabric-api-version 0.161.0+26.2
       - name: Verify Minecraft 26.x protocol and pack metadata
-        run: python3 scripts/verify_minecraft26_version_metadata.py
+        run: python3 scripts/verify_mc26_version_metadata.py
       - name: Collect release jars
         shell: bash
         run: |
