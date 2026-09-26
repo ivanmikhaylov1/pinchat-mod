@@ -10,10 +10,10 @@ PinChat pins Minecraft chat messages on screen, organizes them into draggable gr
 
 | Minecraft | Java | Fabric | Quilt | Forge | NeoForge |
 |---|---:|---|---|---|---|
-| 1.21.11 | 21 | Supported | Fabric JAR; manual client check pending | Supported | Supported |
+| 1.21.11 | 21 | Supported | Supported via Fabric JAR; manual client check pending | Supported | Supported |
 | 26.1 | 25 | Supported | Identical Fabric JAR | Unsupported: no Java 25 port | Supported |
-| 26.1.1 | 25 | 26.1 JAR | 26.1 Fabric JAR | Unsupported: no Java 25 port | 26.1 JAR |
-| 26.1.2 | 25 | 26.1 JAR | 26.1 Fabric JAR | Unsupported: no Java 25 port | 26.1 JAR |
+| 26.1.1 | 25 | Supported with 26.1 JAR | Supported with 26.1 Fabric JAR | Unsupported: no Java 25 port | Supported with 26.1 JAR |
+| 26.1.2 | 25 | Supported with 26.1 JAR | Supported with 26.1 Fabric JAR | Unsupported: no Java 25 port | Supported with 26.1 JAR |
 | 26.2 | 25 | Supported | Identical 26.2 Fabric JAR | Unsupported: no Java 25 port | Supported |
 | 26.3 | — | Unsupported: SDL3 port pending | Unsupported: SDL3 port pending | Unsupported: no port | Unsupported: SDL3 port pending |
 
@@ -26,6 +26,13 @@ The 26.1 JAR is reused unchanged on 26.1.1 and 26.1.2. Fabric metadata accepts `
 3. Put **one** PinChat JAR in your instance's `mods/` folder (usually `.minecraft/mods`). On Fabric or Quilt, also install [Fabric API](https://modrinth.com/mod/fabric-api) for the **exact** game version. Fabric API is required; Cloth Config, YACL, MaLiLib, and ModMenu are not.
 
 Install the loader normally before copying mods. The 1.21.11 Forge build targets Forge 61.x; the 26.1 and 26.2 NeoForge builds target their matching loader series. Optional ModMenu on Fabric 1.21.11 can open the built-in settings screen.
+
+| Loader | PinChat JAR | Additional mod |
+|---|---|---|
+| Fabric | Fabric JAR for the game version | Fabric API for that exact version |
+| Quilt | Quilt alias on 1.21.11; Fabric JAR or its identical Quilt alias on 26.x | Fabric API for that exact version |
+| Forge | Forge 1.21.11 JAR only | None required |
+| NeoForge | NeoForge JAR for the game version | None required |
 
 ## Use PinChat
 
