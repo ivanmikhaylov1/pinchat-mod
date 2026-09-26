@@ -1,0 +1,16 @@
+plugins {
+    id 'base'
+}
+
+// Quilt Loader accepts Fabric mod metadata and Fabric API. Keep one binary so
+// gameplay code and mixins cannot drift between the two compatible loaders.
+tasks.register('quiltJar', Copy) {
+    dependsOn ':fabric:remapJar'
+    from project(':fabric').tasks.named('remapJar').flatMap { it.archiveFile }
+    into layout.buildDirectory.dir('libs')
+    rename { "pinchat-mod-quilt-${rootProject.mod_version}.jar" }
+}
+
+tasks.named('assemble') {
+    dependsOn 'quiltJar'
+}

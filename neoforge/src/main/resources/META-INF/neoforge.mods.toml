@@ -1,0 +1,23 @@
+license="MIT"
+[[mods]]
+modId="pinchat"
+version="${mod_version}"
+displayName="PinChat"
+description='''Pin chat messages and organize them into movable groups.'''
+
+[[mixins]]
+config="pinchat.mixins.json"
+
+[[dependencies.pinchat]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.11]"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.pinchat]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.11,)"
+    ordering="NONE"
+    side="BOTH"

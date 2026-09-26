@@ -4,6 +4,7 @@ import dev.sfafy.pinchat.config.PinChatConfigData;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.List;
 
 public class PinnedMessagesManager {
   private static final Pattern COUNT_PATTERN = Pattern.compile(" \\(\\d+\\)$");
@@ -27,6 +28,19 @@ public class PinnedMessagesManager {
       return matcher.replaceAll("");
     }
     return text;
+  }
+
+  public static MessageGroup createGroup(List<MessageGroup> groups) {
+    int number = 1;
+    while (true) {
+      String name = "Group #" + number;
+      boolean used = groups.stream().anyMatch(group -> name.equals(group.name));
+      if (!used) {
+        int offset = Math.min(number - 1, 8) * 24;
+        return new MessageGroup(name, 100 + offset, 100 + offset, 1.0);
+      }
+      number++;
+    }
   }
 
   public MessageGroup getOrCreateDefaultGroup() {

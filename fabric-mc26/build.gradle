@@ -1,0 +1,66 @@
+plugins {
+    id 'java-library'
+    id 'net.fabricmc.fabric-loom' version '1.15.5'
+}
+
+group = 'com.myname.pinchat'
+version = mod_version
+base.archivesName = "pinchat-mod-fabric-mc${minecraft_version}"
+
+def sharedRoot = projectDir.parentFile
+def adaptGuiSource = { String line ->
+    line.replace('net.minecraft.client.gui.GuiGraphics', 'net.minecraft.client.gui.GuiGraphicsExtractor')
+        .replace('GuiGraphics context', 'GuiGraphicsExtractor context')
+        .replace('context.drawCenteredString(', 'context.centeredText(')
+        .replace('context.drawString(', 'context.text(')
+        .replace('public void render(GuiGraphicsExtractor context', 'public void extractRenderState(GuiGraphicsExtractor context')
+        .replace('super.render(context,', 'super.extractRenderState(context,')
+}
+
+def adaptVersionSource = { String line ->
+    String result = adaptGuiSource(line.replace('GuiGraphicsExtractor', 'GuiGraphics'))
+    if (minecraft_version == '26.2') {
+        result = result.replace('client.screen', 'client.gui.screen()')
+            .replace('Minecraft.getInstance().screen', 'Minecraft.getInstance().gui.screen()')
+            .replace('this.minecraft.setScreen(', 'this.minecraft.gui.setScreen(')
+            .replace('client.setScreen(', 'client.gui.setScreen(')
+            .replace('Minecraft.getInstance().setScreen(', 'Minecraft.getInstance().gui.setScreen(')
+            .replace('client.gui.getChat()', 'client.gui.hud.getChat()')
+            .replace('client.options.hideGui', 'client.gui.hud.isHidden()')
+    }
+    result
+}
+
+tasks.register('syncModSources', Sync) {
+    inputs.property 'minecraft_version', minecraft_version
+    into layout.buildDirectory.dir('generated/pinchat/java')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from('src/main/java') { filter { String line -> adaptVersionSource(line) } }
+    from(new File(sharedRoot, 'neoforge-mc26/src/main/java')) {
+        filter { String line -> minecraft_version == '26.2' ? adaptVersionSource(line) : line }
+    }
+    from(new File(sharedRoot, 'common/src/mojang/java')) {
+        filter { String line -> adaptVersionSource(line) }
+    }
+    from new File(sharedRoot, 'common/src/main/java')
+}
+sourceSets.main.java.setSrcDirs([])
+sourceSets.main.java.srcDir tasks.named('syncModSources')
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+tasks.withType(JavaCompile).configureEach { options.release = 25 }
+processResources {
+    inputs.property 'mod_version', mod_version
+    inputs.property 'minecraft_version', minecraft_version
+    inputs.property 'minecraft_dependency', minecraft_version == '26.1' ? '>=26.1 <26.2' : minecraft_version
+    inputs.property 'pack_format', pack_format
+    filesMatching('fabric.mod.json') { expand version: mod_version, minecraft_dependency: minecraft_version == '26.1' ? '>=26.1 <26.2' : minecraft_version }
+    filesMatching('pack.mcmeta') { expand pack_format: pack_format }
+}

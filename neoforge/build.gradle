@@ -1,0 +1,41 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.gradle.userdev' version '7.1.39'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = 'pinchat-mod-neoforge'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://maven.neoforged.net/releases' }
+}
+
+processResources {
+    inputs.property 'mod_version', project.mod_version
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand mod_version: project.mod_version
+    }
+}
+
+sourceSets.main.java.srcDirs += project(':common').sourceSets.main.java.srcDirs
+sourceSets.main.java.srcDir rootProject.file('common/src/mojang/java')
+sourceSets.main.resources.srcDirs += project(':common').sourceSets.main.resources.srcDirs
+
+dependencies {
+    implementation "net.neoforged:neoforge:${rootProject.neoforge_version}"
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+java {
+    withSourcesJar()
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+}

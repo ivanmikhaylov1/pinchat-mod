@@ -31,7 +31,7 @@ public class PinChatKeyBindings {
       if (openMoveableChatKey.wasPressed()) {
         if (client.currentScreen instanceof dev.sfafy.pinchat.gui.MoveableChatScreen) {
           client.setScreen(null);
-        } else {
+        } else if (dev.sfafy.pinchat.config.PinChatConfig.moveableChatEnabled) {
           client.setScreen(new dev.sfafy.pinchat.gui.MoveableChatScreen(""));
         }
       }

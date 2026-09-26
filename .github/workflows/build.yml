@@ -2,175 +2,131 @@ name: Build and Release
 
 on:
   push:
-    branches:
-      - master
-      - '1.*'
-    tags:
-      - 'v*'
   pull_request:
-    branches:
-      - master
-      - '1.*'
-
-env:
-  GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    name: Validate Gradle Wrapper
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v4
-
-  test:
-    runs-on: ubuntu-latest
-    needs: validate
-    name: Run Tests
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Detect Java Version
-        id: java
-        run: |
-          MC=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)
-          MAJOR=$(echo "$MC" | cut -d. -f2)
-          if [ "$MAJOR" -ge 21 ]; then
-            echo "version=21" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=17" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ steps.java.outputs.version }}
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
-
-      - name: Run Fabric Tests
-        run: ./gradlew :fabric:test
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results-${{ github.sha }}
-          path: |
-            fabric/build/reports/tests/
-            fabric/build/test-results/
-
   build:
     runs-on: ubuntu-latest
-    needs: test
-    name: Build ${{ matrix.loader }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        loader: [fabric, forge]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Detect Java Version
-        id: java
-        run: |
-          MC=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)
-          MAJOR=$(echo "$MC" | cut -d. -f2)
-          if [ "$MAJOR" -ge 21 ]; then
-            echo "version=21" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=17" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ steps.java.outputs.version }}
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
-
-      - name: Build ${{ matrix.loader }}
-        run: ./gradlew :${{ matrix.loader }}:build
-
-      - name: Upload ${{ matrix.loader }} Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: pinchat-${{ matrix.loader }}-${{ github.sha }}
-          path: |
-            ${{ matrix.loader }}/build/libs/*[!-sources].jar
-          if-no-files-found: error
-          retention-days: 30
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    name: Create Release
-
     permissions:
       contents: write
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download Fabric Artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
+      - uses: gradle/actions/wrapper-validation@v4
+      - uses: actions/setup-java@v4
         with:
-          name: pinchat-fabric-${{ github.sha }}
-          path: artifacts/fabric
-
-      - name: Download Forge Artifacts
-        uses: actions/download-artifact@v4
+          distribution: temurin
+          java-version: '25'
+      - uses: actions/setup-java@v4
         with:
-          name: pinchat-forge-${{ github.sha }}
-          path: artifacts/forge
-
-      - name: Get Version and MC Version
-        id: version
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build all supported loader artifacts
+        run: ./gradlew buildAll --no-daemon
+      - name: Verify 1.21.11 and 26.x loader JAR metadata
+        run: python3 scripts/verify_loader_jars.py
+      - name: Install virtual display for NeoForge smoke test
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth xdotool libgl1-mesa-dri
+      - name: Smoke test NeoForge 1.21.11 client
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --require-window
+      - name: Smoke test NeoForge 26.1 client
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.1 --require-window
+      - name: Smoke test NeoForge 26.1.1 with shared 26.1 sources
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.1 --neo-version 26.1.1.15-beta --require-window
+      - name: Verify NeoForge 26.1.1 bytecode compatibility
+        run: python3 scripts/verify_neoforge_mc26_hotfix_bytecode.py
+      - name: Smoke test NeoForge 26.1.2 with shared 26.1 sources
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.1 --neo-version 26.1.2.109 --require-window
+      - name: Verify NeoForge 26.1.2 bytecode compatibility
+        run: python3 scripts/verify_neoforge_mc26_hotfix_bytecode.py
+      - name: Smoke test NeoForge 26.2 client
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.2 --require-window
+      - name: Install Fabric/Quilt smoke launcher
+        run: python3 -m venv .ci-smoke-venv && .ci-smoke-venv/bin/pip install minecraft-launcher-lib==8.0
+      - name: Smoke test Fabric 26.1 client
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric
+      - name: Smoke test Quilt 26.1 client with Fabric JAR
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt
+      - name: Smoke test Fabric 26.1.1 with 26.1 JAR
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric --minecraft-version 26.1.1 --fabric-api-version 0.145.4+26.1.1
+      - name: Smoke test Fabric 26.1.2 with 26.1 JAR
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric --minecraft-version 26.1.2 --fabric-api-version 0.155.3+26.1.2
+      - name: Smoke test Quilt 26.1.1 with 26.1 Fabric JAR
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt --minecraft-version 26.1.1 --fabric-api-version 0.145.4+26.1.1
+      - name: Smoke test Quilt 26.1.2 with 26.1 Fabric JAR
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt --minecraft-version 26.1.2 --fabric-api-version 0.155.3+26.1.2
+      - name: Smoke test Fabric 26.2 client
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric --minecraft-version 26.2 --artifact-version 26.2 --fabric-api-version 0.161.0+26.2
+      - name: Smoke test Quilt 26.2 client with Fabric JAR
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt --minecraft-version 26.2 --artifact-version 26.2 --fabric-api-version 0.161.0+26.2
+      - name: Verify Minecraft 26.x protocol and pack metadata
+        run: python3 scripts/verify_mc26_version_metadata.py
+      - name: Collect release jars
+        shell: bash
         run: |
-          TAG="${GITHUB_REF#refs/tags/v}"
-          MC=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)
-          echo "VERSION=$TAG" >> "$GITHUB_OUTPUT"
-          echo "MC_VERSION=$MC" >> "$GITHUB_OUTPUT"
-
-      - name: Create Release
+          set -euo pipefail
+          mod_version=$(sed -n 's/^mod_version=//p' gradle.properties)
+          mc_version=$(sed -n 's/^minecraft_version=//p' gradle.properties)
+          mkdir -p dist
+          cp "fabric/build/libs/pinchat-mod-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc${mc_version}.jar"
+          cp "quilt/build/libs/pinchat-mod-quilt-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc${mc_version}.jar"
+          cp "forge/build/libs/pinchat-mod-forge-${mod_version}.jar" "dist/pinchat-mod-forge-${mod_version}-mc${mc_version}.jar"
+          cp "neoforge/build/libs/pinchat-mod-neoforge-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc${mc_version}.jar"
+          cp "neoforge-mc26/build/libs/pinchat-mod-neoforge-mc26.1-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc26.1.jar"
+          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.1-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc26.1.jar"
+          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.1-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc26.1.jar"
+          cp "neoforge-mc26/build/libs/pinchat-mod-neoforge-mc26.2-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc26.2.jar"
+          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.2-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc26.2.jar"
+          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.2-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc26.2.jar"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pinchat-${{ github.sha }}
+          path: dist/*.jar
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish tagged release
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          name: PinChat v${{ steps.version.outputs.VERSION }}
-          body: |
-            ## PinChat v${{ steps.version.outputs.VERSION }}
-
-            ### Downloads
-            - **Fabric**: pinchat-mod-fabric.jar
-            - **Forge**: pinchat-mod-forge.jar
-
-            ### Requirements
-            - Minecraft ${{ steps.version.outputs.MC_VERSION }}
-            - See README for loader version requirements
-
-            ---
-            See [README](https://github.com/ivanmikhaylov1/pinchat-mod#readme) for installation instructions.
-          files: |
-            artifacts/**/*.jar
-          draft: false
-          prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') || contains(github.ref, '-rc') }}
+          files: dist/*.jar
           generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') || contains(github.ref, '-rc') }}

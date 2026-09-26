@@ -9,6 +9,37 @@ tasks.named('clean').configure {
     dependsOn subprojects.collect { it.tasks.matching { it.name == 'clean' } }
 }
 
+def currentBuildTasks = subprojects.collect { subproject ->
+    subproject.path == ':neoforge' ? "${subproject.path}:assemble" : "${subproject.path}:build"
+}
+
+tasks.register('buildNeoForgeMc26_1', Exec) {
+    dependsOn currentBuildTasks
+    workingDir rootProject.file('neoforge-mc26')
+    commandLine rootProject.file('neoforge-mc26/gradlew').absolutePath, 'assemble', '--no-daemon'
+}
+
+tasks.register('buildFabricMc26_1', Exec) {
+    dependsOn currentBuildTasks
+    workingDir rootProject.file('fabric-mc26')
+    commandLine rootProject.file('neoforge-mc26/gradlew').absolutePath, '-p', rootProject.file('fabric-mc26').absolutePath, 'build', '--no-daemon'
+}
+
+tasks.register('buildNeoForgeMc26_2', Exec) {
+    dependsOn tasks.named('buildNeoForgeMc26_1')
+    workingDir rootProject.file('neoforge-mc26')
+    commandLine rootProject.file('neoforge-mc26/gradlew').absolutePath, 'assemble',
+        '-Pminecraft_version=26.2', '-Pneo_version=26.2.0.88', '-Ppack_format=88', '--no-daemon'
+}
+
+tasks.register('buildFabricMc26_2', Exec) {
+    dependsOn tasks.named('buildFabricMc26_1')
+    workingDir rootProject.file('fabric-mc26')
+    commandLine rootProject.file('neoforge-mc26/gradlew').absolutePath, '-p',
+        rootProject.file('fabric-mc26').absolutePath, 'build',
+        '-Pminecraft_version=26.2', '-Pfabric_api_version=0.161.0+26.2', '-Ppack_format=88', '--no-daemon'
+}
+
 tasks.register('buildAll') {
-    dependsOn subprojects.collect { it.tasks.matching { it.name == 'build' } }
+    dependsOn tasks.named('buildNeoForgeMc26_2'), tasks.named('buildFabricMc26_2')
 }

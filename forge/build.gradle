@@ -17,6 +17,13 @@ repositories {
     maven { url "https://maven.minecraftforge.net/" }
 }
 
+processResources {
+    inputs.property 'mod_version', project.mod_version
+    filesMatching('META-INF/mods.toml') {
+        expand mod_version: project.mod_version
+    }
+}
+
 sourceSets {
     main {
         resources {
@@ -26,7 +33,8 @@ sourceSets {
         }
         java {
             srcDirs += [
-                project(':common').sourceSets.main.java
+                project(':common').sourceSets.main.java,
+                rootProject.file('common/src/mojang/java')
             ]
         }
     }
@@ -42,7 +50,6 @@ dependencies {
 
     forge "net.minecraftforge:forge:${rootProject.forge_version}:userdev"
 
-    compileOnly files("/Users/ivanmikhaylov/.gradle/caches/modules-2/files-2.1/net.minecraftforge/eventbus/7.0-beta.12/e9268d9be3a0dea79b640c492bfcbfcd8cd0b2d3/eventbus-7.0-beta.12.jar")
     implementation "net.minecraftforge:eventbus:7.0-beta.12"
     implementation "net.minecraftforge:fmlloader:${rootProject.forge_version}"
 }
