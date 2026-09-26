@@ -61,7 +61,7 @@ Hover over a group for rename and delete buttons. Normal movement keys work whil
 
 CI builds and packages every supported JAR, verifies metadata, boots NeoForge 1.21.11/26.1/26.1.1/26.1.2/26.2, and boots Fabric and Quilt 26.1/26.1.1/26.1.2/26.2 under Xvfb. Startup must invoke PinChat, build the GUI atlas, and keep a visible window alive for 15 seconds. It does not drive mouse interaction or check persistence.
 
-Perform **one interaction pass per unique loader/JAR combination**: the four 1.21.11 loader artifacts; the Fabric 26.1 JAR on Fabric and Quilt; the NeoForge 26.1 JAR; the Fabric 26.2 JAR on Fabric and Quilt; and the NeoForge 26.2 JAR. The three 26.1.x versions share their platform's release JAR and have separate automated startup tests. For each pass:
+Perform **one full interaction pass per unique JAR**: the shared Fabric/Quilt 1.21.11 binary, Forge 1.21.11, NeoForge 1.21.11, the shared Fabric/Quilt 26.1 binary, NeoForge 26.1, the shared Fabric/Quilt 26.2 binary, and NeoForge 26.2 (**seven passes total**). The three 26.1.x versions share their platform's release JAR and have separate automated startup tests, so do not repeat the full interaction pass for each hotfix. Because CI does not boot Quilt 1.21.11, also launch that loader once and confirm PinChat initializes; its binary does not need a second full interaction pass. For each full pass:
 
 1. Enter a world; right-click to pin/unpin a chat line and Shift + right-click to create a group.
 2. Drag a group, restart the client, and verify its position and contents persist.
