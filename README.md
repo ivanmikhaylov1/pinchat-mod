@@ -6,11 +6,11 @@ PinChat pins Minecraft chat messages on screen, organizes them into draggable gr
 
 ## Supported Minecraft versions
 
-“Supported” means the JAR builds and passes the automated checks below. In-world mouse interaction and saved positions still need the [release check](#release-check).
+“Supported” means the JAR builds and passes the automated checks below. The project owner reports completing the [in-world release check](#release-check) for version 3.1.0; those interactions are not driven by CI.
 
 | Minecraft | Java | Fabric | Quilt | Forge | NeoForge |
 |---|---:|---|---|---|---|
-| 1.21.11 | 21 | Supported | Supported via Fabric JAR; manual client check pending | Supported | Supported |
+| 1.21.11 | 21 | Supported | Supported via Fabric JAR; owner-confirmed manual client launch | Supported | Supported |
 | 26.1 | 25 | Supported | Identical Fabric JAR | Unsupported: no Java 25 port | Supported |
 | 26.1.1 | 25 | Supported with 26.1 JAR | Supported with 26.1 Fabric JAR | Unsupported: no Java 25 port | Supported with 26.1 JAR |
 | 26.1.2 | 25 | Supported with 26.1 JAR | Supported with 26.1 Fabric JAR | Unsupported: no Java 25 port | Supported with 26.1 JAR |
@@ -53,7 +53,7 @@ Hover over a group for rename and delete buttons. Normal movement keys work whil
 
 - **Forge 26.x:** no Java 25 Forge port exists. Its 1.21.11 JAR cannot be used on 26.x.
 - **Minecraft 26.3:** [SDL3 replaces GLFW for input/window handling](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-3). PinChat directly reads GLFW mouse/key state, so it needs a separate input port and interaction tests. Estimate: 4–8 development days plus 2–3 testing days; this is not a release promise.
-- **Quilt 1.21.11:** it packages the Fabric binary, but a manual client run remains before release. For 26.x, Quilt Loader 0.30.1 and upstream Fabric API booted the same Fabric JAR in local and CI smoke tests. [QFAPI was retired for 26.1](https://quiltmc.org/en/blog/2026-02-03-non-obfuscated-updates/).
+- **Quilt 1.21.11:** it packages the Fabric binary. CI verifies packaging and metadata, and the project owner reports a successful manual client launch. For 26.x, Quilt Loader 0.30.1 and upstream Fabric API booted the same Fabric JAR in local and CI smoke tests. [QFAPI was retired for 26.1](https://quiltmc.org/en/blog/2026-02-03-non-obfuscated-updates/).
 - **NeoForge 26.1.2:** all 23 compiled classes match the 26.1 JAR byte for byte. A local macOS startup attempt failed to obtain a primary monitor from GLFW. The packaged mod did pass a direct client startup check with the 26.1.2 loader under Linux/Xvfb in CI. Neither result verifies in-world clicks.
 - **Babric / Beta 1.7.3:** a separate Java 8 branch/repository is needed. Message text, groups, and saved positions can be adapted; interception, rendering, hit testing, key handling, and moveable chat need new code. Estimate: 2–4 weeks for pinning/groups and 1–2 more weeks to investigate moveable chat and mod compatibility. First establish a Beta client build, then add capture/persistence, groups and dragging, and finally assess movement while typing.
 
@@ -62,6 +62,8 @@ Hover over a group for rename and delete buttons. Normal movement keys work whil
 CI builds and packages every supported JAR, verifies metadata, boots NeoForge 1.21.11/26.1/26.1.1/26.1.2/26.2, and boots Fabric and Quilt 26.1/26.1.1/26.1.2/26.2 under Xvfb. Startup must invoke PinChat, build the GUI atlas, and keep a visible window alive for 15 seconds. It does not drive mouse interaction or check persistence.
 
 Perform **one full interaction pass per unique JAR**: the shared Fabric/Quilt 1.21.11 binary, Forge 1.21.11, NeoForge 1.21.11, the shared Fabric/Quilt 26.1 binary, NeoForge 26.1, the shared Fabric/Quilt 26.2 binary, and NeoForge 26.2 (**seven passes total**). The three 26.1.x versions share their platform's release JAR and have separate automated startup tests, so do not repeat the full interaction pass for each hotfix. Because CI does not boot Quilt 1.21.11, also launch that loader once and confirm PinChat initializes; its binary does not need a second full interaction pass. For each full pass:
+
+The project owner reports completing this checklist for the 3.1.0 release. Repeat it for future releases that change client behavior.
 
 1. Enter a world; right-click to pin/unpin a chat line and Shift + right-click to create a group.
 2. Drag a group, restart the client, and verify its position and contents persist.
