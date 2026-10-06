@@ -1,114 +1,95 @@
+<div align="center">
+
+<img src="fabric/src/main/resources/assets/pinchat/icon.png" width="96" alt="Логотип PinChat">
+
 # PinChat
 
+**Нужные сообщения из чата — всегда перед глазами.**
+
+Закрепляйте координаты, подсказки и сообщения друзей прямо на экране Minecraft.
+
 [![Build and Release](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/build.yml/badge.svg)](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/build.yml)
+[![Client Tests](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/client-tests.yml/badge.svg)](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/client-tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-PinChat pins Minecraft chat messages on screen, organizes them into draggable groups, and lets you move while chat is open. It helps players keep coordinates, instructions, or a conversation visible. Groups can be moved and scaled, and normal use requires no configuration mod.
+[Скачать мод](https://github.com/ivanmikhaylov1/pinchat-mod/releases) · [Сообщить об ошибке](https://github.com/ivanmikhaylov1/pinchat-mod/issues/new/choose)
 
-## Supported Minecraft versions
+</div>
 
-“Supported” means the JAR builds and passes the automated checks below. The project owner reports completing the [in-world release check](#release-check) for version 3.1.0; those interactions are not driven by CI.
+## Что умеет мод
+
+- Закреплять сообщения из чата и убирать их одним кликом.
+- Раскладывать сообщения по группам: например, «База», «Задания» и «Торговля».
+- Перемещать, масштабировать, переименовывать и сворачивать группы.
+- Сохранять сообщения и расположение групп между запусками.
+- Открывать специальный режим чата, в котором можно двигаться и смотреть по сторонам.
+
+PinChat работает на стороне клиента. На сервер его устанавливать не нужно.
+
+![Две группы с закреплёнными координатами в Minecraft](docs/images/pinchat-groups.png)
+
+*Пример в игре: одно сообщение закреплено в двух независимых группах. Снимок из клиентского теста Fabric 1.21.11.*
+
+## Версии и загрузчики
 
 | Minecraft | Java | Fabric | Quilt | Forge | NeoForge |
-|---|---:|---|---|---|---|
-| 1.21.11 | 21 | Supported | Supported via Fabric JAR; owner-confirmed manual client launch | Supported | Supported |
-| 26.1 | 25 | Supported | Identical Fabric JAR | Unsupported: no Java 25 port | Supported |
-| 26.1.1 | 25 | Supported with 26.1 JAR | Supported with 26.1 Fabric JAR | Unsupported: no Java 25 port | Supported with 26.1 JAR |
-| 26.1.2 | 25 | Supported with 26.1 JAR | Supported with 26.1 Fabric JAR | Unsupported: no Java 25 port | Supported with 26.1 JAR |
-| 26.2 | 25 | Supported | Identical 26.2 Fabric JAR | Unsupported: no Java 25 port | Supported |
-| 26.3 | — | Unsupported: SDL3 port pending | Unsupported: SDL3 port pending | Unsupported: no port | Unsupported: SDL3 port pending |
+|---|---|---|---|---|---|
+| 1.21.11 | 21 | ✓ | ✓ | ✓ (61.x) | ✓ |
+| 26.1 / 26.1.1 / 26.1.2 | 25 | ✓ | ✓¹ | — | ✓ |
+| 26.2 | 25 | ✓ | ✓¹ | — | ✓ |
+| 26.3 | — | — | — | — | — |
 
-The 26.1 JAR is reused unchanged on 26.1.1 and 26.1.2. Fabric metadata accepts `>=26.1 <26.2`; NeoForge accepts `[26.1,26.2)`. The workflow boots the packaged Fabric JAR on Fabric and Quilt for each 26.x version, boots NeoForge on each hotfix loader, and compares all 23 compiled NeoForge classes against the 26.1 release JAR. The 26.2 JARs are built separately because game screen/HUD APIs and pack formats changed. See the official [26.1.1](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-1), [26.1.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-2), and [26.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-2) release notes.
+¹ Для Quilt 26.x используется тот же JAR, что и для Fabric. Для 26.1.1 и 26.1.2 скачивайте сборку **mc26.1**. Для 26.2 нужна отдельная сборка **mc26.2**.
 
-## Install
+Таблица отражает доступные сборки. Подробности проверок и ограничения описаны в [документе о совместимости](docs/COMPATIBILITY.md).
 
-1. Install the matching game version and **one** loader from the table. Use [Temurin JDK 21](https://adoptium.net/temurin/releases/?version=21) for 1.21.11 or [Temurin JDK 25](https://adoptium.net/temurin/releases/?version=25) for 26.1–26.2. Configure your launcher to run the matching Java version.
-2. Download the corresponding PinChat JAR from [GitHub Releases](https://github.com/ivanmikhaylov1/pinchat-mod/releases) or a successful [Build and Release run](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/build.yml) under **Artifacts**. Use the `mc26.1` JAR for both hotfixes. For Quilt 26.x use the Fabric JAR; the CI `quilt` artifact is a byte-identical alias.
-3. Put **one** PinChat JAR in your instance's `mods/` folder (usually `.minecraft/mods`). On Fabric or Quilt, also install [Fabric API](https://modrinth.com/mod/fabric-api) for the **exact** game version. Fabric API is required; Cloth Config, YACL, MaLiLib, and ModMenu are not.
+## Установка
 
-Install the loader normally before copying mods. The 1.21.11 Forge build targets Forge 61.x; the 26.1 and 26.2 NeoForge builds target their matching loader series. Optional ModMenu on Fabric 1.21.11 can open the built-in settings screen.
+1. Установите подходящий загрузчик и выберите нужную версию Minecraft.
+2. Скачайте [PinChat из Releases](https://github.com/ivanmikhaylov1/pinchat-mod/releases). Имя файла содержит загрузчик и версию игры: например, `pinchat-mod-fabric-3.1.0-mc26.1.jar`.
+3. Положите **один** подходящий JAR в папку `mods` вашего игрового профиля.
+4. Для Fabric и Quilt установите также [Fabric API](https://modrinth.com/mod/fabric-api) **для вашей версии Minecraft**.
+5. Запустите игру. Откройте чат и закрепите первое сообщение правой кнопкой мыши.
 
-| Loader | PinChat JAR | Additional mod |
-|---|---|---|
-| Fabric | Fabric JAR for the game version | Fabric API for that exact version |
-| Quilt | Quilt alias on 1.21.11; Fabric JAR or its identical Quilt alias on 26.x | Fabric API for that exact version |
-| Forge | Forge 1.21.11 JAR only | None required |
-| NeoForge | NeoForge JAR for the game version | None required |
+Для Forge и NeoForge дополнительные моды не нужны. Cloth Config, YACL и MaLiLib не требуются. ModMenu необязателен: на Fabric 1.21.11 он позволяет открыть настройки PinChat через список модов.
 
-## Use PinChat
+Если лаунчер просит Java: для 1.21.11 нужна Java 21, для 26.x — Java 25. Подходящие версии доступны на [Adoptium](https://adoptium.net/temurin/releases/).
 
-| Action | Control |
+## Управление
+
+Действия мышью с группами доступны при открытом обычном чате (`T` или `/`).
+
+| Действие | Как выполнить |
 |---|---|
-| Pin or unpin a message in the default group | Open chat (`T` or `/`), then right-click the message |
-| Create a group containing a message | Shift + right-click the message |
-| Move a pinned group | Drag it with the left mouse button |
-| Scale a pinned group | Drag the ↘ handle at its bottom-right corner |
-| Collapse or expand a group | Click its header |
-| Remove a pinned line | Right-click that line in its group |
-| Open or close moveable chat | `U` to open; `U` again or `Esc` to close |
-| Switch moveable chat on or off | `P` opens the built-in one-switch settings screen |
+| Закрепить сообщение / снять закрепление | ПКМ по сообщению в чате |
+| Создать отдельную группу с сообщением | `Shift` + ПКМ по сообщению |
+| Переместить группу | Зажать ЛКМ на её сообщении и перетащить |
+| Изменить размер | Потянуть за `↘` в правом нижнем углу |
+| Свернуть / развернуть | ЛКМ по заголовку группы |
+| Удалить закреплённую строку | ПКМ по строке внутри группы |
+| Переименовать / удалить группу | Навести на группу и нажать `[R]` / `[X]` |
+| Открыть специальный режим чата | `U` |
+| Закрыть специальный режим | `U` ещё раз или `Esc` |
+| Открыть настройки | `P` |
 
-Hover over a group for rename and delete buttons. Normal movement keys work while moveable chat is open. Groups, positions, and the switch are saved in `config/pinchat.json`; older numeric settings remain readable but are not exposed in the UI.
+В специальном режиме сохраняются клавиши движения и управление камерой; поле ввода текста скрыто. Для ввода сообщения используйте обычный чат. Клавиши `P` и `U` можно переназначить в настройках управления Minecraft. В мультиплеере `P` также открывает социальное меню: переназначьте настройки PinChat, например на `O`.
 
-## Known limits
+По умолчанию можно закрепить **5 сообщений в каждой группе**. Настройки, группы и их позиции хранятся в `config/pinchat.json` вашего игрового профиля. Встроенный экран настроек включает и выключает специальный режим чата; остальные параметры доступны в файле конфигурации. Закройте игру перед ручным редактированием и сохраните копию файла.
 
-- **Forge 26.x:** no Java 25 Forge port exists. Its 1.21.11 JAR cannot be used on 26.x.
-- **Minecraft 26.3:** [SDL3 replaces GLFW for input/window handling](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-3). PinChat directly reads GLFW mouse/key state, so it needs a separate input port and interaction tests. Estimate: 4–8 development days plus 2–3 testing days; this is not a release promise.
-- **Quilt 1.21.11:** it packages the Fabric binary. CI verifies packaging and metadata, and the project owner reports a successful manual client launch. For 26.x, Quilt Loader 0.30.1 and upstream Fabric API booted the same Fabric JAR in local and CI smoke tests. [QFAPI was retired for 26.1](https://quiltmc.org/en/blog/2026-02-03-non-obfuscated-updates/).
-- **NeoForge 26.1.2:** all 23 compiled classes match the 26.1 JAR byte for byte. A local macOS startup attempt failed to obtain a primary monitor from GLFW. The packaged mod did pass a direct client startup check with the 26.1.2 loader under Linux/Xvfb in CI. Neither result verifies in-world clicks.
-- **Babric / Beta 1.7.3:** a separate Java 8 branch/repository is needed. Message text, groups, and saved positions can be adapted; interception, rendering, hit testing, key handling, and moveable chat need new code. Estimate: 2–4 weeks for pinning/groups and 1–2 more weeks to investigate moveable chat and mod compatibility. First establish a Beta client build, then add capture/persistence, groups and dragging, and finally assess movement while typing.
+## Если что-то не работает
 
-## Release check
+| Проблема | Что проверить |
+|---|---|
+| Игра не запускается | Совпадают ли версии игры, загрузчика, Java и JAR; установлен ли Fabric API |
+| Мод не появился | JAR находится в папке `mods` именно запущенного профиля; нет второй копии PinChat |
+| `P` или `U` не срабатывает | Конфликт клавиш в настройках управления; включён ли специальный режим |
+| Новое сообщение не закрепляется | Лимит сообщений в группе; попробуйте `Shift` + ПКМ для новой группы |
+| Группы пропали после запуска | Используется ли прежний профиль и его `config/pinchat.json` |
 
-CI builds and packages every supported JAR, verifies metadata, boots NeoForge 1.21.11/26.1/26.1.1/26.1.2/26.2, and boots Fabric and Quilt 26.1/26.1.1/26.1.2/26.2 under Xvfb. Startup must invoke PinChat, build the GUI atlas, and keep a visible window alive for 15 seconds. It does not drive mouse interaction or check persistence.
+Не удалось решить проблему? [Создайте issue](https://github.com/ivanmikhaylov1/pinchat-mod/issues/new/choose), укажите версии игры и загрузчика, шаги воспроизведения и приложите `logs/latest.log`. Перед публикацией удалите из лога личные данные.
 
-Perform **one full interaction pass per unique JAR**: the shared Fabric/Quilt 1.21.11 binary, Forge 1.21.11, NeoForge 1.21.11, the shared Fabric/Quilt 26.1 binary, NeoForge 26.1, the shared Fabric/Quilt 26.2 binary, and NeoForge 26.2 (**seven passes total**). The three 26.1.x versions share their platform's release JAR and have separate automated startup tests, so do not repeat the full interaction pass for each hotfix. Because CI does not boot Quilt 1.21.11, also launch that loader once and confirm PinChat initializes; its binary does not need a second full interaction pass. For each full pass:
+## Для разработчиков
 
-The project owner reports completing this checklist for the 3.1.0 release. Repeat it for future releases that change client behavior.
+[Начало работы и архитектура](docs/DEVELOPMENT.md) · [Тесты в игре и перед релизом](docs/TESTING.md) · [Как внести изменения](CONTRIBUTING.md) · [Совместимость](docs/COMPATIBILITY.md) · [Выпуск релизов](docs/RELEASING.md)
 
-1. Enter a world; right-click to pin/unpin a chat line and Shift + right-click to create a group.
-2. Drag a group, restart the client, and verify its position and contents persist.
-3. Press `P`, toggle moveable chat, then press `U` and verify movement while chat is open.
-4. Check the client log for mixin, entrypoint, and loader errors.
-
-## Develop and build
-
-Install JDK 21 and 25, then run:
-
-```bash
-./gradlew buildAll
-python3 scripts/verify_loader_jars.py
-```
-
-Gradle uses Java 21 for the root 1.21.11 build and Java 25 for the nested 26.x builds. If it cannot find Java 25, set `JAVA_25_HOME` to its JDK directory. Artifacts appear under each loader's `build/libs/` and under `fabric-mc26/build/libs/` and `neoforge-mc26/build/libs/`; CI copies release JARs to `dist/`. [Build and Release](https://github.com/ivanmikhaylov1/pinchat-mod/actions/workflows/build.yml) runs `buildAll`, metadata/bytecode checks, and client smoke tests.
-
-### Module layout
-
-```text
-common/src/main/java       Shared model and config serialization
-common/src/mojang/java     Mojang-named client code shared by 26.x builds
-fabric/                    Fabric 1.21.11 (Yarn mappings)
-quilt/                     Quilt 1.21.11 Fabric-compatible artifact
-forge/                     Forge 1.21.11 registration
-neoforge/                  NeoForge 1.21.11 registration, reused by 26.x
-java25-toolchain-check/     Java 25 toolchain probe
-fabric-mc26/               Fabric 26.1.x and 26.2; Quilt uses its JAR
-neoforge-mc26/             NeoForge 26.1.x and 26.2; Gradle 9.2 wrapper
-scripts/                   Metadata, bytecode, and client-startup checks
-.github/workflows/build.yml CI build, smoke tests, release artifacts
-```
-
-Platform names come first; `-mc26` marks the additional multi-version build. The original platform directories remain 1.21.11 modules. The 26.x builds reuse `common`, with loader bindings and version-specific API adaptations. There is no Quilt 26.x module because it uses the identical Fabric JAR.
-
-### Add a game version or loader
-
-1. Read the official game/loader migration notes; record JDK, mappings, and API changes.
-2. For a hotfix, check packaged dependency ranges, compile against the patch, compare class bytes, and run its client smoke test before declaring compatibility.
-3. For a breaking version, add bindings/adaptations to `fabric-mc26/` or `neoforge-mc26/` while keeping reusable logic in `common/`; create a module only if the existing build cannot represent the target cleanly.
-4. Add version parameters and a Gradle task to root `buildAll`; keep the JDK selection local to the target.
-5. Extend script checks, the CI smoke matrix, and the distinctly named release JAR copy in `.github/workflows/build.yml`.
-6. Run `./gradlew buildAll`, metadata checks, and client smoke tests; perform the interaction checklist once per unique binary.
-7. Update the support table and install instructions only when the evidence supports the claim.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+Лицензия — [MIT](LICENSE).

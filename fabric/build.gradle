@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.13-SNAPSHOT'
+    id 'fabric-loom' version '1.13.6'
     id 'maven-publish'
 }
 
@@ -95,4 +95,17 @@ loom {
 
 tasks.named('build') {
     dependsOn 'test'
+}
+
+// Client tests are isolated from the released mod and ordinary JUnit runs.
+fabricApi.configureTests {
+    createSourceSet = true
+    modId = 'pinchat_client_tests'
+    enableGameTests = false
+    enableClientGameTests = true
+}
+
+loom.runs.clientGameTest {
+    // Fail if the test mod is missing instead of succeeding with zero tests.
+    property 'fabric.client.gametest.modid', 'pinchat_client_tests'
 }

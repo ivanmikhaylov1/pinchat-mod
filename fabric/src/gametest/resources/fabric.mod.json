@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "pinchat_client_tests",
+  "version": "1.0.0",
+  "name": "PinChat Client Tests",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": ["dev.sfafy.pinchat.gametest.PinChatClientGameTest"]
+  },
+  "depends": {
+    "pinchat": "*",
+    "fabric-client-gametest-api-v1": "*"
+  }
+}

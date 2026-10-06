@@ -325,9 +325,8 @@ public class ChatScreenMixin {
       }
 
       if (messageContent != null) {
-        long window = client.getWindow().getHandle();
-        boolean createGroup = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS
-            || GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS;
+        boolean createGroup = net.minecraft.client.util.InputUtil.isKeyPressed(client.getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)
+            || net.minecraft.client.util.InputUtil.isKeyPressed(client.getWindow(), GLFW.GLFW_KEY_RIGHT_SHIFT);
         if (createGroup) {
           MessageGroup group = dev.sfafy.pinchat.PinnedMessagesManager.createGroup(PinnedMessages.groups);
           PinnedMessages.groups.add(group);

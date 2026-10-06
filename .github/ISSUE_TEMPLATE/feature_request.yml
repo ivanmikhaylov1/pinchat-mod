@@ -1,0 +1,16 @@
+name: Предложение
+description: Улучшение управления, интерфейса или совместимости.
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Какую задачу нужно решить?
+      description: Опишите игровой сценарий и что сейчас мешает.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Как это могло бы работать?
+      description: Предлагаемое поведение и нужные версии игры или загрузчики.
