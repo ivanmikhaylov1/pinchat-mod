@@ -19,6 +19,8 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
       - name: Unit tests
         run: ./gradlew -PtestPlatform=fabric :common:test :fabric:test --no-daemon
       - name: Install virtual display
