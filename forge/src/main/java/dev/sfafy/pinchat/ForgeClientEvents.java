@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.Mod;
 public class ForgeClientEvents {
 
   @SubscribeEvent
-  public static void onKeyInput(net.minecraftforge.client.event.InputEvent.Key event) {
+  public static void onClientTick(TickEvent.ClientTickEvent.Post event) {
     Minecraft client = Minecraft.getInstance();
     if (client.player == null)
       return;

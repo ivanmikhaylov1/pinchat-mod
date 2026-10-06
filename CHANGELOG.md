@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+- Fixed missing bundled translations and icons in Fabric/Quilt 26.x; release preparation now rejects JARs without English/Russian locales.
+- Conflict-free defaults on every supported loader: F8 for settings and F9 for special chat; existing custom bindings are retained.
+- Removed unused Forge/NeoForge key actions and added the localized PinChat controls category.
+- Fixed mouse-bound and unbound controls in special chat, and original input restoration after screen resizing.
+- Gameplay checks now exercise actual defaults and saved custom keyboard/mouse bindings after restart.
 - English-first user README with a complete Russian translation, installation, controls, and an in-game example.
 - Separate bilingual guides for development, testing, compatibility, and releases.
 - English and Russian issue/PR templates and descriptions for all published releases.

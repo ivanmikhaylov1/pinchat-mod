@@ -54,6 +54,14 @@ def validate_jar(path, version):
             actual = tomllib.loads(jar.read(name).decode())["mods"][0]["version"]
         if actual != version:
             raise ValueError(f"Expected {version}, found {actual} in {path}")
+        for language in ("en_us", "ru_ru"):
+            resource = f"assets/pinchat/lang/{language}.json"
+            if resource not in jar.namelist():
+                raise ValueError(f"Missing {language} localization in release JAR: {path}")
+            translations = json.loads(jar.read(resource))
+            if not translations or any(not isinstance(value, str) or not value.strip()
+                                       for value in translations.values()):
+                raise ValueError(f"Invalid {language} localization in release JAR: {path}")
 
 
 def prepare(dist, version, tag=None):

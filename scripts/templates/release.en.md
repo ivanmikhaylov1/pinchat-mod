@@ -23,13 +23,13 @@ The 26.1.1 and 26.1.2 files are identical copies of the 26.1 build; Quilt uses a
 
 Open normal chat: right-click pins a message; Shift + right-click creates a group.
 Left-drag groups, resize with ↘, and collapse through the header; [R] renames, [X] deletes.
-`U` opens special chat with movement and camera control; `P` opens settings. Data is saved in `config/pinchat.json`.
-In multiplayer, P conflicts with the social menu; in 26.2, O opens the friends list. Rebind PinChat settings in Minecraft Controls, for example to F8.
+`F9` opens special chat with movement and camera control; `F8` opens settings. Data is saved in `config/pinchat.json`.
+F8 and F9 are free in the standard Minecraft controls. Existing profiles retain saved bindings: assign F8/F9 or reset the two PinChat actions individually in Controls → PinChat. Older P bindings conflict with the multiplayer social menu; O opens the friends list in 26.2.
 
 ## Validation
 
 The workflow permits publication only after builds, unit tests, Client GameTest, and the entire packaged-JAR gameplay matrix pass.
-Gameplay checks cover pinning, groups, dragging, resizing, renaming, movement, the settings toggle, and persistence after a real client restart.
+Gameplay checks cover pinning, groups, dragging, resizing, renaming, movement, the settings toggle, persistence after a real client restart, and saved custom keyboard/mouse bindings.
 `SHA256SUMS` contains hashes for every JAR; `manifest.json` records loader versions and game/file mappings; `GAMEPLAY_RESULTS.json` records gameplay results and the tested JAR hashes.
 Screenshots are diagnostic; automatic reference-image comparison is not implemented.
 

@@ -49,8 +49,8 @@ Scenario: `fabric/src/gametest/java/dev/sfafy/pinchat/gametest/PinChatClientGame
 - Write the file, clear memory, and load: names, contents, positions, scale, and collapsed state.
 - Right-click a pinned line: remove it.
 - Group limit: retain the first message and reject the second.
-- `U`: open special chat, walk forward, close with `Esc`, and restore the input handler.
-- `P`: disable the mode, reload the toggle from disk, and verify that `U` does not open the screen.
+- `F9`: open special chat, walk forward, close with `Esc`, and restore the input handler.
+- `F8`: disable the mode, reload the toggle from disk, and verify that `F9` does not open the screen.
 
 Positions and scale are set programmatically to check persistence. This GameTest does not automate physical dragging or resizing: the code reads the mouse button through GLFW, while GameTest sends game events.
 
@@ -90,7 +90,7 @@ Change the loader and game version for other combinations. Use `--jar /absolute/
 
 The scenario checks world loading, mod initialization, pinning/unpinning, independent groups, physical dragging, collapsing, renaming, resizing, limits, movement in special chat, and disabling the mode. The client **actually restarts**; the test then clicks a restored line and checks the other groups. Movement is confirmed through server RCON coordinates, not by the presence of an input handler.
 
-The test profile rebinds PinChat settings to `F8`: default `P` conflicts with Minecraft’s multiplayer social menu, and `O` conflicts with the friends list in 26.2. The run verifies the saved binding and settings screen; it does not establish that the default binding is conflict-free.
+The first launch uses the real defaults, `F8` for settings and `F9` for special chat, with no seeded PinChat binding override. After the real restart, the scenario verifies custom settings on `F7`, special chat on mouse button 4, and forward movement on the left mouse button. It checks opening, movement, and closing through these saved bindings. These intentionally changed test bindings do not alter the defaults. Client GameTest also checks default-key conflicts, an unbound key, a released mouse binding, and restoration of the original player input after screen resizing.
 
 Output is in `build/gameplay/<loader>-<version>`: `result.json`, client/server logs, and PNG screenshots. Repeated runs archive the previous instance under `build/gameplay/archive`; assets and libraries are reused from `build/game-cache`. The test RCON password is excluded from artifacts. JSON records the tested JAR’s SHA-256; a `failed` result includes the cause and completed steps.
 
@@ -114,8 +114,8 @@ Complete one full pass per unique JAR: Fabric/Quilt 1.21.11, Forge 1.21.11, NeoF
 | Drag a group and pull `↘` | Group follows the mouse; scale stays within 0.5–3.0 |
 | Collapse, rename, expand | Correct name and contents |
 | Restart the client | Messages, position, scale, and state retained |
-| Open `U`, walk, turn the camera, close | Movement and camera work; normal controls restored |
-| Disable with `P`, press `U`, restart | Chat does not open; setting retained |
+| Open `F9`, walk, turn the camera, close | Movement and camera work; normal controls restored |
+| Disable with `F8`, press `F9`, restart | Chat does not open; setting retained |
 | Delete a line and delete a group through `[X]` | Deleted data stays deleted after restart |
 | Check `logs/latest.log` | No PinChat, mixin, or loader errors |
 

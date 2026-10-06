@@ -19,7 +19,7 @@ public class PinChatMod {
       modBus.addListener(ClientSetup::onClientSetup);
       modBus.addListener(PinChatKeyBindings::registerKeyMappings);
       modBus.addListener(PinnedHudRenderer::registerOverlays);
-      NeoForge.EVENT_BUS.addListener(NeoClientEvents::onKeyInput);
+      NeoForge.EVENT_BUS.addListener(NeoClientEvents::onClientTick);
     }
   }
 }

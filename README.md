@@ -70,11 +70,13 @@ Mouse controls for groups are available while normal chat is open (`T` or `/`).
 | Collapse / expand | Left-click the group header |
 | Remove a pinned line | Right-click the line inside its group |
 | Rename / delete a group | Hover over the group and click `[R]` / `[X]` |
-| Open special chat mode | `U` |
-| Close special chat mode | `U` again or `Esc` |
-| Open settings | `P` |
+| Open special chat mode | `F9` |
+| Close special chat mode | `F9` again or `Esc` |
+| Open settings | `F8` |
 
-Special chat mode keeps movement keys and camera control active and hides the text input. Use normal chat to type messages. You can rebind `P` and `U` in Minecraft’s Controls settings. In multiplayer, `P` also opens the social menu; in 26.2, `O` opens the friends list. Rebind PinChat settings to a free key, such as `F8`.
+Special chat mode keeps movement keys and camera control active and hides the text input. Use normal chat to type messages. `F8` (settings) and `F9` (special chat) are free in the standard Minecraft controls for supported versions. You can rebind either action in Minecraft’s Controls settings, under **PinChat**; keyboard and mouse bindings are supported.
+
+These are the defaults for the next release. Published 3.1.0 uses `P` and `U`. Minecraft keeps saved bindings when you update: in an existing profile, change PinChat settings to `F8` and special chat to `F9`, or reset those two actions individually. `P` opens the multiplayer social menu, and `O` opens the friends list in 26.2.
 
 The default limit is **5 messages per group**. Settings, groups, and their positions are saved in your profile’s `config/pinchat.json`. The built-in settings screen toggles special chat mode; other options are available in the configuration file. Close the game and back up the file before editing it manually.
 
@@ -84,7 +86,7 @@ The default limit is **5 messages per group**. Settings, groups, and their posit
 |---|---|
 | The game will not start | Matching game, loader, Java, and JAR versions; Fabric API installed where required |
 | PinChat does not appear | The JAR is in the active profile’s `mods` folder; no duplicate PinChat JAR |
-| `P` or `U` does not work | Key conflicts in Controls; special chat mode enabled |
+| `F8` or `F9` does not work | Key conflicts in Controls; special chat mode enabled |
 | Another message will not pin | The group’s message limit; try `Shift` + right-click to create a new group |
 | Groups disappear after launch | The same game profile and its `config/pinchat.json` are being used |
 

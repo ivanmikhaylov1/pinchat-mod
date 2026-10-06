@@ -4,6 +4,7 @@ import dev.sfafy.pinchat.PinChatMod;
 
 import dev.sfafy.pinchat.mixin.ChatScreenAccessor;
 import dev.sfafy.pinchat.mixin.PinChatKeyBindingAccessor;
+import dev.sfafy.pinchat.input.PinChatInput;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -27,9 +28,13 @@ public class MoveableChatScreen extends ChatScreen {
   protected void init() {
     PinChatMod.LOGGER.info("MoveableChatScreen: init() called");
     super.init();
+    lastMouseX = 0;
+    lastMouseY = 0;
     if (this.client != null && this.client.player != null) {
       PinChatMod.LOGGER.info("MoveableChatScreen: Setting up custom input");
-      this.originalInput = this.client.player.input;
+      if (this.originalInput == null) {
+        this.originalInput = this.client.player.input;
+      }
       this.client.player.input = new dev.sfafy.pinchat.input.MoveableChatInput(this.client);
     } else {
       PinChatMod.LOGGER.warn("MoveableChatScreen: client or player is null!");
@@ -69,20 +74,9 @@ public class MoveableChatScreen extends ChatScreen {
     if (this.client == null)
       return;
 
-    boolean isPressed = false;
-    if (false) {
-      InputUtil.Key key = ((dev.sfafy.pinchat.mixin.PinChatKeyBindingAccessor) dev.sfafy.pinchat.keybindings.PinChatKeyBindings.openMoveableChatKey)
-          .getBoundKey();
-      if (InputUtil.isKeyPressed(this.client.getWindow(), key.getCode())) {
-        isPressed = true;
-      }
-    }
-
-    InputUtil.Key boundKey = ((dev.sfafy.pinchat.mixin.PinChatKeyBindingAccessor) dev.sfafy.pinchat.keybindings.PinChatKeyBindings.openMoveableChatKey)
-        .getBoundKey();
-    if (InputUtil.isKeyPressed(this.client.getWindow(), boundKey.getCode())) {
-      isPressed = true;
-    }
+    var binding = dev.sfafy.pinchat.keybindings.PinChatKeyBindings.openMoveableChatKey;
+    boolean isPressed = binding != null && PinChatInput.isPressed(
+        ((PinChatKeyBindingAccessor) binding).getBoundKey(), this.client.getWindow());
 
     if (isPressed && !wasCloseKeyPressed && timeOpened > 5) {
       this.close();
@@ -133,12 +127,14 @@ public class MoveableChatScreen extends ChatScreen {
       GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
     }
 
+    cursorLocked = false;
     super.removed();
 
     if (this.client != null && this.client.player != null) {
       if (this.originalInput != null) {
         PinChatMod.LOGGER.info("MoveableChatScreen: Restoring original input");
         this.client.player.input = this.originalInput;
+        this.originalInput = null;
       }
 
       restoreKeyPressed(this.client.options.forwardKey);
@@ -157,7 +153,7 @@ public class MoveableChatScreen extends ChatScreen {
 
     InputUtil.Key key = ((PinChatKeyBindingAccessor) keyBinding).getBoundKey();
 
-    boolean isPressed = InputUtil.isKeyPressed(this.client.getWindow(), key.getCode());
+    boolean isPressed = PinChatInput.isPressed(key, this.client.getWindow());
 
     KeyBinding.setKeyPressed(key, isPressed);
   }

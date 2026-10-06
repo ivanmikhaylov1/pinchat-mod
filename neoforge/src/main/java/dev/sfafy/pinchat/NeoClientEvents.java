@@ -10,7 +10,7 @@ import net.neoforged.fml.common.Mod;
 
 public class NeoClientEvents {
 
-  public static void onKeyInput(net.neoforged.neoforge.client.event.InputEvent.Key event) {
+  public static void onClientTick(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
     Minecraft client = Minecraft.getInstance();
     if (client.player == null)
       return;

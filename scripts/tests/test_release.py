@@ -35,6 +35,9 @@ class ReleaseTest(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 with zipfile.ZipFile(path, 'w') as archive:
                     archive.writestr('fabric.mod.json', json.dumps({'version': '3.1.0'}))
+                    for language in ('en_us', 'ru_ru'):
+                        archive.writestr(f'assets/pinchat/lang/{language}.json',
+                                         json.dumps({'pinchat.config.title': 'PinChat'}))
 
     def test_prepare_names_all_files_and_hashes_the_exact_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -87,6 +90,15 @@ class ReleaseTest(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'does not match'):
                     release.prepare(root / 'dist', '3.1.0', 'v3.2.0')
             self.assertFalse((root / 'dist').exists())
+
+    def test_missing_bundled_translation_blocks_publication(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / 'missing-russian.jar'
+            with zipfile.ZipFile(path, 'w') as archive:
+                archive.writestr('fabric.mod.json', '{"version":"3.1.0"}')
+                archive.writestr('assets/pinchat/lang/en_us.json', '{"title":"PinChat"}')
+            with self.assertRaisesRegex(ValueError, 'Missing ru_ru localization'):
+                release.validate_jar(path, '3.1.0')
 
     def test_wrong_jar_version_and_bundled_test_mod_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:

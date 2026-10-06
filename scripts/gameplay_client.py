@@ -279,7 +279,7 @@ class Gameplay:
         with zipfile.ZipFile(self.game / "versions" / vanilla / f"{vanilla}.jar") as client_jar:
             data_version = json.loads(client_jar.read("version.json"))["world_version"]
         (self.game / "options.txt").write_text(
-            f"version:{data_version}\nkey_pinchat.hotkey.openConfig:key.keyboard.f8\nguiScale:2\nlang:en_us\nonboardAccessibility:false\njoinedFirstServer:true\nfullscreen:false\n"
+            f"version:{data_version}\nguiScale:2\nlang:en_us\nonboardAccessibility:false\njoinedFirstServer:true\nfullscreen:false\n"
             "pauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\n"
             "chatScale:1.0\nchatLineSpacing:0.0\nmaxFps:60\ntutorialStep:none\nsoundCategory_master:0.0\n")
         mods = self.game / "mods"
@@ -378,7 +378,7 @@ class Gameplay:
         self.passed("native resize handle")
         self.screenshot("groups")
         self.key("Escape")
-        self.key("u")
+        self.key("F9")
         self.wait(lambda: "MoveableChatScreen: init() completed" in
                   (self.game / f"client-{self.phase}.log").read_text(), "special chat actually opened")
         before = self.position()
@@ -395,23 +395,37 @@ class Gameplay:
         self.wait(lambda: "MoveableChatScreen: Restoring original input" in
                   (self.game / f"client-{self.phase}.log").read_text(), "original input restored")
         self.passed("movement with special chat open (server coordinates)")
-        # Reopen U and close with U as well, then check the switch and its persistence.
-        self.key("u")
+        # Reopen F9 and close with F9 as well, then check the switch and its persistence.
+        self.key("F9")
         time.sleep(0.6)
         restored_count = (self.game / f"client-{self.phase}.log").read_text().count(
             "MoveableChatScreen: Restoring original input")
-        self.key("u")
+        self.key("F9")
         self.wait(lambda: (self.game / f"client-{self.phase}.log").read_text().count(
-                  "MoveableChatScreen: Restoring original input") > restored_count, "U closes special chat")
+                  "MoveableChatScreen: Restoring original input") > restored_count, "F9 closes special chat")
         self.key("F8")
         self.click(256, 192)
         self.wait(lambda: not self.config()["moveableChatEnabled"], "settings switch saved")
         self.click(256, 222)
-        self.passed("U close and rebound F8 settings toggle")
+        self.passed("default F9 close and F8 settings toggle")
         persisted = self.config()
         stop(self.client)
         self.client = None
         self.wait(lambda: self.position() is None, "first client disconnected")
+        options = self.game / "options.txt"
+        settings = options.read_text()
+        # Rebinding must remain functional and persist; mouse bindings use a different device.
+        settings = settings.replace("key_pinchat.hotkey.openConfig:key.keyboard.f8",
+                                    "key_pinchat.hotkey.openConfig:key.keyboard.f7")
+        settings = settings.replace("key_pinchat.hotkey.openMoveableChat:key.keyboard.f9",
+                                    "key_pinchat.hotkey.openMoveableChat:key.mouse.4")
+        settings = settings.replace("key_key.forward:key.keyboard.w", "key_key.forward:key.mouse.left")
+        for expected in ("key_pinchat.hotkey.openConfig:key.keyboard.f7",
+                         "key_pinchat.hotkey.openMoveableChat:key.mouse.4",
+                         "key_key.forward:key.mouse.left"):
+            if expected not in settings:
+                raise AssertionError(f"Saved key binding missing: {expected}")
+        options.write_text(settings)
         self.connect()
         # Persisted file alone is insufficient: interact with the restored groups.
         self.key("t")
@@ -424,8 +438,10 @@ class Gameplay:
         self.wait(lambda: self.groups()[0]["messages"] == ["First", "Second", "Third"], "per-group limit")
         self.passed("per-group message limit")
         self.key("Escape")
-        self.key("u")
-        # With U disabled, T opens normal chat. W must then type, not move the player.
+        self.xd("mousedown", "8")
+        time.sleep(0.3)
+        self.xd("mouseup", "8")
+        # With special chat disabled, T opens normal chat. W must then type, not move the player.
         self.key("t")
         before = self.position()
         self.xd("keydown", "w")
@@ -438,6 +454,34 @@ class Gameplay:
             raise AssertionError("Disabled special chat still allows movement")
         self.key("Escape")
         self.passed("disabled setting survives restart and normal chat blocks movement")
+        self.key("F7")
+        self.click(256, 192)
+        self.wait(lambda: self.config()["moveableChatEnabled"], "custom settings binding enables mode")
+        self.click(256, 222)
+        opened = (self.game / f"client-{self.phase}.log").read_text().count(
+            "MoveableChatScreen: init() completed")
+        self.xd("mousedown", "8")
+        time.sleep(0.3)
+        self.xd("mouseup", "8")
+        self.wait(lambda: (self.game / f"client-{self.phase}.log").read_text().count(
+                  "MoveableChatScreen: init() completed") > opened, "custom mouse binding opens chat")
+        before = self.position()
+        self.xd("mousedown", "1")
+        try:
+            time.sleep(1.5)
+        finally:
+            self.xd("mouseup", "1")
+        after = self.position()
+        if math.hypot(after[0] - before[0], after[2] - before[2]) < 0.5:
+            raise AssertionError("Mouse-bound forward key did not move the player")
+        restored = (self.game / f"client-{self.phase}.log").read_text().count(
+            "MoveableChatScreen: Restoring original input")
+        self.xd("mousedown", "8")
+        time.sleep(0.3)
+        self.xd("mouseup", "8")
+        self.wait(lambda: (self.game / f"client-{self.phase}.log").read_text().count(
+                  "MoveableChatScreen: Restoring original input") > restored, "custom mouse binding closes chat")
+        self.passed("custom keyboard and mouse bindings survive restart and control movement")
         self.write_result("passed")
 
     def run(self):

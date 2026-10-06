@@ -47,6 +47,6 @@ public class MoveableChatInput extends KeyboardInput {
 
   private boolean isKeyPressed(KeyMapping keyMapping, com.mojang.blaze3d.platform.Window window) {
     InputConstants.Key key = ((PinChatKeyBindingAccessor) (Object) keyMapping).getBoundKey();
-    return InputConstants.isKeyDown(window, key.getValue());
+    return PinChatInput.isPressed(key, window);
   }
 }

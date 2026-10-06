@@ -7,6 +7,9 @@ import dev.sfafy.pinchat.gui.GroupRenameScreen;
 import dev.sfafy.pinchat.gui.MoveableChatScreen;
 import dev.sfafy.pinchat.gui.PinChatConfigScreen;
 import dev.sfafy.pinchat.keybindings.PinChatKeyBindings;
+import dev.sfafy.pinchat.mixin.PinChatKeyBindingAccessor;
+import dev.sfafy.pinchat.input.PinChatInput;
+import net.minecraft.client.util.InputUtil;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -49,7 +52,25 @@ public final class PinChatClientGameTest implements FabricClientGameTest {
       PinChatConfig.pinnedScale = 1.0;
       PinChatConfig.maxPinnedMessages = 5;
       PinChatConfig.moveableChatEnabled = true;
-      check(PinChatKeyBindings.openMoveableChatKey != null, "U binding was not registered");
+      check(PinChatKeyBindings.openMoveableChatKey != null, "Special chat binding was not registered");
+      check(PinChatKeyBindings.openConfigKey.getDefaultKey().getCode() == GLFW.GLFW_KEY_F8,
+          "Settings default is not F8");
+      check(PinChatKeyBindings.openMoveableChatKey.getDefaultKey().getCode() == GLFW.GLFW_KEY_F9,
+          "Special chat default is not F9");
+      for (var binding : client.options.allKeys) {
+        if (binding == PinChatKeyBindings.openConfigKey || binding == PinChatKeyBindings.openMoveableChatKey) continue;
+        var key = ((PinChatKeyBindingAccessor) binding).getBoundKey();
+        check(!key.equals(PinChatKeyBindings.openConfigKey.getDefaultKey()) &&
+            !key.equals(PinChatKeyBindings.openMoveableChatKey.getDefaultKey()),
+            "PinChat default conflicts with " + binding.getId());
+      }
+      check(!PinChatInput.isPressed(InputUtil.UNKNOWN_KEY, client.getWindow()),
+          "Unbound key was treated as pressed");
+      var forward = ((PinChatKeyBindingAccessor) client.options.forwardKey).getBoundKey();
+      client.options.forwardKey.setBoundKey(InputUtil.Type.MOUSE.createFromCode(GLFW.GLFW_MOUSE_BUTTON_LEFT));
+      var input = new dev.sfafy.pinchat.input.MoveableChatInput(client);
+      check(!input.playerInput.forward(), "Released mouse binding was treated as pressed");
+      client.options.forwardKey.setBoundKey(forward);
       client.inGameHud.getChatHud().clear(false);
       client.inGameHud.getChatHud().addMessage(Text.literal(MESSAGE));
     });
@@ -147,6 +168,9 @@ public final class PinChatClientGameTest implements FabricClientGameTest {
       check(dx * dx + dz * dz > 0.25, "Player did not move while chat was open");
       check(client.currentScreen instanceof MoveableChatScreen, "Movement unexpectedly closed chat");
     });
+    // Screen reinitialization during window resizing must not replace the original input.
+    context.runOnClient(client -> client.currentScreen.resize(
+        client.getWindow().getScaledWidth(), client.getWindow().getScaledHeight()));
     context.takeScreenshot("pinchat-moveable-chat");
     context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE);
     context.waitForScreen(null);
@@ -165,7 +189,7 @@ public final class PinChatClientGameTest implements FabricClientGameTest {
     context.waitForScreen(null);
     context.getInput().pressKey(PinChatKeyBindings.openMoveableChatKey);
     context.waitTicks(5);
-    context.runOnClient(client -> check(client.currentScreen == null, "U opened chat while disabled"));
+    context.runOnClient(client -> check(client.currentScreen == null, "Special chat opened while disabled"));
   }
 
   private static MessageGroup defaultGroup() {

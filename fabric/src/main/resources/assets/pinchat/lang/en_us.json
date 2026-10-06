@@ -21,5 +21,7 @@
   "pinchat.gui.positionEdit.tooltip.unpin": "Right-click to unpin",
   "pinchat.hotkey.openConfig": "Open PinChat Config",
   "pinchat.hotkey.openMoveableChat": "Open Moveable Chat",
-  "pinchat.config.moveableChat": "Moveable chat: %s"
+  "pinchat.config.moveableChat": "Moveable chat: %s",
+  "key.category.pinchat.main": "PinChat",
+  "pinchat.message.limitReached": "PinChat: Maximum number of pinned messages reached (%s)"
 }
