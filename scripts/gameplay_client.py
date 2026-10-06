@@ -266,7 +266,7 @@ class Gameplay:
             "maxPinnedMessages": 3, "maxLineWidth": 200, "pinnedX": 100, "pinnedY": 100,
             "pinnedScale": 1.0, "moveableChatEnabled": True, "groups": []}))
         (self.game / "options.txt").write_text(
-            "key_pinchat.hotkey.openConfig:key.keyboard.o\nguiScale:2\nlang:en_us\nonboardAccessibility:false\nfullscreen:false\n"
+            "key_pinchat.hotkey.openConfig:key.keyboard.o\nguiScale:2\nlang:en_us\nonboardAccessibility:true\njoinedFirstServer:true\nfullscreen:false\n"
             "pauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:3\n"
             "chatScale:1.0\nchatLineSpacing:0.0\nmaxFps:60\ntutorialStep:none\nsoundCategory_master:0.0\n")
         # Share downloaded assets/libraries across local matrix runs; each instance is isolated.
