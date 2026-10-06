@@ -279,7 +279,7 @@ class Gameplay:
         with zipfile.ZipFile(self.game / "versions" / vanilla / f"{vanilla}.jar") as client_jar:
             data_version = json.loads(client_jar.read("version.json"))["world_version"]
         (self.game / "options.txt").write_text(
-            f"version:{data_version}\nkey_pinchat.hotkey.openConfig:key.keyboard.o\nguiScale:2\nlang:en_us\nonboardAccessibility:false\njoinedFirstServer:true\nfullscreen:false\n"
+            f"version:{data_version}\nkey_pinchat.hotkey.openConfig:key.keyboard.f8\nguiScale:2\nlang:en_us\nonboardAccessibility:false\njoinedFirstServer:true\nfullscreen:false\n"
             "pauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\n"
             "chatScale:1.0\nchatLineSpacing:0.0\nmaxFps:60\ntutorialStep:none\nsoundCategory_master:0.0\n")
         mods = self.game / "mods"
@@ -403,11 +403,11 @@ class Gameplay:
         self.key("u")
         self.wait(lambda: (self.game / f"client-{self.phase}.log").read_text().count(
                   "MoveableChatScreen: Restoring original input") > restored_count, "U closes special chat")
-        self.key("o")
+        self.key("F8")
         self.click(256, 192)
         self.wait(lambda: not self.config()["moveableChatEnabled"], "settings switch saved")
         self.click(256, 222)
-        self.passed("U close and rebound O settings toggle")
+        self.passed("U close and rebound F8 settings toggle")
         persisted = self.config()
         stop(self.client)
         self.client = None

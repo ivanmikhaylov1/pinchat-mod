@@ -21,6 +21,12 @@ public final class PinChatClientGameTest implements FabricClientGameTest {
 
   @Override
   public void runTest(ClientGameTestContext context) {
+    // Keep software rendering and chunk generation within the CI runner budget.
+    context.runOnClient(client -> {
+      client.options.getViewDistance().setValue(2);
+      client.options.getSimulationDistance().setValue(5);
+      client.options.getMaxFps().setValue(30);
+    });
     try (var world = context.worldBuilder().create()) {
       try {
         runScenario(context);

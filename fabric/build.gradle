@@ -106,6 +106,7 @@ fabricApi.configureTests {
 }
 
 loom.runs.clientGameTest {
+    vmArg '-Xmx2G'
     // Fail if the test mod is missing instead of succeeding with zero tests.
     property 'fabric.client.gametest.modid', 'pinchat_client_tests'
 }
