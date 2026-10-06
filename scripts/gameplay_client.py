@@ -272,6 +272,7 @@ class Gameplay:
             shared = cache / name
             shared.mkdir(parents=True, exist_ok=True)
             (self.game / name).symlink_to(shared, target_is_directory=True)
+        print(f"Installing {self.row['loader']} {self.row['loader_version']} / Minecraft {self.row['minecraft']}", flush=True)
         profile = install_client(self.row, self.game, self.java)
         # Explicit version prevents Minecraft migrating modern key names as old numeric codes.
         vanilla = self.row["minecraft"]
@@ -279,7 +280,7 @@ class Gameplay:
             data_version = json.loads(client_jar.read("version.json"))["world_version"]
         (self.game / "options.txt").write_text(
             f"version:{data_version}\nkey_pinchat.hotkey.openConfig:key.keyboard.o\nguiScale:2\nlang:en_us\nonboardAccessibility:false\njoinedFirstServer:true\nfullscreen:false\n"
-            "pauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:3\n"
+            "pauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\n"
             "chatScale:1.0\nchatLineSpacing:0.0\nmaxFps:60\ntutorialStep:none\nsoundCategory_master:0.0\n")
         mods = self.game / "mods"
         mods.mkdir(exist_ok=True)
