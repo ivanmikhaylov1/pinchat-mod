@@ -16,6 +16,7 @@ import subprocess
 import time
 import urllib.parse
 import urllib.request
+import zipfile
 
 from release import artifact_name, matrix, properties, ROOT
 
@@ -265,10 +266,6 @@ class Gameplay:
         (config / "pinchat.json").write_text(json.dumps({
             "maxPinnedMessages": 3, "maxLineWidth": 200, "pinnedX": 100, "pinnedY": 100,
             "pinnedScale": 1.0, "moveableChatEnabled": True, "groups": []}))
-        (self.game / "options.txt").write_text(
-            "key_pinchat.hotkey.openConfig:key.keyboard.o\nguiScale:2\nlang:en_us\nonboardAccessibility:true\njoinedFirstServer:true\nfullscreen:false\n"
-            "pauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:3\n"
-            "chatScale:1.0\nchatLineSpacing:0.0\nmaxFps:60\ntutorialStep:none\nsoundCategory_master:0.0\n")
         # Share downloaded assets/libraries across local matrix runs; each instance is isolated.
         cache = ROOT / "build/game-cache"
         for name in ("assets", "libraries", "versions"):
@@ -276,6 +273,14 @@ class Gameplay:
             shared.mkdir(parents=True, exist_ok=True)
             (self.game / name).symlink_to(shared, target_is_directory=True)
         profile = install_client(self.row, self.game, self.java)
+        # Explicit version prevents Minecraft migrating modern key names as old numeric codes.
+        vanilla = self.row["minecraft"]
+        with zipfile.ZipFile(self.game / "versions" / vanilla / f"{vanilla}.jar") as client_jar:
+            data_version = json.loads(client_jar.read("version.json"))["world_version"]
+        (self.game / "options.txt").write_text(
+            f"version:{data_version}\nkey_pinchat.hotkey.openConfig:key.keyboard.o\nguiScale:2\nlang:en_us\nonboardAccessibility:false\njoinedFirstServer:true\nfullscreen:false\n"
+            "pauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:3\n"
+            "chatScale:1.0\nchatLineSpacing:0.0\nmaxFps:60\ntutorialStep:none\nsoundCategory_master:0.0\n")
         mods = self.game / "mods"
         mods.mkdir(exist_ok=True)
         shutil.copy2(self.jar, mods / self.jar.name)
