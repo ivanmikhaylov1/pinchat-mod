@@ -1,38 +1,40 @@
-# Совместимость
+**English** · [Русский](ru/COMPATIBILITY.md)
 
-[← README](../README.md) · [Тестирование](TESTING.md)
+# Compatibility
 
-## Доступные сборки
+[← README](../README.md) · [Testing](TESTING.md)
+
+## Available builds
 
 | Minecraft | Java | Fabric | Quilt | Forge | NeoForge |
 |---|---|---|---|---|---|
-| 1.21.11 | 21 | Отдельная сборка | Совместимый Fabric JAR | Forge 61.x | Отдельная сборка |
-| 26.1 / 26.1.1 / 26.1.2 | 25 | Общий mc26.1 JAR | Тот же Fabric JAR | Нет порта | Общий mc26.1 JAR |
-| 26.2 | 25 | Отдельный mc26.2 JAR | Тот же Fabric JAR | Нет порта | Отдельный mc26.2 JAR |
-| 26.3 | — | Нет порта | Нет порта | Нет порта | Нет порта |
+| 1.21.11 | 21 | Dedicated build | Compatible Fabric JAR | Forge 61.x | Dedicated build |
+| 26.1 / 26.1.1 / 26.1.2 | 25 | Shared mc26.1 JAR | Same Fabric JAR | No port | Shared mc26.1 JAR |
+| 26.2 | 25 | Dedicated mc26.2 JAR | Same Fabric JAR | No port | Dedicated mc26.2 JAR |
+| 26.3 | — | No port | No port | No port | No port |
 
-Fabric API требуется на Fabric и Quilt и должен соответствовать точной версии игры. На Quilt 26.x используется upstream Fabric API: [QFAPI завершил развитие для 26.1](https://quiltmc.org/en/blog/2026-02-03-non-obfuscated-updates/).
+Fabric API is required on Fabric and Quilt and must match the exact game version. Quilt 26.x uses upstream Fabric API: [QFAPI development ended for 26.1](https://quiltmc.org/en/blog/2026-02-03-non-obfuscated-updates/).
 
-## Что подтверждают проверки
+## What the checks establish
 
-До расширения тестов CI собирал JAR и проверял метаданные. Исторический smoke-прогон запускал NeoForge 1.21.11, 26.1, 26.1.1, 26.1.2, 26.2 и Fabric/Quilt для каждой версии 26.x. Он требовал инициализации PinChat, GUI atlas и стабильного окна в течение 15 секунд.
+Before gameplay coverage was expanded, CI built JARs and checked metadata. Historical smoke runs launched NeoForge 1.21.11, 26.1, 26.1.1, 26.1.2, and 26.2, plus Fabric/Quilt for each 26.x version. They required PinChat initialization, a GUI atlas, and a stable window for 15 seconds.
 
-Quilt 1.21.11 ранее автоматически проверялся на уровне упаковки и метаданных; успешный ручной запуск ранее подтверждён владельцем проекта. Владелец также сообщил о выполнении ручного игрового прохода для релиза 3.1.0. Это исторические результаты, а не подтверждение новых изменений.
+Quilt 1.21.11 previously had automatic packaging/metadata checks and a manual startup confirmed by the project owner. The owner also reported a manual gameplay pass for release 3.1.0. These are historical results, not validation of new changes.
 
-Client GameTest проверяет development-клиент Fabric 1.21.11. Дополнительная CI-матрица из `config/targets.json` запускает нативные игровые проверки упакованных JAR на всех 16 поддерживаемых сочетаниях, включая Quilt, Forge, NeoForge и hotfix 26.1.x. Полное описание сценариев и границ покрытия — в [TESTING.md](TESTING.md).
+Client GameTest checks the Fabric 1.21.11 development client. The additional CI matrix from `config/targets.json` runs native gameplay checks on packaged JARs across all 16 supported combinations, including Quilt, Forge, NeoForge, and 26.1.x hotfixes. See [TESTING.md](TESTING.md) for scenarios and coverage limits.
 
-## Hotfix 26.1.x
+## Hotfixes in 26.1.x
 
-JAR 26.1 используется без изменений на 26.1.1 и 26.1.2. Диапазон Fabric: `>=26.1 <26.2`, NeoForge: `[26.1,26.2)`. Игровая матрица запускает каждую версию с тем же базовым JAR. Ранее CI также сравнил все 23 скомпилированных класса NeoForge с JAR 26.1; скрипт сравнения сохранён в `scripts/verify_neoforge_mc26_hotfix_bytecode.py`.
+The 26.1 JAR is unchanged on 26.1.1 and 26.1.2. Fabric’s range is `>=26.1 <26.2`; NeoForge’s is `[26.1,26.2)`. Gameplay tests run each game version with the same base JAR. Earlier CI also compared all 23 compiled NeoForge classes with the 26.1 JAR; the script remains in `scripts/verify_neoforge_mc26_hotfix_bytecode.py`.
 
-Локальная попытка запуска NeoForge 26.1.2 на macOS ранее завершилась ошибкой получения монитора GLFW; запуск Linux/Xvfb прошёл. Ни одно из этих наблюдений само по себе не доказывает корректность кликов в мире.
+An earlier local NeoForge 26.1.2 launch on macOS failed to obtain a GLFW monitor; Linux/Xvfb startup passed. Neither observation alone establishes correct in-world clicks.
 
-26.2 имеет отдельные сборки из-за изменений screen/HUD API и формата ресурсов. Официальные изменения: [26.1.1](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-1), [26.1.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-2), [26.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-2).
+26.2 has separate builds because screen/HUD APIs and resource formats changed. Official notes: [26.1.1](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-1), [26.1.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-2), [26.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-2).
 
-## Неподдерживаемые цели
+## Unsupported targets
 
-- Forge 26.x: Java 25 порт не реализован; JAR 1.21.11 несовместим.
-- Minecraft 26.3: [SDL3 заменяет GLFW](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-3). Код PinChat читает GLFW напрямую, поэтому нужны адаптация ввода и новые игровые проверки.
-- Babric / Beta 1.7.3: потребуются отдельная Java 8 сборка, новая интеграция с чатом, HUD и обработкой ввода.
+- Forge 26.x: a Java 25 port is not implemented; the 1.21.11 JAR is incompatible.
+- Minecraft 26.3: [SDL3 replaces GLFW](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-3). PinChat reads GLFW directly, so input adaptation and new gameplay checks are needed.
+- Babric / Beta 1.7.3: requires a separate Java 8 build and new chat, HUD, and input integration.
 
-Сроки выпуска портов не определены. Новую совместимость отмечайте только после сборки, проверки запуска и соответствующего игрового прохода.
+No port release dates are set. Claim new compatibility only after a build, startup check, and corresponding gameplay pass.

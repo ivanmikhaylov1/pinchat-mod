@@ -1,16 +1,20 @@
-# Как внести изменения
+**English** · [Русский](CONTRIBUTING.ru.md)
 
-Исправления и предложения можно отправлять через [issues](https://github.com/ivanmikhaylov1/pinchat-mod/issues) и pull request.
+# Contributing
 
-1. Прочитайте [карту модулей и команды сборки](docs/DEVELOPMENT.md).
-2. Делайте изменения по одной задаче. Логику без зависимостей от игры размещайте в `common/src/main/java`.
-3. Добавьте проверку наблюдаемого поведения: JUnit для модели, [Client GameTest](docs/TESTING.md) для экранов и ввода.
-4. Проверьте соответствующий код с Yarn и Mojang mappings. Не редактируйте сгенерированные файлы.
-5. Обновите инструкции, если изменились управление или зависимости.
-6. Опишите в PR проблему, результат, выполненные проверки и ограничения.
+Submit fixes and suggestions through [issues](https://github.com/ivanmikhaylov1/pinchat-mod/issues) and pull requests. English and Russian are both welcome; use English first when preparing public documentation.
 
-Минимальная проверка: `./gradlew -PtestPlatform=common :common:test`. Для Fabric запускайте также unit-тесты и Client GameTest. Для общей клиентской логики нужны сборки затронутых загрузчиков и ручной проход там, где ещё нет игровых автотестов.
+1. Read the [module map and build commands](docs/DEVELOPMENT.md).
+2. Keep each change focused on one task. Put game-independent logic in `common/src/main/java`.
+3. Check observable behavior: JUnit for the model and [Client GameTest](docs/TESTING.md) for screens and input.
+4. Check affected code in both Yarn and Mojang mappings. Do not edit generated files.
+5. Update both English and Russian instructions when controls, dependencies, or behavior change.
+6. Describe the problem, resulting behavior, validation, and limitations in your PR.
 
-Соблюдайте `.editorconfig` и стиль соседнего кода. Избегайте массового форматирования в функциональных исправлениях. Не добавляйте игровые миры, логи, локальные настройки и сборочные JAR в Git.
+Minimum check: `./gradlew -PtestPlatform=common :common:test`. For Fabric, also run unit tests and Client GameTest. Shared client changes require builds and gameplay checks for affected loaders; use a manual pass where automated coverage is missing.
 
-Код распространяется под [MIT](LICENSE).
+Follow `.editorconfig` and the surrounding code style. Avoid unrelated bulk formatting in functional changes. Do not commit game worlds, logs, local settings, or built JARs.
+
+English documents use the default filenames. Russian documents use `*.ru.md` at the root and `docs/ru/` for guides. Keep language links and matching instructions up to date. Historical release pages in `docs/releases/` and generated release notes contain English first, followed by Russian. Update both `CHANGELOG.md` and `CHANGELOG.ru.md` for release changes.
+
+Code is licensed under [MIT](LICENSE).

@@ -1,62 +1,68 @@
-# Разработка PinChat
+**English** · [Русский](ru/DEVELOPMENT.md)
 
-[← README](../README.md) · [Тестирование](TESTING.md) · [Совместимость](COMPATIBILITY.md)
+# Developing PinChat
 
-## Быстрый старт
+[← README](../README.md) · [Testing](TESTING.md) · [Compatibility](COMPATIBILITY.md)
 
-Установите JDK 21 для Minecraft 1.21.11; для полной сборки понадобится также JDK 25. Используйте Gradle Wrapper из репозитория, локальная установка Gradle не нужна.
+## Quick start
+
+Install JDK 21 for Minecraft 1.21.11 and JDK 25 for a complete build. Use the repository’s Gradle Wrapper; a separate Gradle installation is unnecessary.
 
 ```bash
-# Модель без Minecraft и загрузчиков
+# Model without Minecraft or loaders
 ./gradlew -PtestPlatform=common :common:test
 
 # Fabric 1.21.11
 ./gradlew -PtestPlatform=fabric :fabric:build
 
-# Все платформы и версии
+# All platforms and versions
 ./gradlew buildAll
 python3 scripts/verify_loader_jars.py
 ```
 
-Запускайте команды из корня. На Windows используйте `gradlew.bat`. Gradle работает на Java 21; Java 25 выбирается для соответствующих модулей. Если она не обнаружена, задайте `JAVA_25_HOME` или `JAVA_HOME_25_X64`.
+Run commands from the repository root. On Windows, use `gradlew.bat`. Gradle runs on Java 21 and selects Java 25 for the corresponding modules. If detection fails, set `JAVA_25_HOME` or `JAVA_HOME_25_X64`.
 
-`testPlatform` ограничивает подключённые модули: `common` либо `common` + `fabric`. Полную сборку запускайте без этого параметра. Для тестов модели достаточно JDK 21 и Maven Central.
+`testPlatform` limits included modules to `common` or `common` + `fabric`. Omit it for a complete build. Model tests need only JDK 21 and Maven Central.
 
-## Где менять код
+## Where to change code
 
-| Путь | Назначение |
+| Path | Purpose |
 |---|---|
-| `common/src/main/java` | Модель групп, лимиты и сериализация без зависимостей от Minecraft |
-| `common/src/mojang/java` | Клиентский код с Mojang mappings для Forge/NeoForge и 26.x |
-| `fabric/src/main/java` | Fabric 1.21.11 с Yarn mappings: экраны, mixin, ввод |
-| `fabric/src/test/java` | JUnit-тесты без запуска игры |
-| `fabric/src/gametest` | Отдельный тестовый мод для клиента Fabric 1.21.11 |
-| `forge`, `neoforge` | Регистрация загрузчиков 1.21.11 |
-| `quilt` | Упаковка совместимой Fabric-сборки 1.21.11 |
-| `fabric-mc26`, `neoforge-mc26` | Вложенные Gradle-проекты для 26.1.x и 26.2 |
-| `java25-toolchain-check` | Проверка Java 25 |
-| `scripts` | Игровой прогон релизных JAR, метаданные, байткод и оформление релизов |
-| `config/targets.json` | Единая матрица версий игры, Java, загрузчиков и Fabric API |
-| `.github/workflows` | Сборка, тесты, диагностика и релизы |
+| `common/src/main/java` | Group model, limits, and serialization without Minecraft dependencies |
+| `common/src/mojang/java` | Client code using Mojang mappings for Forge/NeoForge and 26.x |
+| `fabric/src/main/java` | Fabric 1.21.11 using Yarn mappings: screens, mixins, input |
+| `fabric/src/test/java` | JUnit tests without launching the game |
+| `fabric/src/gametest` | Separate test mod for the Fabric 1.21.11 client |
+| `forge`, `neoforge` | Loader registration for 1.21.11 |
+| `quilt` | Packaging the compatible Fabric build for 1.21.11 |
+| `fabric-mc26`, `neoforge-mc26` | Nested Gradle projects for 26.1.x and 26.2 |
+| `java25-toolchain-check` | Java 25 validation |
+| `scripts` | Packaged-JAR gameplay checks, metadata, bytecode, and release preparation |
+| `config/targets.json` | Shared matrix of game, Java, loader, and Fabric API versions |
+| `.github/workflows` | Builds, tests, diagnostics, and releases |
 
-Часть клиентских действий реализована и в Yarn, и в Mojang mappings: при исправлении поведения проверяйте обе реализации. `PinnedMessagesManager` — общая модель; клиентские `PinnedMessages` пока содержат отдельную реализацию. Поэтому JUnit дополняется тестами настоящего клиента.
+Some client behavior has both Yarn and Mojang implementations: check both when fixing behavior. `PinnedMessagesManager` is the shared model; client `PinnedMessages` still has a separate implementation. Real-client tests therefore complement JUnit.
 
-В 26.x задачи `syncModSources` объединяют исходники и адаптируют API под версию игры. Редактируйте исходные файлы, **не** `build/generated`. Приоритет одинаковых классов определяется порядком `from` в `build.gradle`.
+In 26.x, `syncModSources` combines sources and adapts APIs for the game version. Edit source files, **not** `build/generated`. The order of `from` entries in `build.gradle` determines precedence for duplicate classes.
 
-## Сборки
+## Builds
 
-Версия мода задаётся в `gradle.properties`; вложенные проекты 26.x имеют собственные свойства. Обновляйте их согласованно. Версии загрузчиков и API находятся там же, версии плагинов — в `build.gradle`.
+Set the mod version in `gradle.properties` and keep the nested 26.x projects’ properties in sync. Loader/API versions are also in properties; plugin versions are in `build.gradle`.
 
-JAR появляются в `build/libs` соответствующих модулей. CI собирает пользовательские файлы в `dist` с загрузчиком и версией игры в имени. Quilt 26.x — идентичная копия Fabric JAR.
+Module JARs appear in their `build/libs`. CI collects user downloads in `dist` with loader and game versions in the filenames. Quilt 26.x is an identical copy of the Fabric JAR.
 
-`buildAll` последовательно собирает 26.1 и 26.2 внутри каждого вложенного проекта. Не собирайте разные версии одного проекта параллельно: они используют общий `build`.
+`buildAll` builds 26.1 and 26.2 sequentially within each nested project. Do not build different versions of one project concurrently: they share the same `build` directory.
 
-## Новая версия игры
+## Adding a game version
 
-1. Изучите изменения Java, mappings, ввода, GUI и формата ресурсов.
-2. Для hotfix проверьте диапазон метаданных, сборку против патча, байткод и запуск клиента.
-3. Для новых API измените адаптацию в проекте 26.x. Создавайте модуль только при необходимости отдельной архитектуры.
-4. Дополните `buildAll` и `config/targets.json`: CI, названия файлов и release notes строятся из этой матрицы. Проверьте `scripts/release.py --matrix`.
-5. Выполните [игровой чек-лист](TESTING.md#перед-релизом), затем обновите совместимость.
+1. Review changes to Java, mappings, input, GUI, and resource formats.
+2. For a hotfix, check metadata ranges, compilation against the patch, bytecode, and client startup.
+3. Adapt new APIs in the 26.x project. Add a separate module only when the architecture requires it.
+4. Update `buildAll` and `config/targets.json`: CI, filenames, and release notes use this matrix. Check `scripts/release.py --matrix`.
+5. Complete the [pre-release checklist](TESTING.md#before-a-release), then update compatibility in both languages.
 
-README предназначен для игроков. Команды и архитектура находятся здесь, тесты — в `TESTING.md`, ограничения платформ — в `COMPATIBILITY.md`.
+## Documentation and translations
+
+The README is for players. Build commands and architecture belong here; tests belong in `TESTING.md`, platform limitations in `COMPATIBILITY.md`.
+
+English is primary. Maintain root `*.ru.md` files and matching `docs/ru/` guides alongside English changes. Release pages and generated notes contain both languages. Keep `en_us.json` and `ru_ru.json` key sets aligned for every loader; 26.x builds reuse the source resource directories.

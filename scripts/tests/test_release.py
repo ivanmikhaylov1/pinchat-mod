@@ -52,6 +52,33 @@ class ReleaseTest(unittest.TestCase):
                 names = [f'pinchat-mod-{loader}-3.1.0-mc{game}.jar' for game in ('26.1', '26.1.1', '26.1.2')]
                 self.assertEqual(len({(root / 'dist' / n).read_bytes() for n in names}), 1)
 
+    def test_bilingual_notes_use_each_changelog_and_resolvable_release_links(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            self.fixture(root)
+            (root / 'CHANGELOG.md').write_text(
+                '# Changelog\n\n## 3.1.0\n\nEnglish change [guide](docs/TESTING.md).'
+                '\n\n## 3.0.0\n\nOld change.\n', encoding='utf-8')
+            (root / 'CHANGELOG.ru.md').write_text(
+                '# История\n\n## 3.1.0\n\nРусское изменение [инструкция](docs/ru/TESTING.md).'
+                '\n\n## 3.0.0\n\nСтарое изменение.\n', encoding='utf-8')
+            with patch.object(release, 'ROOT', root):
+                release.prepare(root / 'dist', '3.1.0', 'v3.1.0')
+            notes = (root / 'dist/RELEASE_NOTES.md').read_text(encoding='utf-8')
+            english, russian = notes.split('\n\n---\n\n')
+            self.assertIn('English change', english)
+            self.assertNotIn('Русское изменение', english)
+            self.assertIn('Русское изменение', russian)
+            self.assertNotIn('English change', russian)
+            self.assertNotIn('Old change', notes)
+            self.assertNotIn('Старое изменение', notes)
+            self.assertIn('blob/master/docs/TESTING.md', english)
+            self.assertIn('blob/master/docs/ru/TESTING.md', russian)
+            self.assertNotIn('](docs/', notes)
+            for game in release.targets():
+                self.assertIn(f'| {game} |', english)
+                self.assertIn(f'| {game} |', russian)
+
     def test_tag_mismatch_is_rejected_before_any_output(self):
         with tempfile.TemporaryDirectory() as directory:
             root = pathlib.Path(directory)

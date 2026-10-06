@@ -77,38 +77,32 @@ def prepare(dist, version, tag=None):
         manifest.append({**row, "file": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
     (dist / "SHA256SUMS").write_text("".join(f"{r['sha256']}  {r['file']}\n" for r in manifest))
     (dist / "manifest.json").write_text(json.dumps({"version": version, "artifacts": manifest}, indent=2) + "\n")
-    (dist / "RELEASE_NOTES.md").write_text(notes(version, rows))
+    (dist / "RELEASE_NOTES.md").write_text(notes(version, rows), encoding="utf-8")
 
 
 def notes(version, rows):
-    result = [f"# PinChat {version}", "", "Закрепляйте сообщения, управляйте группами и двигайтесь с открытым специальным чатом.",
-              "", "## Выберите файл", "", "| Minecraft | Java | Загрузчики |", "|---|---|---|"]
-    for game, target in targets().items():
-        result.append(f"| {game} | {target['java']} | {', '.join(target['loaders'])} |")
-    changelog = ROOT / "CHANGELOG.md"
-    if changelog.exists():
-        text = changelog.read_text()
-        marker = f"## {version}\n"
-        if marker in text:
-            section = text.split(marker, 1)[1].split("\n## ", 1)[0].strip()
-            # Local relative Markdown links cannot be resolved on a GitHub Release page.
-            section = section.replace("](" + "docs/", "](https://github.com/ivanmikhaylov1/pinchat-mod/blob/master/docs/")
-            index = result.index("## Выберите файл")
-            result[index:index] = ["## Изменения", "", section, ""]
-    result += ["", f"Скачайте `pinchat-mod-<загрузчик>-{version}-mc<версия игры>.jar` из Assets ниже.",
-               "Файлы 26.1.1 и 26.1.2 — идентичные копии сборки 26.1; Quilt использует Fabric-совместимый бинарник.",
-               "", "## Установка", "", "1. Установите загрузчик для своей версии Minecraft.",
-               "2. Положите один подходящий JAR PinChat в `mods` игрового профиля.",
-               "3. На Fabric и Quilt установите Fabric API для точной версии игры; Forge и NeoForge не требуют дополнительных модов.",
-               "", "## Управление", "", "Откройте обычный чат: ПКМ закрепляет сообщение, Shift + ПКМ создаёт группу.",
-               "Перетаскивайте группы ЛКМ, меняйте масштаб за ↘, сворачивайте по заголовку; [R] — имя, [X] — удалить.",
-               "`U` открывает специальный режим с движением и камерой; `P` — настройки. Данные сохраняются в `config/pinchat.json`.",
-               "В мультиплеере P конфликтует с социальным меню: переназначьте настройки PinChat, например на F8, в управлении Minecraft.", "", "## Проверки", "", "Публикация этого релиза разрешена workflow только после сборки, unit-тестов, клиентского GameTest и всей матрицы игровых проверок упакованных JAR.",
-               "Игровой прогон проверяет закрепление, группы, перетаскивание, масштабирование, переименование, движение, переключатель настроек и сохранение после перезапуска клиента.",
-               "`SHA256SUMS` содержит SHA-256 всех JAR; `manifest.json` — версии загрузчиков и соответствие файлов игре.",
-               "", "## Ограничения", "", "Forge 26.x и Minecraft 26.3 не поддерживаются.",
-               "", "[Инструкция](https://github.com/ivanmikhaylov1/pinchat-mod#readme) · [Сообщить об ошибке](https://github.com/ivanmikhaylov1/pinchat-mod/issues/new/choose)", ""]
-    return "\n".join(result)
+    tables = "\n".join(
+        f"| {game} | {target['java']} | {', '.join(target['loaders'])} |"
+        for game, target in targets().items())
+    templates = pathlib.Path(__file__).resolve().parent / "templates"
+    sections = []
+    for language, filename, heading in (
+            ("en", "CHANGELOG.md", "Changes"),
+            ("ru", "CHANGELOG.ru.md", "Изменения")):
+        changes = ""
+        changelog = ROOT / filename
+        if changelog.exists():
+            text = changelog.read_text(encoding="utf-8")
+            marker = f"## {version}\n"
+            if marker in text:
+                section = text.split(marker, 1)[1].split("\n## ", 1)[0].strip()
+                # Release pages cannot resolve repository-relative documentation links.
+                section = section.replace(
+                    "](docs/", "](https://github.com/ivanmikhaylov1/pinchat-mod/blob/master/docs/")
+                changes = f"## {heading}\n\n{section}\n\n"
+        template = (templates / f"release.{language}.md").read_text(encoding="utf-8")
+        sections.append(template.format(version=version, matrix=tables, changes=changes).strip())
+    return "**English** · [Русский](#russian)\n\n" + "\n\n---\n\n".join(sections) + "\n"
 
 
 def main():

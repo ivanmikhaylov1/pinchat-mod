@@ -1,17 +1,20 @@
-# История изменений
+**English** · [Русский](CHANGELOG.ru.md)
+
+# Changelog
 
 ## Unreleased
 
-- README на русском с установкой, управлением и игровым примером.
-- Разделение документации для игроков, разработчиков, тестирования и выпуска релизов.
-- Проверки лимитов, групп, нормализации и сохранения конфигурации без скрытых ошибок загрузки.
-- Client GameTest для Fabric 1.21.11 и нативная матрица игровых проверок релизных JAR для 16 сочетаний версий/загрузчиков.
-- Проверки перетаскивания, масштаба, движения и сохранения после настоящего перезапуска клиента.
-- Единые имена релизных файлов, SHA-256, manifest и JSON-отчёты, связанные с проверенным JAR.
-- Публикация релиза только после полной игровой матрицы.
+- English-first user README with a complete Russian translation, installation, controls, and an in-game example.
+- Separate bilingual guides for development, testing, compatibility, and releases.
+- English and Russian issue/PR templates and descriptions for all published releases.
+- Tests for limits, groups, normalization, and configuration persistence without hiding initialization failures.
+- Fabric 1.21.11 Client GameTest and native gameplay checks of packaged release JARs across all 16 supported game/loader combinations.
+- Checks for dragging, resizing, movement, and persistence after a real client restart.
+- Consistent release filenames, SHA-256 checksums, manifest, and gameplay reports tied to the tested JAR.
+- Release publication gated on the complete gameplay matrix, with English and Russian release notes.
 
 ## 3.1.0
 
-Поддержка Minecraft 1.21.11, 26.1–26.1.2 и 26.2 на доступных загрузчиках. Подробнее: [описание релиза](docs/releases/3.1.0.md).
+Support for Minecraft 1.21.11, 26.1–26.1.2, and 26.2 on available loaders. See the [release notes](docs/releases/3.1.0.md).
 
-Исторические описания и исходные изменения версий 1.0.0–3.0.0 находятся в [docs/releases](docs/releases).
+Historical descriptions and original changes for 1.0.0–3.0.0 are in [docs/releases](docs/releases).

@@ -1,63 +1,66 @@
-# Тестирование
+**English** · [Русский](ru/TESTING.md)
 
-[← README](../README.md) · [Разработка](DEVELOPMENT.md)
+# Testing
 
-## Уровни проверок
+[← README](../README.md) · [Development](DEVELOPMENT.md)
 
-| Уровень | Что подтверждает | Что остаётся за рамками |
+## Coverage levels
+
+| Level | What it verifies | Outside its scope |
 |---|---|---|
-| JUnit, `common` | Лимиты, группы, нормализация, сохранение на диск, миграция | Mixin, клики, рендеринг |
-| JUnit, `fabric` | Модель и адаптеры вне игрового процесса | Загрузка Minecraft и вход в мир |
-| Client GameTest, Fabric 1.21.11 | Настоящий мир, клики через ChatScreenMixin, клавиши, движение, загрузка конфигурации | Другие загрузчики, рестарт JVM, сравнение изображений |
-| Нативный прогон, вся матрица | Релизный JAR, перетаскивание, масштабирование, реальный рестарт, серверные координаты | Сравнение рендера с эталоном |
-| Ручной проход | Визуальное качество и совместимость с другими модами | Автоматическая защита от регрессий |
+| JUnit, `common` | Limits, groups, normalization, disk persistence, migration | Mixins, clicks, rendering |
+| JUnit, `fabric` | Model and adapters outside the game process | Minecraft startup and world loading |
+| Client GameTest, Fabric 1.21.11 | A real world, clicks through ChatScreenMixin, keys, movement, configuration loading | Other loaders, JVM restart, image comparison |
+| Native gameplay, full matrix | Packaged JAR, dragging, resizing, real restart, server coordinates | Visual comparison with a reference |
+| Manual pass | Visual quality and compatibility with other mods | Automatic regression protection |
 
-## Быстрые тесты
+## Quick tests
 
 ```bash
 ./gradlew -PtestPlatform=common :common:test
 ./gradlew -PtestPlatform=fabric :common:test :fabric:test
+python3 -m unittest discover -s scripts/tests -v
 ```
 
-Отчёты: `common/build/reports/tests/test/index.html` и `fabric/build/reports/tests/test/index.html`. Проверяйте результат действия, а не наличие класса. Не превращайте исключения и ошибки инициализации в успешную проверку.
+Reports: `common/build/reports/tests/test/index.html` and `fabric/build/reports/tests/test/index.html`. Check the result of an action, not the presence of a class. Do not turn exceptions or initialization failures into passing checks.
 
-## Автоматические тесты в игре
+## Automated in-game tests
 
-Требуется JDK 21 и дисплей с OpenGL. Fabric API Client GameTest создаёт отдельный плоский мир, выполняет сценарий и закрывает клиент. Учётная запись Minecraft для тестового запуска не требуется.
+Requires JDK 21 and an OpenGL display. Fabric API Client GameTest creates a separate flat world, runs the scenario, and closes the client. A Minecraft account is not required for this test launch.
 
 ```bash
-# Рабочий компьютер с дисплеем
+# Desktop with a display
 ./gradlew -PtestPlatform=fabric :fabric:runClientGameTest
 
-# Linux без дисплея, после установки Xvfb и Mesa
+# Headless Linux, after installing Xvfb and Mesa
 LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe \
   xvfb-run -a -s '-screen 0 1280x720x24' \
   ./gradlew -PtestPlatform=fabric :fabric:runClientGameTest --no-daemon
 ```
 
-На Ubuntu нужны пакеты `xvfb xauth libgl1-mesa-dri libglx-mesa0 libasound2t64`. Это development-клиент с тестовым модом; упакованный release JAR отдельно проверяется нативным игровым прогоном.
+Ubuntu packages: `xvfb xauth libgl1-mesa-dri libglx-mesa0 libasound2t64`. This is a development client with a test mod; native gameplay checks separately validate the packaged release JAR.
 
-Сценарий: `fabric/src/gametest/java/dev/sfafy/pinchat/gametest/PinChatClientGameTest.java`.
+Scenario: `fabric/src/gametest/java/dev/sfafy/pinchat/gametest/PinChatClientGameTest.java`.
 
-- ПКМ по чату: закрепление, снятие и повторное закрепление.
-- `Shift` + ПКМ: новая группа без изменения исходной.
-- Заголовок: сворачивание и разворачивание.
-- Переименование через настоящий экран и кнопку сохранения.
-- Запись файла, очистка памяти, загрузка: имена, содержимое, позиции, масштаб, свёрнутое состояние.
-- ПКМ по закреплённой строке: удаление.
-- Лимит группы: первое сообщение сохраняется, второе отклоняется.
-- `U`: открыть специальный чат, пройти вперёд, закрыть через `Esc`, восстановить обработчик ввода.
-- `P`: отключить режим, перечитать переключатель с диска, убедиться, что `U` не открывает экран.
+- Right-click chat: pin, unpin, and pin again.
+- `Shift` + right-click: create a group without changing the original.
+- Group header: collapse and expand.
+- Rename through the real screen and save button.
+- Write the file, clear memory, and load: names, contents, positions, scale, and collapsed state.
+- Right-click a pinned line: remove it.
+- Group limit: retain the first message and reject the second.
+- `U`: open special chat, walk forward, close with `Esc`, and restore the input handler.
+- `P`: disable the mode, reload the toggle from disk, and verify that `U` does not open the screen.
 
-Позиции и масштаб задаются программно для проверки сохранения. В этом GameTest перетаскивание и изменение размера мышью не автоматизированы: код читает физическую кнопку через GLFW, а GameTest отправляет игровые события.
+Positions and scale are set programmatically to check persistence. This GameTest does not automate physical dragging or resizing: the code reads the mouse button through GLFW, while GameTest sends game events.
 
-Loom очищает `fabric/build/run/clientGameTest` перед запуском. Для стабильного входа используется штатная обработка сетевых пакетов Minecraft: дополнительный синхронизатор Fabric API отключён в тестовом запуске. PinChat работает на клиенте; реальные сетевые эффекты движения отдельно проверяет нативный сценарий через RCON.
+Loom clears `fabric/build/run/clientGameTest` before launch. The test uses Minecraft’s normal packet handling for reliable world loading; Fabric API’s additional network synchronizer is disabled for this run. PinChat is client-side; the native scenario separately checks actual network movement through RCON.
 
-Пользовательская `.minecraft` не используется; тестовый мод не включается в release JAR. Снимки экрана сохраняются в тестовой папке, включая снимок при ошибке. Это диагностика, а не автоматическое сравнение с эталоном.
+Your `.minecraft` directory is not used, and the test mod is excluded from release JARs. Screenshots, including failure captures, are saved in the test directory. They are diagnostics, not automatic reference-image comparisons.
 
-## Упакованные JAR: все версии и загрузчики
+## Packaged JARs: every version and loader
 
-`config/targets.json` — единая матрица из **16 сочетаний**:
+`config/targets.json` is the shared matrix of **16 combinations**:
 
 | Minecraft | Fabric | Quilt | Forge | NeoForge |
 |---|---|---|---|---|
@@ -67,9 +70,9 @@ Loom очищает `fabric/build/run/clientGameTest` перед запуско�
 | 26.1.2 | ✓ | ✓ | — | ✓ |
 | 26.2 | ✓ | ✓ | — | ✓ |
 
-Сценарий `scripts/gameplay_client.py` устанавливает закреплённую в матрице версию загрузчика, запускает настоящий клиент с **упакованным JAR**, подключает его к изолированному vanilla-серверу на `127.0.0.1` и отправляет физические события через `xdotool`. Проверки работают с GLFW во всех текущих сборках, поэтому Shift, перетаскивание и изменение масштаба проверяются без подмены игрового кода.
+`scripts/gameplay_client.py` installs the matrix’s pinned loader version, launches a real client with the **packaged JAR**, connects it to an isolated vanilla server on `127.0.0.1`, and sends physical events through `xdotool`. This exercises GLFW in every current build, checking Shift, dragging, and resizing without replacing game code.
 
-Сервер работает без авторизации, доступен только локально и не использует ваши миры. Сценарий создаёт тестовый экземпляр и сервер с принятым Minecraft EULA; используйте его, если принимаете [условия Minecraft](https://www.minecraft.net/eula).
+The server runs without authentication, is reachable only locally, and does not use your worlds. The script creates a test instance and server with the Minecraft EULA accepted; use it if you accept the [Minecraft terms](https://www.minecraft.net/eula).
 
 ```bash
 python3 -m venv .venv
@@ -77,43 +80,43 @@ python3 -m venv .venv
 ./gradlew buildAll
 python3 scripts/release.py
 
-# Java выбирается через JAVA_HOME, JAVA_21_HOME / JAVA_25_HOME или --java-home
+# Java is selected through JAVA_HOME, JAVA_21_HOME / JAVA_25_HOME, or --java-home
 LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe \
   xvfb-run -a -s '-screen 0 1280x1024x24' \
   .venv/bin/python scripts/gameplay_client.py --loader neoforge --minecraft-version 26.1.2
 ```
 
-Для других сочетаний меняйте только загрузчик и версию игры. `--jar /absolute/path/mod.jar` позволяет проверить конкретный опубликованный файл. Требуются `xvfb xauth xdotool libgl1-mesa-dri libglx-mesa0 libasound2t64` на Ubuntu.
+Change the loader and game version for other combinations. Use `--jar /absolute/path/mod.jar` to test a particular published file. Ubuntu needs `xvfb xauth xdotool libgl1-mesa-dri libglx-mesa0 libasound2t64`.
 
-Сценарий проверяет вход в мир, загрузку мода, закрепление/снятие, независимые группы, физическое перетаскивание, сворачивание, переименование, масштабирование, лимит, движение в специальном чате и отключение режима. Клиент **действительно перезапускается**; после рестарта тест кликает по восстановленной строке и проверяет другие группы. Движение подтверждается координатами игрока через серверный RCON, а не наличием обработчика ввода.
+The scenario checks world loading, mod initialization, pinning/unpinning, independent groups, physical dragging, collapsing, renaming, resizing, limits, movement in special chat, and disabling the mode. The client **actually restarts**; the test then clicks a restored line and checks the other groups. Movement is confirmed through server RCON coordinates, not by the presence of an input handler.
 
-Тестовый профиль переназначает настройки PinChat на `F8`: стандартная `P` конфликтует с социальным меню Minecraft в мультиплеере, а `O` в 26.2 — со списком друзей. Прогон проверяет сохранённую привязку и экран настроек; отсутствие конфликта при стандартной привязке он не подтверждает.
+The test profile rebinds PinChat settings to `F8`: default `P` conflicts with Minecraft’s multiplayer social menu, and `O` conflicts with the friends list in 26.2. The run verifies the saved binding and settings screen; it does not establish that the default binding is conflict-free.
 
-Файлы находятся в `build/gameplay/<loader>-<version>`: `result.json`, логи клиента и сервера, снимки PNG. При повторном запуске прежний экземпляр переносится в `build/gameplay/archive`; ресурсы и библиотеки переиспользуются из `build/game-cache`. Пароль тестового RCON не загружается в артефакты. JSON сохраняет SHA-256 проверенного JAR; статус `failed` содержит причину и список уже пройденных шагов.
+Output is in `build/gameplay/<loader>-<version>`: `result.json`, client/server logs, and PNG screenshots. Repeated runs archive the previous instance under `build/gameplay/archive`; assets and libraries are reused from `build/game-cache`. The test RCON password is excluded from artifacts. JSON records the tested JAR’s SHA-256; a `failed` result includes the cause and completed steps.
 
-Проверки фиксируют функциональный результат. Скриншоты служат диагностикой; автоматическое сравнение рендера с эталоном пока отсутствует.
+Checks establish functional behavior. Screenshots serve as diagnostics; automatic reference-image comparisons are not implemented.
 
-## CI и выпуск
+## CI and publication
 
-`client-tests.yml` сохраняет быстрый JUnit + Fabric Client GameTest. Параллельно `build.yml` собирает все JAR и запускает **16 независимых игровых jobs**. Ошибка одной платформы не отменяет диагностику остальных. На каждом запуске прикладываются логи, скриншоты и JSON.
+`client-tests.yml` runs quick JUnit tests and Fabric Client GameTest. In parallel, `build.yml` builds all JARs and runs **16 independent gameplay jobs**. A failure on one platform does not cancel diagnostics for the others. Logs, screenshots, and JSON are attached to every run.
 
-Релиз по тегу `3.1.0` или `v3.1.0` публикуется только после успеха всей матрицы. Тег должен совпадать с `mod_version`. Перед публикацией workflow проверяет, что отчёты покрывают все сочетания, а SHA-256 в каждом отчёте относится к публикуемому файлу. Подробности — в [RELEASING.md](RELEASING.md).
+A release tagged `3.1.0` or `v3.1.0` publishes only after the entire matrix passes. The tag must match `mod_version`. Before publication, the workflow checks complete combination coverage and verifies that each report’s SHA-256 belongs to the file being published. See [RELEASING.md](RELEASING.md).
 
-## Перед релизом
+## Before a release
 
-Один полный проход нужен для каждого уникального JAR: Fabric/Quilt 1.21.11, Forge 1.21.11, NeoForge 1.21.11, Fabric/Quilt 26.1, NeoForge 26.1, Fabric/Quilt 26.2, NeoForge 26.2. Для Quilt 1.21.11 дополнительно проверьте запуск загрузчика. Hotfix 26.1.x используют один JAR, но проходят игровые проверки отдельно.
+Complete one full pass per unique JAR: Fabric/Quilt 1.21.11, Forge 1.21.11, NeoForge 1.21.11, Fabric/Quilt 26.1, NeoForge 26.1, Fabric/Quilt 26.2, and NeoForge 26.2. Also check Quilt 1.21.11 loader startup. Hotfixes in 26.1.x use one JAR but undergo separate gameplay checks.
 
-| Шаг | Ожидаемый результат |
+| Step | Expected result |
 |---|---|
-| Войти в мир и закрепить сообщение ПКМ | Полный текст виден на HUD |
-| Повторить ПКМ, затем `Shift` + ПКМ | Закрепление снимается; новая группа независима |
-| Заполнить группу до лимита | Новая строка отклоняется; старые можно удалить |
-| Перетащить группу и потянуть за `↘` | Группа следует за мышью; масштаб ограничен 0.5–3.0 |
-| Свернуть, переименовать, развернуть | Имя и содержимое корректны |
-| Перезапустить клиент | Сообщения, позиция, масштаб и состояние сохранены |
-| Открыть `U`, пройти вперёд, повернуть камеру и закрыть | Движение и камера работают; обычное управление восстановлено |
-| Отключить через `P`, нажать `U`, перезапустить | Чат не открывается; настройка сохранена |
-| Удалить строку и группу через `[X]` | Удалённое не возвращается после рестарта |
-| Проверить `logs/latest.log` | Нет ошибок PinChat, mixin или загрузчика |
+| Enter a world and right-click a message | Full text visible on the HUD |
+| Right-click again, then `Shift` + right-click | Message unpinned; new group independent |
+| Fill a group to its limit | New line rejected; old lines can be removed |
+| Drag a group and pull `↘` | Group follows the mouse; scale stays within 0.5–3.0 |
+| Collapse, rename, expand | Correct name and contents |
+| Restart the client | Messages, position, scale, and state retained |
+| Open `U`, walk, turn the camera, close | Movement and camera work; normal controls restored |
+| Disable with `P`, press `U`, restart | Chat does not open; setting retained |
+| Delete a line and delete a group through `[X]` | Deleted data stays deleted after restart |
+| Check `logs/latest.log` | No PinChat, mixin, or loader errors |
 
-Запишите игру, загрузчик, JAR и результат каждого шага в описание релиза. Не отмечайте непроверенные платформы как прошедшие игровой тест.
+Record the game, loader, JAR, and each step’s result in the release description. Do not mark untested platforms as having passed gameplay checks.

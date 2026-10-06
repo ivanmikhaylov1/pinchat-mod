@@ -1,28 +1,28 @@
-name: Ошибка в моде
-description: Проблема установки, управления или сохранения групп.
+name: Bug report / Ошибка в моде
+description: Installation, controls, or persistence problem. / Ошибка установки, управления или сохранения.
 title: "[Bug] "
 body:
   - type: input
     id: versions
     attributes:
-      label: Версии
-      description: Minecraft, загрузчик (с версией), PinChat и Java.
+      label: Versions / Версии
+      description: Minecraft, loader (including version), PinChat, and Java. / Minecraft, загрузчик (с версией), PinChat и Java.
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: Как воспроизвести
-      description: Шаги, ожидаемый и фактический результат.
+      label: Steps to reproduce / Как воспроизвести
+      description: Steps, expected behavior, and actual behavior. / Шаги, ожидаемый и фактический результат.
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Лог и снимки экрана
-      description: Приложите logs/latest.log и снимок проблемы. Удалите личные данные перед публикацией.
+      label: Logs and screenshots / Лог и снимки экрана
+      description: Attach logs/latest.log and a screenshot; remove personal data before posting. / Приложите logs/latest.log и снимок; удалите личные данные.
   - type: textarea
     id: other_mods
     attributes:
-      label: Другие моды
-      description: Особенно моды чата, HUD и управления. Есть ли проблема только с PinChat и обязательными зависимостями?
+      label: Other mods / Другие моды
+      description: Especially chat, HUD, and input mods. Does it happen with only PinChat and required dependencies? / Особенно моды чата, HUD и управления. Есть ли проблема только с PinChat и обязательными зависимостями?
