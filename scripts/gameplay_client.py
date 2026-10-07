@@ -212,7 +212,7 @@ class Gameplay:
     def key(self, key):
         self.xd("keydown", key)
         try:
-            time.sleep(0.25)  # GLFW polling needs a held key across at least one client tick.
+            time.sleep(0.25)  # Physical input polling needs a held key across at least one client tick.
         finally:
             self.xd("keyup", key)
         time.sleep(0.2)
@@ -238,6 +238,11 @@ class Gameplay:
         found = re.search(r"\[(-?[\d.eE+]+)d,\s*(-?[\d.eE+]+)d,\s*(-?[\d.eE+]+)d\]", answer)
         return tuple(map(float, found.groups())) if found else None
 
+    def rotation(self):
+        answer = self.rcon.command(f"data get entity {self.USER} Rotation")
+        found = re.search(r"\[(-?[\d.eE+]+)f,\s*(-?[\d.eE+]+)f\]", answer)
+        return tuple(map(float, found.groups())) if found else None
+
     def connect(self):
         self.phase += 1
         log = (self.game / f"client-{self.phase}.log").open("w")
@@ -256,7 +261,15 @@ class Gameplay:
             raise AssertionError(f"Unexpected window dimensions: {geometry}")
         self.wait(lambda: re.search(r"Loaded \d+ advancements", (self.game / f"client-{self.phase}.log").read_text()),
                   "client finished joining", timeout=60)
-        time.sleep(5)  # LoadingScreen must finish before T can be consumed.
+        # Server join and advancement logs precede the end of the loading screen.
+        # Require a real native camera response before sending chat keys.
+        facing = self.rotation()
+        def world_input_ready():
+            self.click(256, 192)
+            self.xd("mousemove_relative", "--", "40", "0")
+            current = self.rotation()
+            return current is not None and current != facing
+        self.wait(world_input_ready, "world accepts native input", timeout=60)
 
     def prepare(self):
         import minecraft_launcher_lib as launcher
@@ -299,7 +312,7 @@ class Gameplay:
             f"server-ip=127.0.0.1\nserver-port={port}\nonline-mode=false\n"
             f"enable-rcon=true\nrcon.port={rcon_port}\nrcon.password={password}\n"
             "level-type=minecraft:flat\ngenerate-structures=false\ngamemode=creative\n"
-            "difficulty=peaceful\nspawn-protection=0\nview-distance=3\nsimulation-distance=3\nmax-players=1\n")
+            "difficulty=peaceful\nspawn-protection=0\nview-distance=3\nsimulation-distance=3\nmax-players=1\nwhite-list=false\n")
         jar = server_jar(self.row["minecraft"], ROOT / "build/game-cache")
         log = (self.game / "server.log").open("w")
         self.server = subprocess.Popen([self.java, "-Xmx1G", "-jar", str(jar), "nogui"],
@@ -381,6 +394,13 @@ class Gameplay:
         self.key("F9")
         self.wait(lambda: "MoveableChatScreen: init() completed" in
                   (self.game / f"client-{self.phase}.log").read_text(), "special chat actually opened")
+        facing = self.rotation()
+        # Relative motion must turn the camera while the special chat holds the cursor.
+        self.xd("mousemove_relative", "--", "40", "10")
+        time.sleep(0.3)  # The first cursor event establishes the screen’s mouse baseline.
+        self.xd("mousemove_relative", "--", "80", "20")
+        self.wait(lambda: self.rotation() is not None and self.rotation() != facing,
+                  "camera turns with special chat open")
         before = self.position()
         self.xd("keydown", "w")
         try:
@@ -394,7 +414,7 @@ class Gameplay:
         self.key("Escape")
         self.wait(lambda: "MoveableChatScreen: Restoring original input" in
                   (self.game / f"client-{self.phase}.log").read_text(), "original input restored")
-        self.passed("movement with special chat open (server coordinates)")
+        self.passed("movement and camera turning with special chat open (server position/rotation)")
         # Reopen F9 and close with F9 as well, then check the switch and its persistence.
         self.key("F9")
         time.sleep(0.6)
@@ -475,12 +495,12 @@ class Gameplay:
         before = self.position()
         self.xd("mousedown", "1")
         try:
-            time.sleep(1.5)
+            def mouse_movement_arrived():
+                current = self.position()
+                return current is not None and math.hypot(current[0] - before[0], current[2] - before[2]) >= 0.5
+            self.wait(mouse_movement_arrived, "mouse-bound forward key moves the player", timeout=10)
         finally:
             self.xd("mouseup", "1")
-        after = self.position()
-        if math.hypot(after[0] - before[0], after[2] - before[2]) < 0.5:
-            raise AssertionError("Mouse-bound forward key did not move the player")
         restored = (self.game / f"client-{self.phase}.log").read_text().count(
             "MoveableChatScreen: Restoring original input")
         self.xd("mousedown", "8")

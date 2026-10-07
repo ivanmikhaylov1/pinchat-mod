@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- Add dedicated Minecraft 26.3 builds for Fabric, Quilt and NeoForge, with SDL3 keyboard/mouse input, cursor capture, resource format 97.1, and packaged-JAR gameplay coverage.
 - Fixed invisible settings and rename-screen titles by using opaque text colors and drawing titles after the base screen.
 - Fixed missing bundled translations and icons in Fabric/Quilt 26.x; release preparation now rejects JARs without English/Russian locales.
 - Conflict-free defaults on every supported loader: F8 for settings and F9 for special chat; existing custom bindings are retained.
@@ -14,8 +15,8 @@
 - Separate bilingual guides for development, testing, compatibility, and releases.
 - English and Russian issue/PR templates and descriptions for all published releases.
 - Tests for limits, groups, normalization, and configuration persistence without hiding initialization failures.
-- Fabric 1.21.11 Client GameTest and native gameplay checks of packaged release JARs across all 16 supported game/loader combinations.
-- Checks for dragging, resizing, movement, and persistence after a real client restart.
+- Fabric 1.21.11 Client GameTest and native gameplay checks of packaged release JARs across all 19 supported game/loader combinations.
+- Checks for dragging, resizing, movement, camera turning, and persistence after a real client restart.
 - Consistent release filenames, SHA-256 checksums, manifest, and gameplay reports tied to the tested JAR.
 - Release publication gated on the complete gameplay matrix, with English and Russian release notes.
 

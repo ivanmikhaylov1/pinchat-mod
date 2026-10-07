@@ -39,9 +39,9 @@ PinChat is **client-side**. You do not need to install it on the server. The int
 | 1.21.11 | 21 | ✓ | ✓ | ✓ (61.x) | ✓ |
 | 26.1 / 26.1.1 / 26.1.2 | 25 | ✓ | ✓¹ | — | ✓ |
 | 26.2 | 25 | ✓ | ✓¹ | — | ✓ |
-| 26.3 | — | — | — | — | — |
+| 26.3 | 25 | ✓ | ✓¹ | — | ✓ |
 
-¹ Quilt 26.x uses the same JAR as Fabric. For 26.1.1 and 26.1.2, use the **mc26.1** build or its identically packaged hotfix download. Minecraft 26.2 needs the separate **mc26.2** build.
+¹ Quilt 26.x uses the same JAR as Fabric. For 26.1.1 and 26.1.2, use the **mc26.1** build or its identically packaged hotfix download. Minecraft 26.2 and 26.3 each need their own **mc26.2** or **mc26.3** build. Support for 26.3 is included in the next release; it is not part of published 3.1.0.
 
 This table lists available builds. See [compatibility](docs/COMPATIBILITY.md) for test coverage and limitations.
 

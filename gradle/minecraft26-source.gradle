@@ -1,0 +1,34 @@
+// Shared API adaptations for the separately packaged Minecraft 26.x builds.
+def adaptGuiSource = { String line ->
+    line.replace('net.minecraft.client.gui.GuiGraphics', 'net.minecraft.client.gui.GuiGraphicsExtractor')
+        .replace('GuiGraphics context', 'GuiGraphicsExtractor context')
+        .replace('context.drawCenteredString(', 'context.centeredText(')
+        .replace('context.drawString(', 'context.text(')
+        .replace('public void render(GuiGraphicsExtractor context', 'public void extractRenderState(GuiGraphicsExtractor context')
+        .replace('super.render(context,', 'super.extractRenderState(context,')
+}
+
+ext.adaptVersionSource = { String line ->
+    String result = adaptGuiSource(line.replace('GuiGraphicsExtractor', 'GuiGraphics'))
+    if (minecraft_version in ['26.2', '26.3']) {
+        result = result.replace('client.screen', 'client.gui.screen()')
+            .replace('Minecraft.getInstance().screen', 'Minecraft.getInstance().gui.screen()')
+            .replace('this.minecraft.setScreen(', 'this.minecraft.gui.setScreen(')
+            .replace('client.setScreen(', 'client.gui.setScreen(')
+            .replace('Minecraft.getInstance().setScreen(', 'Minecraft.getInstance().gui.setScreen(')
+            .replace('client.gui.getChat()', 'client.gui.hud.getChat()')
+            .replace('client.options.hideGui', 'client.gui.hud.isHidden()')
+    }
+    if (minecraft_version == '26.3') {
+        result = result.replace('import org.lwjgl.glfw.GLFW;', 'import com.mojang.blaze3d.platform.InputConstants;\nimport dev.sfafy.pinchat.input.PinChatInput;')
+            .replace('InputConstants.Type.KEYSYM', 'InputConstants.Type.KEYBOARD')
+            .replace('GLFW.GLFW_KEY_F8', 'InputConstants.KEY_F8')
+            .replace('GLFW.GLFW_KEY_F9', 'InputConstants.KEY_F9')
+            .replace('GLFW.glfwGetMouseButton(GLFW.glfwGetCurrentContext(), 0) != GLFW.GLFW_PRESS', '!PinChatInput.isMousePressed(InputConstants.MOUSE_BUTTON_LEFT)')
+            .replace('GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS', 'InputConstants.isKeyDown(InputConstants.KEY_LSHIFT)')
+            .replace('GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS', 'InputConstants.isKeyDown(InputConstants.KEY_RSHIFT)')
+            .replace('int button = event.button();', 'int button = PinChatInput.chatButton(event.button());')
+    }
+    result
+}
+

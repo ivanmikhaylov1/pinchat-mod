@@ -37,6 +37,6 @@ Workflow разрешает публикацию только после сбо�
 
 ## Ограничения
 
-Forge 26.x и Minecraft 26.3 не поддерживаются.
+Forge 26.x не поддерживается. Minecraft 26.3 требует отдельный JAR и Java 25; загрузчик NeoForge для этой версии пока бета.
 
 [Инструкция на русском](https://github.com/ivanmikhaylov1/pinchat-mod/blob/master/README.ru.md) · [Сообщить об ошибке](https://github.com/ivanmikhaylov1/pinchat-mod/issues/new/choose)

@@ -35,7 +35,7 @@ Run commands from the repository root. On Windows, use `gradlew.bat`. Gradle run
 | `fabric/src/gametest` | Separate test mod for the Fabric 1.21.11 client |
 | `forge`, `neoforge` | Loader registration for 1.21.11 |
 | `quilt` | Packaging the compatible Fabric build for 1.21.11 |
-| `fabric-mc26`, `neoforge-mc26` | Nested Gradle projects for 26.1.x and 26.2 |
+| `fabric-mc26`, `neoforge-mc26` | Nested Gradle projects for 26.1.x, 26.2 and 26.3 |
 | `java25-toolchain-check` | Java 25 validation |
 | `scripts` | Packaged-JAR gameplay checks, metadata, bytecode, and release preparation |
 | `config/targets.json` | Shared matrix of game, Java, loader, and Fabric API versions |
@@ -51,7 +51,7 @@ Set the mod version in `gradle.properties` and keep the nested 26.x projects’ 
 
 Module JARs appear in their `build/libs`. CI collects user downloads in `dist` with loader and game versions in the filenames. Quilt 26.x is an identical copy of the Fabric JAR.
 
-`buildAll` builds 26.1 and 26.2 sequentially within each nested project. Do not build different versions of one project concurrently: they share the same `build` directory.
+`buildAll` builds 26.1, 26.2 and 26.3 sequentially within each nested project. Do not build different versions of one project concurrently: they share the same `build` directory.
 
 ## Adding a game version
 
@@ -66,3 +66,5 @@ Module JARs appear in their `build/libs`. CI collects user downloads in `dist` w
 The README is for players. Build commands and architecture belong here; tests belong in `TESTING.md`, platform limitations in `COMPATIBILITY.md`.
 
 English is primary. Maintain root `*.ru.md` files and matching `docs/ru/` guides alongside English changes. Release pages and generated notes contain both languages. Keep `en_us.json` and `ru_ru.json` key sets aligned for every loader; 26.x builds reuse the source resource directories.
+
+Minecraft 26.x API substitutions are shared in `gradle/minecraft26-source.gradle`. The SDL3 device polling adapter lives in `common/src/mc26.3/java` and is selected only for the 26.3 builds; earlier builds keep their GLFW input implementation. Add future backend changes here rather than editing generated sources.

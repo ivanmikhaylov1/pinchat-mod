@@ -15,11 +15,14 @@ SPEC.loader.exec_module(release)
 class ReleaseTest(unittest.TestCase):
     def test_matrix_has_every_supported_combination_and_alias_uses_base_binary(self):
         rows = release.matrix()
-        self.assertEqual(len(rows), 16)
-        self.assertEqual(len({(r['loader'], r['minecraft']) for r in rows}), 16)
+        self.assertEqual(len(rows), 19)
+        self.assertEqual(len({(r['loader'], r['minecraft']) for r in rows}), 19)
         for row in rows:
             if row['minecraft'] in ('26.1.1', '26.1.2'):
                 self.assertEqual(row['artifact_version'], '26.1')
+            if row['minecraft'] == '26.3':
+                self.assertEqual(row['artifact_version'], '26.3')
+                self.assertIn('mc26.3-', str(release.source_jar('3.1.0', row)))
             if row['loader'] == 'quilt' and row['minecraft'] != '1.21.11':
                 self.assertIn('fabric-mc26', str(release.source_jar('3.1.0', row)))
 
@@ -46,7 +49,7 @@ class ReleaseTest(unittest.TestCase):
             with patch.object(release, 'ROOT', root):
                 release.prepare(root / 'dist', '3.1.0', 'v3.1.0')
             manifest = json.loads((root / 'dist/manifest.json').read_text())
-            self.assertEqual(len(manifest['artifacts']), 16)
+            self.assertEqual(len(manifest['artifacts']), 19)
             for row in manifest['artifacts']:
                 actual = hashlib.sha256((root / 'dist' / row['file']).read_bytes()).hexdigest()
                 self.assertEqual(row['sha256'], actual)
