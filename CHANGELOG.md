@@ -2,7 +2,7 @@
 
 # Changelog
 
-## Unreleased
+## 3.2.0
 
 - Fixed special-chat camera turning on GLFW builds by forwarding native mouse deltas; both input backends respect X/Y inversion.
 - Add dedicated Minecraft 26.3 builds for Fabric, Quilt and NeoForge, with SDL3 keyboard/mouse input, cursor capture, resource format 97.1, and packaged-JAR gameplay coverage.

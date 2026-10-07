@@ -41,14 +41,14 @@ PinChat is **client-side**. You do not need to install it on the server. The int
 | 26.2 | 25 | ✓ | ✓¹ | — | ✓ |
 | 26.3 | 25 | ✓ | ✓¹ | — | ✓ |
 
-¹ Quilt 26.x uses the same JAR as Fabric. For 26.1.1 and 26.1.2, use the **mc26.1** build or its identically packaged hotfix download. Minecraft 26.2 and 26.3 each need their own **mc26.2** or **mc26.3** build. Support for 26.3 is included in the next release; it is not part of published 3.1.0.
+¹ Quilt 26.x uses the same JAR as Fabric. For 26.1.1 and 26.1.2, use the **mc26.1** build or its identically packaged hotfix download. Minecraft 26.2 and 26.3 each need their own **mc26.2** or **mc26.3** build. Support for 26.3 is available starting with PinChat 3.2.0.
 
 This table lists available builds. See [compatibility](docs/COMPATIBILITY.md) for test coverage and limitations.
 
 ## Installation
 
 1. Install a supported mod loader for your Minecraft version.
-2. Download [PinChat from Releases](https://github.com/ivanmikhaylov1/pinchat-mod/releases). Filenames identify the loader and game version, for example `pinchat-mod-fabric-3.1.0-mc26.1.jar`.
+2. Download [PinChat from Releases](https://github.com/ivanmikhaylov1/pinchat-mod/releases). Filenames identify the loader and game version, for example `pinchat-mod-fabric-3.2.0-mc26.1.jar`.
 3. Put **one** matching PinChat JAR in your game profile’s `mods` folder.
 4. For Fabric and Quilt, also install [Fabric API](https://modrinth.com/mod/fabric-api) **for your exact Minecraft version**.
 5. Start the game, open chat, and right-click a message to pin it.
@@ -76,7 +76,7 @@ Mouse controls for groups are available while normal chat is open (`T` or `/`).
 
 Special chat mode keeps movement keys and camera control active and hides the text input. Use normal chat to type messages. `F8` (settings) and `F9` (special chat) are free in the standard Minecraft controls for supported versions. You can rebind either action in Minecraft’s Controls settings, under **PinChat**; keyboard and mouse bindings are supported.
 
-These are the defaults for the next release. Published 3.1.0 uses `P` and `U`. Minecraft keeps saved bindings when you update: in an existing profile, change PinChat settings to `F8` and special chat to `F9`, or reset those two actions individually. `P` opens the multiplayer social menu, and `O` opens the friends list in 26.2.
+These are the defaults starting with PinChat 3.2.0. Version 3.1.0 used `P` and `U`. Minecraft keeps saved bindings when you update: in an existing profile, change PinChat settings to `F8` and special chat to `F9`, or reset those two actions individually. `P` opens the multiplayer social menu, and `O` opens the friends list in 26.2.
 
 The default limit is **5 messages per group**. Settings, groups, and their positions are saved in your profile’s `config/pinchat.json`. The built-in settings screen toggles special chat mode; other options are available in the configuration file. Close the game and back up the file before editing it manually.
 
