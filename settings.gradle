@@ -20,9 +20,15 @@ pluginManagement {
     }
 }
 rootProject.name = "pinchat-mod"
+// A focused test run need not resolve Forge/NeoForge or Java 25 tooling.
+def testPlatform = providers.gradleProperty('testPlatform').orNull
+if (testPlatform != null && !(testPlatform in ['common', 'fabric'])) {
+    throw new GradleException('testPlatform must be common or fabric')
+}
 include 'common'
-include 'fabric'
-include 'forge'
-include 'neoforge'
-include 'quilt'
-include 'java25-toolchain-check'
+if (testPlatform != 'common') {
+    include 'fabric'
+}
+if (testPlatform == null) {
+    include 'forge', 'neoforge', 'quilt', 'java25-toolchain-check'
+}

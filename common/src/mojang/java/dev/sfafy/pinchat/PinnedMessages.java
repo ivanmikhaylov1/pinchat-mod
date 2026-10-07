@@ -53,8 +53,8 @@ public class PinnedMessages {
         Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
           client.player.displayClientMessage(
-              Component.literal(
-                  "§cPinChat: Maximum number of pinned messages reached (" + PinChatConfig.maxPinnedMessages + ")"),
+              Component.translatable("pinchat.message.limitReached", PinChatConfig.maxPinnedMessages)
+                  .withStyle(net.minecraft.ChatFormatting.RED),
               false);
         }
         return;

@@ -2,13 +2,27 @@ name: Build and Release
 
 on:
   push:
+    branches: [master]
+    tags: ['*']
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pinchat-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 jobs:
+  client-tests:
+    uses: ./.github/workflows/client-tests.yml
+
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 90
+    outputs:
+      matrix: ${{ steps.targets.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
       - uses: gradle/actions/wrapper-validation@v4
@@ -21,112 +35,128 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+      - name: Test release tooling
+        run: python3 -m unittest discover -s scripts/tests -v
       - name: Build all supported loader artifacts
         run: ./gradlew buildAll --no-daemon
-      - name: Verify 1.21.11 and 26.x loader JAR metadata
+      - name: Verify packaged metadata
         run: python3 scripts/verify_loader_jars.py
-      - name: Install virtual display for NeoForge smoke test
-        run: sudo apt-get update && sudo apt-get install -y xvfb xauth xdotool libgl1-mesa-dri
-      - name: Smoke test NeoForge 1.21.11 client
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --require-window
-      - name: Smoke test NeoForge 26.1 client
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.1 --require-window
-      - name: Smoke test NeoForge 26.1.1 with shared 26.1 sources
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.1 --neo-version 26.1.1.15-beta --require-window
-      - name: Verify NeoForge 26.1.1 bytecode compatibility
-        run: python3 scripts/verify_neoforge_mc26_hotfix_bytecode.py
-      - name: Smoke test NeoForge 26.1.2 with shared 26.1 sources
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.1 --neo-version 26.1.2.109 --require-window
-      - name: Verify NeoForge 26.1.2 bytecode compatibility
-        run: python3 scripts/verify_neoforge_mc26_hotfix_bytecode.py
-      - name: Smoke test NeoForge 26.2 client
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/smoke_neoforge_client.py --target 26.2 --require-window
-      - name: Install Fabric/Quilt smoke launcher
-        run: python3 -m venv .ci-smoke-venv && .ci-smoke-venv/bin/pip install minecraft-launcher-lib==8.0
-      - name: Smoke test Fabric 26.1 client
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric
-      - name: Smoke test Quilt 26.1 client with Fabric JAR
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt
-      - name: Smoke test Fabric 26.1.1 with 26.1 JAR
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric --minecraft-version 26.1.1 --fabric-api-version 0.145.4+26.1.1
-      - name: Smoke test Fabric 26.1.2 with 26.1 JAR
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric --minecraft-version 26.1.2 --fabric-api-version 0.155.3+26.1.2
-      - name: Smoke test Quilt 26.1.1 with 26.1 Fabric JAR
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt --minecraft-version 26.1.1 --fabric-api-version 0.145.4+26.1.1
-      - name: Smoke test Quilt 26.1.2 with 26.1 Fabric JAR
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt --minecraft-version 26.1.2 --fabric-api-version 0.155.3+26.1.2
-      - name: Smoke test Fabric 26.2 client
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader fabric --minecraft-version 26.2 --artifact-version 26.2 --fabric-api-version 0.161.0+26.2
-      - name: Smoke test Quilt 26.2 client with Fabric JAR
-        env:
-          LIBGL_ALWAYS_SOFTWARE: '1'
-          GALLIUM_DRIVER: llvmpipe
-        run: timeout 20m xvfb-run -a -s '-screen 0 1280x720x24' .ci-smoke-venv/bin/python scripts/smoke_fabric_quilt_mc26_client.py --loader quilt --minecraft-version 26.2 --artifact-version 26.2 --fabric-api-version 0.161.0+26.2
-      - name: Verify Minecraft 26.x protocol and pack metadata
-        run: python3 scripts/verify_mc26_version_metadata.py
-      - name: Collect release jars
+      - name: Prepare named release files, checksums and notes
         shell: bash
         run: |
-          set -euo pipefail
-          mod_version=$(sed -n 's/^mod_version=//p' gradle.properties)
-          mc_version=$(sed -n 's/^minecraft_version=//p' gradle.properties)
-          mkdir -p dist
-          cp "fabric/build/libs/pinchat-mod-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc${mc_version}.jar"
-          cp "quilt/build/libs/pinchat-mod-quilt-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc${mc_version}.jar"
-          cp "forge/build/libs/pinchat-mod-forge-${mod_version}.jar" "dist/pinchat-mod-forge-${mod_version}-mc${mc_version}.jar"
-          cp "neoforge/build/libs/pinchat-mod-neoforge-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc${mc_version}.jar"
-          cp "neoforge-mc26/build/libs/pinchat-mod-neoforge-mc26.1-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc26.1.jar"
-          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.1-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc26.1.jar"
-          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.1-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc26.1.jar"
-          cp "neoforge-mc26/build/libs/pinchat-mod-neoforge-mc26.2-${mod_version}.jar" "dist/pinchat-mod-neoforge-${mod_version}-mc26.2.jar"
-          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.2-${mod_version}.jar" "dist/pinchat-mod-fabric-${mod_version}-mc26.2.jar"
-          cp "fabric-mc26/build/libs/pinchat-mod-fabric-mc26.2-${mod_version}.jar" "dist/pinchat-mod-quilt-${mod_version}-mc26.2.jar"
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
+            python3 scripts/release.py --tag "$GITHUB_REF_NAME"
+          else
+            python3 scripts/release.py
+          fi
+      - name: Gameplay target matrix
+        id: targets
+        run: echo "matrix=$(python3 scripts/release.py --matrix)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
-          name: pinchat-${{ github.sha }}
-          path: dist/*.jar
+          name: pinchat-release-${{ github.sha }}
+          path: dist/
           if-no-files-found: error
           retention-days: 30
-      - name: Publish tagged release
-        if: startsWith(github.ref, 'refs/tags/v')
+
+  gameplay:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.build.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/requirements-gameplay.txt
+      - name: Install gameplay driver and virtual display
+        run: |
+          pip install -r scripts/requirements-gameplay.txt
+          sudo apt-get update
+          sudo apt-get install -y xvfb xauth xdotool libgl1-mesa-dri libglx-mesa0 libasound2t64
+      - uses: actions/download-artifact@v4
+        with:
+          name: pinchat-release-${{ github.sha }}
+          path: dist/
+      - uses: actions/cache@v4
+        with:
+          path: build/game-cache
+          key: minecraft-game-assets-${{ runner.os }}-${{ matrix.minecraft }}-v1
+      - name: Verify downloaded JAR checksums
+        working-directory: dist
+        run: sha256sum --check SHA256SUMS
+      - name: Test release JAR in the world with native input and restart
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+        run: timeout 25m xvfb-run -a -s '-screen 0 1280x1024x24' python3 scripts/gameplay_client.py --loader '${{ matrix.loader }}' --minecraft-version '${{ matrix.minecraft }}'
+      - name: Upload gameplay results and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameplay-${{ matrix.loader }}-${{ matrix.minecraft }}
+          path: |
+            build/gameplay/${{ matrix.loader }}-${{ matrix.minecraft }}/result.json
+            build/gameplay/${{ matrix.loader }}-${{ matrix.minecraft }}/*.log
+            build/gameplay/${{ matrix.loader }}-${{ matrix.minecraft }}/*.png
+            build/gameplay/${{ matrix.loader }}-${{ matrix.minecraft }}/logs/
+            build/gameplay/${{ matrix.loader }}-${{ matrix.minecraft }}/crash-reports/
+          if-no-files-found: warn
+          retention-days: 14
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [client-tests, build, gameplay]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: pinchat-release-${{ github.sha }}
+          path: dist/
+      - name: Verify checksums before publishing
+        working-directory: dist
+        run: sha256sum --check SHA256SUMS
+      - name: Collect verified gameplay reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: gameplay-*
+          path: gameplay-reports/
+      - name: Attach machine-readable test evidence
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          reports = [json.loads(p.read_text()) for p in pathlib.Path('gameplay-reports').rglob('result.json')]
+          manifest = json.loads(pathlib.Path('dist/manifest.json').read_text())
+          expected = {(r['loader'], r['minecraft']) for r in manifest['artifacts']}
+          actual = {(r['target']['loader'], r['target']['minecraft']) for r in reports if r['status'] == 'passed'}
+          if actual != expected or len(reports) != len(expected):
+              raise SystemExit('Missing or failed gameplay reports')
+          hashes = {r['file']: r['sha256'] for r in manifest['artifacts']}
+          if any(hashes[r['jar']] != r['jar_sha256'] for r in reports):
+              raise SystemExit('Gameplay evidence does not match release JARs')
+          pathlib.Path('dist/GAMEPLAY_RESULTS.json').write_text(json.dumps(reports, indent=2) + '\n')
+          PY
+      - name: Publish verified release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.jar
-          generate_release_notes: true
-          prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') || contains(github.ref, '-rc') }}
+          name: PinChat ${{ github.ref_name }} — Minecraft 1.21.11 / 26.1–26.1.2 / 26.2
+          body_path: dist/RELEASE_NOTES.md
+          files: |
+            dist/*.jar
+            dist/SHA256SUMS
+            dist/manifest.json
+            dist/GAMEPLAY_RESULTS.json
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(github.ref_name, '-') }}

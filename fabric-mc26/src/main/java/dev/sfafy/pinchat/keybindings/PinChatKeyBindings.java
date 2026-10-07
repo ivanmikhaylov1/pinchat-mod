@@ -16,9 +16,9 @@ public class PinChatKeyBindings {
   public static void register() {
     KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("pinchat", "main"));
     openConfigKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-        "pinchat.hotkey.openConfig", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_P, category));
+        "pinchat.hotkey.openConfig", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F8, category));
     openMoveableChatKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-        "pinchat.hotkey.openMoveableChat", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_U, category));
+        "pinchat.hotkey.openMoveableChat", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F9, category));
     ClientTickEvents.END_CLIENT_TICK.register(client -> {
       if (client.player == null) return;
       while (openConfigKey.consumeClick()) client.setScreen(IntegrationManager.getConfigScreen(client.screen));

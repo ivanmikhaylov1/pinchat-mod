@@ -21,5 +21,7 @@
   "pinchat.gui.positionEdit.tooltip.unpin": "ПКМ чтобы открепить",
   "pinchat.hotkey.openConfig": "Открыть настройки PinChat",
   "pinchat.hotkey.openMoveableChat": "Открыть подвижный чат",
-  "pinchat.config.moveableChat": "Подвижный чат: %s"
+  "pinchat.config.moveableChat": "Подвижный чат: %s",
+  "key.category.pinchat.main": "PinChat",
+  "pinchat.message.limitReached": "PinChat: Достигнут лимит закреплённых сообщений (%s)"
 }

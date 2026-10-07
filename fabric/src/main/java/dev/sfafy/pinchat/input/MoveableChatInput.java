@@ -39,6 +39,6 @@ public class MoveableChatInput extends Input {
 
   private boolean isKeyPressed(KeyBinding keyBinding, net.minecraft.client.util.Window window) {
     InputUtil.Key key = ((PinChatKeyBindingAccessor) keyBinding).getBoundKey();
-    return InputUtil.isKeyPressed(window, key.getCode());
+    return PinChatInput.isPressed(key, window);
   }
 }

@@ -1,0 +1,16 @@
+name: Feature request / Предложение
+description: Controls, interface, or compatibility improvement. / Улучшение управления, интерфейса или совместимости.
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem should this solve? / Какую задачу нужно решить?
+      description: Describe the gameplay scenario and the current obstacle. / Опишите игровой сценарий и что сейчас мешает.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: How could it work? / Как это могло бы работать?
+      description: Proposed behavior and relevant game versions or loaders. / Предлагаемое поведение и нужные версии игры или загрузчики.

@@ -44,9 +44,9 @@ public class GroupRenameScreen extends Screen {
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		context.fill(0, 0, this.width, this.height, 0x80000000);
-		context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, this.height / 2 - 40,
-				0xFFFFFF);
 		super.render(context, mouseX, mouseY, delta);
+		context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, this.height / 2 - 40,
+				0xFFFFFFFF);
 	}
 
 	@Override

@@ -57,6 +57,7 @@ dependencies {
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 tasks.withType(JavaCompile).configureEach { options.release = 25 }
 processResources {
+    from(new File(sharedRoot, 'fabric/src/main/resources')) { include 'assets/**' }
     inputs.property 'mod_version', mod_version
     inputs.property 'minecraft_version', minecraft_version
     inputs.property 'minecraft_dependency', minecraft_version == '26.1' ? '>=26.1 <26.2' : minecraft_version
