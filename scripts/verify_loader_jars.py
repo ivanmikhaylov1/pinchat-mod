@@ -91,7 +91,7 @@ for game in ('26.2', '26.3'):
                 assert 'config="pinchat.mixins.json"' in metadata
             check_mixin(archive)
             mixins = json.loads(archive.read('pinchat.mixins.json'))['client']
-            assert ('MoveableChatMouseMixin' in mixins) == (game == '26.3')
+            assert 'MoveableChatMouseMixin' in mixins
             if game == '26.3':
                 pack = json.loads(archive.read('pack.mcmeta'))['pack']
                 assert pack['min_format'] == pack['max_format'] == [97, 1]

@@ -12,8 +12,6 @@ import org.lwjgl.glfw.GLFW;
 
 public class MoveableChatScreen extends ChatScreen {
   private net.minecraft.client.input.Input originalInput;
-  private double lastMouseX = 0;
-  private double lastMouseY = 0;
   private boolean cursorLocked = false;
   private boolean wasCloseKeyPressed = false;
   private int timeOpened = 0;
@@ -28,8 +26,6 @@ public class MoveableChatScreen extends ChatScreen {
   protected void init() {
     PinChatMod.LOGGER.info("MoveableChatScreen: init() called");
     super.init();
-    lastMouseX = 0;
-    lastMouseY = 0;
     if (this.client != null && this.client.player != null) {
       PinChatMod.LOGGER.info("MoveableChatScreen: Setting up custom input");
       if (this.originalInput == null) {
@@ -87,25 +83,17 @@ public class MoveableChatScreen extends ChatScreen {
   }
 
   @Override
-  public void mouseMoved(double mouseX, double mouseY) {
-    if (this.client != null && this.client.player != null && cursorLocked) {
+  public void mouseMoved(double x, double y) {
+    // Camera deltas come from the native mouse callback before GUI coordinate conversion.
+  }
 
-      double scaleFactor = this.client.getWindow().getScaleFactor();
-      double deltaX = (mouseX - lastMouseX) * scaleFactor * 0.5;
-      double deltaY = (mouseY - lastMouseY) * scaleFactor * 0.5;
-
-      if (lastMouseX != 0 || lastMouseY != 0) {
-
-        double sensitivity = this.client.options.getMouseSensitivity().getValue();
-        double d = sensitivity * 0.6 + 0.2;
-        double e = d * d * d * 8.0;
-
-        this.client.player.changeLookDirection(deltaX * e, deltaY * e);
-      }
-
-      lastMouseX = mouseX;
-      lastMouseY = mouseY;
-    }
+  public void relativeMouseMoved(double dx, double dy) {
+    if (this.client == null || this.client.player == null || !cursorLocked
+        || !this.client.isWindowFocused()) return;
+    double sensitivity = this.client.options.getMouseSensitivity().getValue() * 0.6 + 0.2;
+    double scale = sensitivity * sensitivity * sensitivity * 8.0;
+    this.client.player.changeLookDirection(dx * scale * (this.client.options.getInvertMouseX().getValue() ? -1 : 1),
+        dy * scale * (this.client.options.getInvertMouseY().getValue() ? -1 : 1));
   }
 
   @Override

@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- Fixed special-chat camera turning on GLFW builds by forwarding native mouse deltas; both input backends respect X/Y inversion.
 - Add dedicated Minecraft 26.3 builds for Fabric, Quilt and NeoForge, with SDL3 keyboard/mouse input, cursor capture, resource format 97.1, and packaged-JAR gameplay coverage.
 - Fixed invisible settings and rename-screen titles by using opaque text colors and drawing titles after the base screen.
 - Fixed missing bundled translations and icons in Fabric/Quilt 26.x; release preparation now rejects JARs without English/Russian locales.

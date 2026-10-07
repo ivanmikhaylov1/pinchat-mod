@@ -80,7 +80,8 @@ def download(url, destination, sha1=None):
     if destination.exists() and (not sha1 or hashlib.sha1(destination.read_bytes()).hexdigest() == sha1):
         return
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(url, timeout=120) as response:
+    request = urllib.request.Request(url, headers={"User-Agent": "PinChat Gameplay Tests/1"})
+    with urllib.request.urlopen(request, timeout=120) as response:
         data = response.read()
     if sha1 and hashlib.sha1(data).hexdigest() != sha1:
         raise ValueError(f"SHA-1 mismatch for {destination.name}")
@@ -98,12 +99,30 @@ def server_jar(version, cache):
     return path
 
 
+def deduplicate_profile_libraries(path):
+    """Avoid concurrent writes when installer metadata repeats an identical artifact."""
+    data = json.loads(path.read_text())
+    libraries = data.get("libraries", [])
+    seen, unique = set(), []
+    for library in libraries:
+        identity = json.dumps(library, sort_keys=True)
+        if identity not in seen:
+            seen.add(identity)
+            unique.append(library)
+    if len(unique) != len(libraries):
+        data["libraries"] = unique
+        path.write_text(json.dumps(data, indent=2) + "\n")
+    return len(libraries) - len(unique)
+
+
 def install_client(row, game, java):
     import minecraft_launcher_lib as launcher
     version, loader = row["minecraft"], row["loader"]
     manager = launcher.mod_loader.get_mod_loader(loader)
     expected = manager.get_installed_version(version, row["loader_version"])
-    if (game / "versions" / expected / f"{expected}.json").exists():
+    metadata = game / "versions" / expected / f"{expected}.json"
+    if metadata.exists():
+        deduplicate_profile_libraries(metadata)
         launcher.install.install_minecraft_version(expected, game)
         return expected
     installer_java = java
@@ -117,27 +136,34 @@ def install_client(row, game, java):
                            f"os.execv({java!r}, [{java!r}] + {arguments!r} + sys.argv[1:])\n")
         wrapper.chmod(0o755)
         installer_java = str(wrapper)
-    if loader != "neoforge":
+    if loader not in ("neoforge", "forge"):
         return manager.install(
             version, game, loader_version=row["loader_version"], java=installer_java)
-    # launcher-lib 8 assumes every NeoForge version starts with Minecraft '1.'.
-    # Install the explicitly pinned 26.x installer without that legacy version parser.
+    # Use the Java installers: launcher-lib's NeoForge parser assumes Minecraft '1.',
+    # and its Forge installer downloads duplicate libraries concurrently.
     launcher.install.install_minecraft_version(version, game)
     launcher.vanilla_launcher.create_empty_vanilla_launcher_profiles_file(game)
-    neo = row["loader_version"]
-    installer = game / f"neoforge-{neo}-installer.jar"
-    download(f"https://maven.neoforged.net/releases/net/neoforged/neoforge/{neo}/neoforge-{neo}-installer.jar", installer)
+    pinned = row["loader_version"]
+    if loader == "forge":
+        coordinate = f"{version}-{pinned}"
+        installer_url = f"https://maven.minecraftforge.net/net/minecraftforge/forge/{coordinate}/forge-{coordinate}-installer.jar"
+        install_flag = "--installClient"
+    else:
+        installer_url = f"https://maven.neoforged.net/releases/net/neoforged/neoforge/{pinned}/neoforge-{pinned}-installer.jar"
+        install_flag = "--install-client"
+    installer = game / f"{loader}-{pinned}-installer.jar"
+    download(installer_url, installer)
     command = [java]
     proxy = urllib.parse.urlparse(os.environ.get("HTTPS_PROXY", ""))
     if proxy.hostname:
         command += [f"-Dhttps.proxyHost={proxy.hostname}", f"-Dhttps.proxyPort={proxy.port or 80}",
                     f"-Dhttp.proxyHost={proxy.hostname}", f"-Dhttp.proxyPort={proxy.port or 80}"]
     with (game / "installer.log").open("w") as log:
-        subprocess.run([*command, "-jar", str(installer), "--install-client", str(game)],
+        subprocess.run([*command, "-jar", str(installer), install_flag, str(game)],
                        cwd=game, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=600)
-    profile = f"neoforge-{neo}"
-    launcher.install.install_minecraft_version(profile, game)
-    return profile
+    deduplicate_profile_libraries(metadata)
+    launcher.install.install_minecraft_version(expected, game)
+    return expected
 
 
 def stop(process):
@@ -293,7 +319,7 @@ class Gameplay:
             data_version = json.loads(client_jar.read("version.json"))["world_version"]
         (self.game / "options.txt").write_text(
             f"version:{data_version}\nguiScale:2\nlang:en_us\nonboardAccessibility:false\njoinedFirstServer:true\nfullscreen:false\n"
-            "pauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\n"
+            "pauseOnLostFocus:false\nrawMouseInput:false\nrenderDistance:3\nsimulationDistance:5\n"
             "chatScale:1.0\nchatLineSpacing:0.0\nmaxFps:60\ntutorialStep:none\nsoundCategory_master:0.0\n")
         mods = self.game / "mods"
         mods.mkdir(exist_ok=True)

@@ -56,10 +56,5 @@ processResources {
         expand mod_version: mod_version, minecraft_dependency: minecraft_version == '26.1' ? '[26.1,26.2)' : "[${minecraft_version}]"
     }
     inputs.file project.buildFile
-    filesMatching('pinchat.mixins.json') {
-        if (minecraft_version == '26.3') {
-            filter { String line -> line.replace('"ChatScreenMixin",', '"ChatScreenMixin", "MoveableChatMouseMixin",') }
-        }
-    }
     filesMatching('pack.mcmeta') { expand pack_format: pack_format, pack_format_minor: project.findProperty('pack_format_minor') ?: '0' }
 }

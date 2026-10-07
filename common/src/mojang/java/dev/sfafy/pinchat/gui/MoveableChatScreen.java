@@ -15,8 +15,6 @@ import net.minecraft.client.gui.components.EditBox;
 
 public class MoveableChatScreen extends ChatScreen {
   private net.minecraft.client.player.ClientInput originalInput;
-  private double lastMouseX = 0;
-  private double lastMouseY = 0;
   private boolean cursorLocked = false;
   private boolean wasCloseKeyPressed = false;
   private int timeOpened = 0;
@@ -31,8 +29,6 @@ public class MoveableChatScreen extends ChatScreen {
   protected void init() {
     PinChatMod.LOGGER.info("MoveableChatScreen: init() called");
     super.init();
-    lastMouseX = 0;
-    lastMouseY = 0;
     if (this.minecraft != null && this.minecraft.player != null) {
       PinChatMod.LOGGER.info("MoveableChatScreen: Setting up custom input");
       if (this.originalInput == null) {
@@ -96,23 +92,17 @@ public class MoveableChatScreen extends ChatScreen {
   }
 
   @Override
-  public void mouseMoved(double mouseX, double mouseY) {
-    if (this.minecraft != null && this.minecraft.player != null && cursorLocked) {
-      double scaleFactor = this.minecraft.getWindow().getGuiScale();
-      double deltaX = (mouseX - lastMouseX) * scaleFactor * 0.5;
-      double deltaY = (mouseY - lastMouseY) * scaleFactor * 0.5;
+  public void mouseMoved(double x, double y) {
+    // Camera deltas come from the native mouse callback before GUI coordinate conversion.
+  }
 
-      if (lastMouseX != 0 || lastMouseY != 0) {
-        double sensitivity = this.minecraft.options.sensitivity().get();
-        double d = sensitivity * 0.6 + 0.2;
-        double e = d * d * d * 8.0;
-
-        this.minecraft.player.turn(deltaX * e, deltaY * e);
-      }
-
-      lastMouseX = mouseX;
-      lastMouseY = mouseY;
-    }
+  public void relativeMouseMoved(double dx, double dy) {
+    if (this.minecraft == null || this.minecraft.player == null || !cursorLocked
+        || !this.minecraft.isWindowActive()) return;
+    double sensitivity = this.minecraft.options.sensitivity().get() * 0.6 + 0.2;
+    double scale = sensitivity * sensitivity * sensitivity * 8.0;
+    this.minecraft.player.turn(dx * scale * (this.minecraft.options.invertMouseX().get() ? -1 : 1),
+        dy * scale * (this.minecraft.options.invertMouseY().get() ? -1 : 1));
   }
 
   @Override

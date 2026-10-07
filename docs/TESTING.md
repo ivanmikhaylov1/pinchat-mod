@@ -123,3 +123,5 @@ Complete one full pass per unique JAR: Fabric/Quilt 1.21.11, Forge 1.21.11, NeoF
 Record the game, loader, JAR, and each step’s result in the release description. Do not mark untested platforms as having passed gameplay checks.
 
 For software rendering on Linux/Xvfb, Minecraft 26.3 needs `SDL_VIDEO_FORCE_EGL=1` to obtain an EGL OpenGL context. CI sets this variable alongside Mesa llvmpipe; ordinary player installations do not need it.
+
+The isolated test profile disables raw mouse input so XTest motion reaches GLFW. Camera checks still run through native callbacks and server rotation. Forge uses its Java installer; identical library entries are removed from launcher metadata before parallel downloads, preserving checksums and distinct platform rules.
