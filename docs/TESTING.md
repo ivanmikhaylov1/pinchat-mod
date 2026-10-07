@@ -86,7 +86,7 @@ LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe \
   .venv/bin/python scripts/gameplay_client.py --loader neoforge --minecraft-version 26.1.2
 ```
 
-Change the loader and game version for other combinations. Use `--jar /absolute/path/mod.jar` to test a particular published file. Ubuntu needs `xvfb xauth xdotool libgl1-mesa-dri libglx-mesa0 libasound2t64`.
+Change the loader and game version for other combinations. Use `--jar /absolute/path/mod.jar` to test a particular packaged file built from this revision. Ubuntu needs `xvfb xauth xdotool libgl1-mesa-dri libglx-mesa0 libasound2t64`.
 
 The scenario checks world loading, mod initialization, pinning/unpinning, independent groups, physical dragging, collapsing, renaming, resizing, limits, movement in special chat, and disabling the mode. The client **actually restarts**; the test then clicks a restored line and checks the other groups. Movement is confirmed through server RCON coordinates, not by the presence of an input handler.
 

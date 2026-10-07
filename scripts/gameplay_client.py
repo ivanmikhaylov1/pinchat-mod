@@ -414,6 +414,11 @@ class Gameplay:
         self.wait(lambda: self.position() is None, "first client disconnected")
         options = self.game / "options.txt"
         settings = options.read_text()
+        bindings = dict(line.split(":", 1) for line in settings.splitlines()
+                        if line.startswith("key_") and ":" in line)
+        for action, key in bindings.items():
+            if not action.startswith("key_pinchat.") and key in ("key.keyboard.f8", "key.keyboard.f9"):
+                raise AssertionError(f"Default PinChat key conflicts with {action}: {key}")
         # Rebinding must remain functional and persist; mouse bindings use a different device.
         settings = settings.replace("key_pinchat.hotkey.openConfig:key.keyboard.f8",
                                     "key_pinchat.hotkey.openConfig:key.keyboard.f7")
@@ -441,14 +446,14 @@ class Gameplay:
         self.xd("mousedown", "8")
         time.sleep(0.3)
         self.xd("mouseup", "8")
-        # With special chat disabled, T opens normal chat. W must then type, not move the player.
+        # With special chat disabled, T opens normal chat. The mouse-bound forward key must not move.
         self.key("t")
         before = self.position()
-        self.xd("keydown", "w")
+        self.xd("mousedown", "1")
         try:
             time.sleep(1)
         finally:
-            self.xd("keyup", "w")
+            self.xd("mouseup", "1")
         after = self.position()
         if math.hypot(after[0] - before[0], after[2] - before[2]) > 0.1:
             raise AssertionError("Disabled special chat still allows movement")

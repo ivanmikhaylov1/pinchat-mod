@@ -9,7 +9,7 @@
 1. Update `mod_version` in root `gradle.properties`, `fabric-mc26/gradle.properties`, and `neoforge-mc26/gradle.properties`.
 2. For a new game or loader, update `config/targets.json` and its build. The matrix drives tests, JAR names, compatibility tables, and the manifest.
 3. Run unit tests, `./gradlew buildAll`, and `python3 scripts/verify_loader_jars.py`.
-4. Run `python3 scripts/release.py --tag v<mod_version>` and review both languages in `dist/RELEASE_NOTES.md`. The script rejects mismatched tags, inconsistent nested-project versions, incorrect JAR versions, and bundled test code.
+4. Run `python3 scripts/release.py --tag v<mod_version>` and review both languages in `dist/RELEASE_NOTES.md`. The script rejects mismatched tags, inconsistent nested-project versions, incorrect JAR versions, bundled test code, and missing English/Russian translations.
 5. Check gameplay and visual quality. Write user-facing changes in both `CHANGELOG.md` and `CHANGELOG.ru.md`; archive release descriptions in `docs/releases`. Do not substitute a technical commit list for user-facing notes.
 6. After review, changes can go to the default branch with a `v<mod_version>` or `<mod_version>` tag. The preparation script itself neither pushes tags nor publishes a GitHub Release.
 
