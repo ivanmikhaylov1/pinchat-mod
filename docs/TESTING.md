@@ -38,7 +38,7 @@ LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe \
   ./gradlew -PtestPlatform=fabric :fabric:runClientGameTest --no-daemon
 ```
 
-Ubuntu packages: `xvfb xauth libgl1-mesa-dri libglx-mesa0 libasound2t64`. This is a development client with a test mod; native gameplay checks separately validate the packaged release JAR.
+Ubuntu packages: `xvfb xauth libgl1-mesa-dri libglx-mesa0 libegl1 libegl-mesa0 libasound2t64`. This is a development client with a test mod; native gameplay checks separately validate the packaged release JAR.
 
 Scenario: `fabric/src/gametest/java/dev/sfafy/pinchat/gametest/PinChatClientGameTest.java`.
 
@@ -60,7 +60,7 @@ Your `.minecraft` directory is not used, and the test mod is excluded from relea
 
 ## Packaged JARs: every version and loader
 
-`config/targets.json` is the shared matrix of **16 combinations**:
+`config/targets.json` is the shared matrix of **19 combinations**:
 
 | Minecraft | Fabric | Quilt | Forge | NeoForge |
 |---|---|---|---|---|
@@ -69,8 +69,9 @@ Your `.minecraft` directory is not used, and the test mod is excluded from relea
 | 26.1.1 | ✓ | ✓ | — | ✓ |
 | 26.1.2 | ✓ | ✓ | — | ✓ |
 | 26.2 | ✓ | ✓ | — | ✓ |
+| 26.3 | ✓ | ✓ | — | ✓ |
 
-`scripts/gameplay_client.py` installs the matrix’s pinned loader version, launches a real client with the **packaged JAR**, connects it to an isolated vanilla server on `127.0.0.1`, and sends physical events through `xdotool`. This exercises GLFW in every current build, checking Shift, dragging, and resizing without replacing game code.
+`scripts/gameplay_client.py` installs the matrix’s pinned loader version, launches a real client with the **packaged JAR**, connects it to an isolated vanilla server on `127.0.0.1`, and sends physical events through `xdotool`. This exercises GLFW through 26.2 and SDL3 on 26.3, checking Shift, dragging, and resizing without replacing game code.
 
 The server runs without authentication, is reachable only locally, and does not use your worlds. The script creates a test instance and server with the Minecraft EULA accepted; use it if you accept the [Minecraft terms](https://www.minecraft.net/eula).
 
@@ -86,9 +87,9 @@ LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe \
   .venv/bin/python scripts/gameplay_client.py --loader neoforge --minecraft-version 26.1.2
 ```
 
-Change the loader and game version for other combinations. Use `--jar /absolute/path/mod.jar` to test a particular packaged file built from this revision. Ubuntu needs `xvfb xauth xdotool libgl1-mesa-dri libglx-mesa0 libasound2t64`.
+Change the loader and game version for other combinations. Use `--jar /absolute/path/mod.jar` to test a particular packaged file built from this revision. Ubuntu needs `xvfb xauth xdotool libgl1-mesa-dri libglx-mesa0 libegl1 libegl-mesa0 libasound2t64`.
 
-The scenario checks world loading, mod initialization, pinning/unpinning, independent groups, physical dragging, collapsing, renaming, resizing, limits, movement in special chat, and disabling the mode. The client **actually restarts**; the test then clicks a restored line and checks the other groups. Movement is confirmed through server RCON coordinates, not by the presence of an input handler.
+The scenario checks world loading, mod initialization, pinning/unpinning, independent groups, physical dragging, collapsing, renaming, resizing, limits, movement and camera turning in special chat, and disabling the mode. The client **actually restarts**; the test then clicks a restored line and checks the other groups. Movement and camera turning are confirmed through server RCON position and rotation. After world entry, the driver waits for a native camera response before sending chat keys; joining logs alone do not prove the loading screen has closed.
 
 The first launch uses the real defaults, `F8` for settings and `F9` for special chat, with no seeded PinChat binding override. After the real restart, the client uses Russian and the scenario verifies custom settings on `F7`, special chat on mouse button 4, and forward movement on the left mouse button. It checks opening, movement, and closing through these saved bindings, and captures the Russian settings screen. These intentionally changed test bindings do not alter the defaults. Client GameTest also checks default-key conflicts, an unbound key, a released mouse binding, and restoration of the original player input after screen resizing.
 
@@ -98,13 +99,13 @@ Checks establish functional behavior. Screenshots serve as diagnostics; automati
 
 ## CI and publication
 
-`client-tests.yml` runs quick JUnit tests and Fabric Client GameTest. In parallel, `build.yml` builds all JARs and runs **16 independent gameplay jobs**. A failure on one platform does not cancel diagnostics for the others. Logs, screenshots, and JSON are attached to every run.
+`client-tests.yml` runs quick JUnit tests and Fabric Client GameTest. In parallel, `build.yml` builds all JARs and runs **19 independent gameplay jobs**. A failure on one platform does not cancel diagnostics for the others. Logs, screenshots, and JSON are attached to every run.
 
 A release tagged `3.1.0` or `v3.1.0` publishes only after the entire matrix passes. The tag must match `mod_version`. Before publication, the workflow checks complete combination coverage and verifies that each report’s SHA-256 belongs to the file being published. See [RELEASING.md](RELEASING.md).
 
 ## Before a release
 
-Complete one full pass per unique JAR: Fabric/Quilt 1.21.11, Forge 1.21.11, NeoForge 1.21.11, Fabric/Quilt 26.1, NeoForge 26.1, Fabric/Quilt 26.2, and NeoForge 26.2. Also check Quilt 1.21.11 loader startup. Hotfixes in 26.1.x use one JAR but undergo separate gameplay checks.
+Complete one full pass per unique JAR: Fabric/Quilt 1.21.11, Forge 1.21.11, NeoForge 1.21.11, Fabric/Quilt 26.1, NeoForge 26.1, Fabric/Quilt 26.2, NeoForge 26.2, Fabric/Quilt 26.3, and NeoForge 26.3. Also check Quilt 1.21.11 loader startup. Hotfixes in 26.1.x use one JAR but undergo separate gameplay checks.
 
 | Step | Expected result |
 |---|---|
@@ -120,3 +121,7 @@ Complete one full pass per unique JAR: Fabric/Quilt 1.21.11, Forge 1.21.11, NeoF
 | Check `logs/latest.log` | No PinChat, mixin, or loader errors |
 
 Record the game, loader, JAR, and each step’s result in the release description. Do not mark untested platforms as having passed gameplay checks.
+
+For software rendering on Linux/Xvfb, Minecraft 26.3 needs `SDL_VIDEO_FORCE_EGL=1` to obtain an EGL OpenGL context. CI sets this variable alongside Mesa llvmpipe; ordinary player installations do not need it.
+
+The isolated test profile disables raw mouse input so XTest motion reaches GLFW. Camera checks still run through native callbacks and server rotation. Forge uses its Java installer; identical library entries are removed from launcher metadata before parallel downloads, preserving checksums and distinct platform rules.

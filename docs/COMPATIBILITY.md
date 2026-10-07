@@ -11,7 +11,7 @@
 | 1.21.11 | 21 | Dedicated build | Compatible Fabric JAR | Forge 61.x | Dedicated build |
 | 26.1 / 26.1.1 / 26.1.2 | 25 | Shared mc26.1 JAR | Same Fabric JAR | No port | Shared mc26.1 JAR |
 | 26.2 | 25 | Dedicated mc26.2 JAR | Same Fabric JAR | No port | Dedicated mc26.2 JAR |
-| 26.3 | — | No port | No port | No port | No port |
+| 26.3 | 25 | Dedicated mc26.3 JAR | Same Fabric JAR | No port | Dedicated mc26.3 JAR |
 
 Fabric API is required on Fabric and Quilt and must match the exact game version. Quilt 26.x uses upstream Fabric API: [QFAPI development ended for 26.1](https://quiltmc.org/en/blog/2026-02-03-non-obfuscated-updates/).
 
@@ -21,7 +21,7 @@ Before gameplay coverage was expanded, CI built JARs and checked metadata. Histo
 
 Quilt 1.21.11 previously had automatic packaging/metadata checks and a manual startup confirmed by the project owner. The owner also reported a manual gameplay pass for release 3.1.0. These are historical results, not validation of new changes.
 
-Client GameTest checks the Fabric 1.21.11 development client. The additional CI matrix from `config/targets.json` runs native gameplay checks on packaged JARs across all 16 supported combinations, including Quilt, Forge, NeoForge, and 26.1.x hotfixes. See [TESTING.md](TESTING.md) for scenarios and coverage limits.
+Client GameTest checks the Fabric 1.21.11 development client. The additional CI matrix from `config/targets.json` runs native gameplay checks on packaged JARs across all 19 supported combinations, including Quilt, Forge, NeoForge, and 26.1.x hotfixes. See [TESTING.md](TESTING.md) for scenarios and coverage limits.
 
 ## Hotfixes in 26.1.x
 
@@ -31,10 +31,11 @@ An earlier local NeoForge 26.1.2 launch on macOS failed to obtain a GLFW monitor
 
 26.2 has separate builds because screen/HUD APIs and resource formats changed. Official notes: [26.1.1](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-1), [26.1.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1-2), [26.2](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-2).
 
+26.3 has dedicated builds for [SDL3 input](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-3). The version-specific adapter polls keyboard scancodes and mouse masks, handles SDL button numbering, and uses Minecraft’s cursor capture API. Camera movement uses SDL relative deltas and respects both axis-inversion settings. Resource pack format is 97.1. It requires Java 25; NeoForge 26.3 is currently a beta loader.
+
 ## Unsupported targets
 
 - Forge 26.x: a Java 25 port is not implemented; the 1.21.11 JAR is incompatible.
-- Minecraft 26.3: [SDL3 replaces GLFW](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-3). PinChat reads GLFW directly, so input adaptation and new gameplay checks are needed.
 - Babric / Beta 1.7.3: requires a separate Java 8 build and new chat, HUD, and input integration.
 
 No port release dates are set. Claim new compatibility only after a build, startup check, and corresponding gameplay pass.

@@ -83,7 +83,7 @@ jobs:
         run: |
           pip install -r scripts/requirements-gameplay.txt
           sudo apt-get update
-          sudo apt-get install -y xvfb xauth xdotool libgl1-mesa-dri libglx-mesa0 libasound2t64
+          sudo apt-get install -y xvfb xauth xdotool libgl1-mesa-dri libglx-mesa0 libegl1 libegl-mesa0 libasound2t64
       - uses: actions/download-artifact@v4
         with:
           name: pinchat-release-${{ github.sha }}
@@ -99,6 +99,7 @@ jobs:
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           GALLIUM_DRIVER: llvmpipe
+          SDL_VIDEO_FORCE_EGL: '1'
         run: timeout 25m xvfb-run -a -s '-screen 0 1280x1024x24' python3 scripts/gameplay_client.py --loader '${{ matrix.loader }}' --minecraft-version '${{ matrix.minecraft }}'
       - name: Upload gameplay results and screenshots
         if: always()
@@ -151,7 +152,7 @@ jobs:
       - name: Publish verified release
         uses: softprops/action-gh-release@v2
         with:
-          name: PinChat ${{ github.ref_name }} — Minecraft 1.21.11 / 26.1–26.1.2 / 26.2
+          name: PinChat ${{ github.ref_name }} — Minecraft 1.21.11 / 26.1–26.1.2 / 26.2 / 26.3
           body_path: dist/RELEASE_NOTES.md
           files: |
             dist/*.jar

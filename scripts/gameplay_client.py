@@ -80,7 +80,8 @@ def download(url, destination, sha1=None):
     if destination.exists() and (not sha1 or hashlib.sha1(destination.read_bytes()).hexdigest() == sha1):
         return
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(url, timeout=120) as response:
+    request = urllib.request.Request(url, headers={"User-Agent": "PinChat Gameplay Tests/1"})
+    with urllib.request.urlopen(request, timeout=120) as response:
         data = response.read()
     if sha1 and hashlib.sha1(data).hexdigest() != sha1:
         raise ValueError(f"SHA-1 mismatch for {destination.name}")
@@ -98,12 +99,30 @@ def server_jar(version, cache):
     return path
 
 
+def deduplicate_profile_libraries(path):
+    """Avoid concurrent writes when installer metadata repeats an identical artifact."""
+    data = json.loads(path.read_text())
+    libraries = data.get("libraries", [])
+    seen, unique = set(), []
+    for library in libraries:
+        identity = json.dumps(library, sort_keys=True)
+        if identity not in seen:
+            seen.add(identity)
+            unique.append(library)
+    if len(unique) != len(libraries):
+        data["libraries"] = unique
+        path.write_text(json.dumps(data, indent=2) + "\n")
+    return len(libraries) - len(unique)
+
+
 def install_client(row, game, java):
     import minecraft_launcher_lib as launcher
     version, loader = row["minecraft"], row["loader"]
     manager = launcher.mod_loader.get_mod_loader(loader)
     expected = manager.get_installed_version(version, row["loader_version"])
-    if (game / "versions" / expected / f"{expected}.json").exists():
+    metadata = game / "versions" / expected / f"{expected}.json"
+    if metadata.exists():
+        deduplicate_profile_libraries(metadata)
         launcher.install.install_minecraft_version(expected, game)
         return expected
     installer_java = java
@@ -117,27 +136,34 @@ def install_client(row, game, java):
                            f"os.execv({java!r}, [{java!r}] + {arguments!r} + sys.argv[1:])\n")
         wrapper.chmod(0o755)
         installer_java = str(wrapper)
-    if loader != "neoforge":
+    if loader not in ("neoforge", "forge"):
         return manager.install(
             version, game, loader_version=row["loader_version"], java=installer_java)
-    # launcher-lib 8 assumes every NeoForge version starts with Minecraft '1.'.
-    # Install the explicitly pinned 26.x installer without that legacy version parser.
+    # Use the Java installers: launcher-lib's NeoForge parser assumes Minecraft '1.',
+    # and its Forge installer downloads duplicate libraries concurrently.
     launcher.install.install_minecraft_version(version, game)
     launcher.vanilla_launcher.create_empty_vanilla_launcher_profiles_file(game)
-    neo = row["loader_version"]
-    installer = game / f"neoforge-{neo}-installer.jar"
-    download(f"https://maven.neoforged.net/releases/net/neoforged/neoforge/{neo}/neoforge-{neo}-installer.jar", installer)
+    pinned = row["loader_version"]
+    if loader == "forge":
+        coordinate = f"{version}-{pinned}"
+        installer_url = f"https://maven.minecraftforge.net/net/minecraftforge/forge/{coordinate}/forge-{coordinate}-installer.jar"
+        install_flag = "--installClient"
+    else:
+        installer_url = f"https://maven.neoforged.net/releases/net/neoforged/neoforge/{pinned}/neoforge-{pinned}-installer.jar"
+        install_flag = "--install-client"
+    installer = game / f"{loader}-{pinned}-installer.jar"
+    download(installer_url, installer)
     command = [java]
     proxy = urllib.parse.urlparse(os.environ.get("HTTPS_PROXY", ""))
     if proxy.hostname:
         command += [f"-Dhttps.proxyHost={proxy.hostname}", f"-Dhttps.proxyPort={proxy.port or 80}",
                     f"-Dhttp.proxyHost={proxy.hostname}", f"-Dhttp.proxyPort={proxy.port or 80}"]
     with (game / "installer.log").open("w") as log:
-        subprocess.run([*command, "-jar", str(installer), "--install-client", str(game)],
+        subprocess.run([*command, "-jar", str(installer), install_flag, str(game)],
                        cwd=game, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=600)
-    profile = f"neoforge-{neo}"
-    launcher.install.install_minecraft_version(profile, game)
-    return profile
+    deduplicate_profile_libraries(metadata)
+    launcher.install.install_minecraft_version(expected, game)
+    return expected
 
 
 def stop(process):
@@ -212,7 +238,7 @@ class Gameplay:
     def key(self, key):
         self.xd("keydown", key)
         try:
-            time.sleep(0.25)  # GLFW polling needs a held key across at least one client tick.
+            time.sleep(0.25)  # Physical input polling needs a held key across at least one client tick.
         finally:
             self.xd("keyup", key)
         time.sleep(0.2)
@@ -238,6 +264,11 @@ class Gameplay:
         found = re.search(r"\[(-?[\d.eE+]+)d,\s*(-?[\d.eE+]+)d,\s*(-?[\d.eE+]+)d\]", answer)
         return tuple(map(float, found.groups())) if found else None
 
+    def rotation(self):
+        answer = self.rcon.command(f"data get entity {self.USER} Rotation")
+        found = re.search(r"\[(-?[\d.eE+]+)f,\s*(-?[\d.eE+]+)f\]", answer)
+        return tuple(map(float, found.groups())) if found else None
+
     def connect(self):
         self.phase += 1
         log = (self.game / f"client-{self.phase}.log").open("w")
@@ -256,7 +287,15 @@ class Gameplay:
             raise AssertionError(f"Unexpected window dimensions: {geometry}")
         self.wait(lambda: re.search(r"Loaded \d+ advancements", (self.game / f"client-{self.phase}.log").read_text()),
                   "client finished joining", timeout=60)
-        time.sleep(5)  # LoadingScreen must finish before T can be consumed.
+        # Server join and advancement logs precede the end of the loading screen.
+        # Require a real native camera response before sending chat keys.
+        facing = self.rotation()
+        def world_input_ready():
+            self.click(256, 192)
+            self.xd("mousemove_relative", "--", "40", "0")
+            current = self.rotation()
+            return current is not None and current != facing
+        self.wait(world_input_ready, "world accepts native input", timeout=60)
 
     def prepare(self):
         import minecraft_launcher_lib as launcher
@@ -280,7 +319,7 @@ class Gameplay:
             data_version = json.loads(client_jar.read("version.json"))["world_version"]
         (self.game / "options.txt").write_text(
             f"version:{data_version}\nguiScale:2\nlang:en_us\nonboardAccessibility:false\njoinedFirstServer:true\nfullscreen:false\n"
-            "pauseOnLostFocus:false\nrenderDistance:3\nsimulationDistance:5\n"
+            "pauseOnLostFocus:false\nrawMouseInput:false\nrenderDistance:3\nsimulationDistance:5\n"
             "chatScale:1.0\nchatLineSpacing:0.0\nmaxFps:60\ntutorialStep:none\nsoundCategory_master:0.0\n")
         mods = self.game / "mods"
         mods.mkdir(exist_ok=True)
@@ -299,7 +338,7 @@ class Gameplay:
             f"server-ip=127.0.0.1\nserver-port={port}\nonline-mode=false\n"
             f"enable-rcon=true\nrcon.port={rcon_port}\nrcon.password={password}\n"
             "level-type=minecraft:flat\ngenerate-structures=false\ngamemode=creative\n"
-            "difficulty=peaceful\nspawn-protection=0\nview-distance=3\nsimulation-distance=3\nmax-players=1\n")
+            "difficulty=peaceful\nspawn-protection=0\nview-distance=3\nsimulation-distance=3\nmax-players=1\nwhite-list=false\n")
         jar = server_jar(self.row["minecraft"], ROOT / "build/game-cache")
         log = (self.game / "server.log").open("w")
         self.server = subprocess.Popen([self.java, "-Xmx1G", "-jar", str(jar), "nogui"],
@@ -381,6 +420,13 @@ class Gameplay:
         self.key("F9")
         self.wait(lambda: "MoveableChatScreen: init() completed" in
                   (self.game / f"client-{self.phase}.log").read_text(), "special chat actually opened")
+        facing = self.rotation()
+        # Relative motion must turn the camera while the special chat holds the cursor.
+        self.xd("mousemove_relative", "--", "40", "10")
+        time.sleep(0.3)  # The first cursor event establishes the screen’s mouse baseline.
+        self.xd("mousemove_relative", "--", "80", "20")
+        self.wait(lambda: self.rotation() is not None and self.rotation() != facing,
+                  "camera turns with special chat open")
         before = self.position()
         self.xd("keydown", "w")
         try:
@@ -394,7 +440,7 @@ class Gameplay:
         self.key("Escape")
         self.wait(lambda: "MoveableChatScreen: Restoring original input" in
                   (self.game / f"client-{self.phase}.log").read_text(), "original input restored")
-        self.passed("movement with special chat open (server coordinates)")
+        self.passed("movement and camera turning with special chat open (server position/rotation)")
         # Reopen F9 and close with F9 as well, then check the switch and its persistence.
         self.key("F9")
         time.sleep(0.6)
@@ -475,12 +521,12 @@ class Gameplay:
         before = self.position()
         self.xd("mousedown", "1")
         try:
-            time.sleep(1.5)
+            def mouse_movement_arrived():
+                current = self.position()
+                return current is not None and math.hypot(current[0] - before[0], current[2] - before[2]) >= 0.5
+            self.wait(mouse_movement_arrived, "mouse-bound forward key moves the player", timeout=10)
         finally:
             self.xd("mouseup", "1")
-        after = self.position()
-        if math.hypot(after[0] - before[0], after[2] - before[2]) < 0.5:
-            raise AssertionError("Mouse-bound forward key did not move the player")
         restored = (self.game / f"client-{self.phase}.log").read_text().count(
             "MoveableChatScreen: Restoring original input")
         self.xd("mousedown", "8")

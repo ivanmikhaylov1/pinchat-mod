@@ -13,34 +13,15 @@ repositories {
 }
 
 def sharedRoot = projectDir.parentFile
-def adaptGuiSource = { String line ->
-    line.replace('net.minecraft.client.gui.GuiGraphics', 'net.minecraft.client.gui.GuiGraphicsExtractor')
-        .replace('GuiGraphics context', 'GuiGraphicsExtractor context')
-        .replace('context.drawCenteredString(', 'context.centeredText(')
-        .replace('context.drawString(', 'context.text(')
-        .replace('public void render(GuiGraphicsExtractor context', 'public void extractRenderState(GuiGraphicsExtractor context')
-        .replace('super.render(context,', 'super.extractRenderState(context,')
-}
-
-def adaptVersionSource = { String line ->
-    String result = adaptGuiSource(line.replace('GuiGraphicsExtractor', 'GuiGraphics'))
-    if (minecraft_version == '26.2') {
-        result = result.replace('client.screen', 'client.gui.screen()')
-            .replace('Minecraft.getInstance().screen', 'Minecraft.getInstance().gui.screen()')
-            .replace('this.minecraft.setScreen(', 'this.minecraft.gui.setScreen(')
-            .replace('client.setScreen(', 'client.gui.setScreen(')
-            .replace('Minecraft.getInstance().setScreen(', 'Minecraft.getInstance().gui.setScreen(')
-            .replace('client.gui.getChat()', 'client.gui.hud.getChat()')
-            .replace('client.options.hideGui', 'client.gui.hud.isHidden()')
-    }
-    result
-}
+apply from: new File(sharedRoot, 'gradle/minecraft26-source.gradle')
 
 tasks.register('syncModSources', Sync) {
     inputs.property 'minecraft_version', minecraft_version
+    inputs.file new File(sharedRoot, 'gradle/minecraft26-source.gradle')
     into layout.buildDirectory.dir('generated/pinchat/java')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from('src/main/java') { filter { String line -> minecraft_version == '26.2' ? adaptVersionSource(line) : line } }
+    if (minecraft_version == '26.3') { from new File(sharedRoot, 'common/src/mc26.3/java') }
+    from('src/main/java') { filter { String line -> minecraft_version in ['26.2', '26.3'] ? adaptVersionSource(line) : line } }
     from(new File(sharedRoot, 'neoforge/src/main/java')) {
         filter { String line -> adaptVersionSource(line) }
     }
@@ -70,8 +51,10 @@ processResources {
     inputs.property 'minecraft_version', minecraft_version
     inputs.property 'minecraft_dependency', minecraft_version == '26.1' ? '[26.1,26.2)' : "[${minecraft_version}]"
     inputs.property 'pack_format', pack_format
+    inputs.property 'pack_format_minor', project.findProperty('pack_format_minor') ?: '0'
     filesMatching('META-INF/neoforge.mods.toml') {
         expand mod_version: mod_version, minecraft_dependency: minecraft_version == '26.1' ? '[26.1,26.2)' : "[${minecraft_version}]"
     }
-    filesMatching('pack.mcmeta') { expand pack_format: pack_format }
+    inputs.file project.buildFile
+    filesMatching('pack.mcmeta') { expand pack_format: pack_format, pack_format_minor: project.findProperty('pack_format_minor') ?: '0' }
 }

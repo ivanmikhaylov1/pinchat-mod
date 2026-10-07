@@ -35,6 +35,6 @@ Screenshots are diagnostic; automatic reference-image comparison is not implemen
 
 ## Limitations
 
-Forge 26.x and Minecraft 26.3 are not supported.
+Forge 26.x is not supported. Minecraft 26.3 requires its dedicated JAR and Java 25; its NeoForge loader is currently beta.
 
 [User guide](https://github.com/ivanmikhaylov1/pinchat-mod#readme) · [Report a bug](https://github.com/ivanmikhaylov1/pinchat-mod/issues/new/choose)

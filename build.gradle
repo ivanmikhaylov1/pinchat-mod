@@ -40,6 +40,21 @@ tasks.register('buildFabricMc26_2', Exec) {
         '-Pminecraft_version=26.2', '-Pfabric_api_version=0.161.0+26.2', '-Ppack_format=88', '--no-daemon'
 }
 
+tasks.register('buildNeoForgeMc26_3', Exec) {
+    dependsOn tasks.named('buildNeoForgeMc26_2')
+    workingDir rootProject.file('neoforge-mc26')
+    commandLine rootProject.file('neoforge-mc26/gradlew').absolutePath, 'assemble',
+        '-Pminecraft_version=26.3', '-Pneo_version=26.3.0.54-beta', '-Ppack_format=97', '-Ppack_format_minor=1', '--no-daemon'
+}
+
+tasks.register('buildFabricMc26_3', Exec) {
+    dependsOn tasks.named('buildFabricMc26_2')
+    workingDir rootProject.file('fabric-mc26')
+    commandLine rootProject.file('neoforge-mc26/gradlew').absolutePath, '-p',
+        rootProject.file('fabric-mc26').absolutePath, 'build',
+        '-Pminecraft_version=26.3', '-Pfabric_api_version=0.162.0+26.3', '-Ppack_format=97', '-Ppack_format_minor=1', '--no-daemon'
+}
+
 tasks.register('buildAll') {
-    dependsOn tasks.named('buildNeoForgeMc26_2'), tasks.named('buildFabricMc26_2')
+    dependsOn tasks.named('buildNeoForgeMc26_3'), tasks.named('buildFabricMc26_3')
 }

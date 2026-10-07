@@ -17,7 +17,7 @@
 
 - `pinchat-mod-<loader>-<version>-mc<minecraft>.jar`: explicit mod, loader, and game version.
 - Separate filenames for 26.1.1 and 26.1.2, even though their bytes match 26.1.
-- `SHA256SUMS`: SHA-256 hashes for all 16 current matrix files.
+- `SHA256SUMS`: SHA-256 hashes for all 19 current matrix files.
 - `manifest.json`: mod, Java, loader, and Fabric API versions; base binary version; filename and SHA-256.
 - `GAMEPLAY_RESULTS.json`: results for every combination, including the tested JAR’s SHA-256.
 - English-first release notes with a complete Russian section: file selection, dependencies, installation, controls, validation, and limitations.

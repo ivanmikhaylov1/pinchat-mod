@@ -7,6 +7,7 @@
     "ChatHudAccessor",
     "ChatScreenAccessor",
     "ChatScreenMixin",
+    "MoveableChatMouseMixin",
     "PinChatKeyBindingAccessor"
   ],
   "injectors": {
