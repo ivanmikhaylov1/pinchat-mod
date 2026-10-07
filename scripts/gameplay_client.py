@@ -425,6 +425,7 @@ class Gameplay:
         settings = settings.replace("key_pinchat.hotkey.openMoveableChat:key.keyboard.f9",
                                     "key_pinchat.hotkey.openMoveableChat:key.mouse.4")
         settings = settings.replace("key_key.forward:key.keyboard.w", "key_key.forward:key.mouse.left")
+        settings = settings.replace("lang:en_us", "lang:ru_ru")
         for expected in ("key_pinchat.hotkey.openConfig:key.keyboard.f7",
                          "key_pinchat.hotkey.openMoveableChat:key.mouse.4",
                          "key_key.forward:key.mouse.left"):
@@ -460,6 +461,7 @@ class Gameplay:
         self.key("Escape")
         self.passed("disabled setting survives restart and normal chat blocks movement")
         self.key("F7")
+        self.screenshot("settings-ru")
         self.click(256, 192)
         self.wait(lambda: self.config()["moveableChatEnabled"], "custom settings binding enables mode")
         self.click(256, 222)
