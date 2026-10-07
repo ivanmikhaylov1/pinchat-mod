@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- Fixed invisible settings and rename-screen titles by using opaque text colors and drawing titles after the base screen.
 - Fixed missing bundled translations and icons in Fabric/Quilt 26.x; release preparation now rejects JARs without English/Russian locales.
 - Conflict-free defaults on every supported loader: F8 for settings and F9 for special chat; existing custom bindings are retained.
 - Removed unused Forge/NeoForge key actions and added the localized PinChat controls category.

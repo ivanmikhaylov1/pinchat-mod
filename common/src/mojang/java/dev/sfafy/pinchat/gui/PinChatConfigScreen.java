@@ -39,7 +39,7 @@ public class PinChatConfigScreen extends Screen {
   @Override
   public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
     context.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
-    context.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
     super.render(context, mouseX, mouseY, delta);
+    context.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
   }
 }
